@@ -1,0 +1,7 @@
+data/org.gnome.gitlab.ranchester.Mirdorph.desktop.in
+data/org.gnome.gitlab.ranchester.Mirdorph.appdata.xml.in
+data/org.gnome.gitlab.ranchester.Mirdorph.gschema.xml
+src/window.ui
+src/main.py
+src/window.py
+

@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=mirdorph
+Exec=mirdorph
+Icon=org.gnome.gitlab.ranchester.Mirdorph
+Terminal=false
+Type=Application
+Categories=GTK;
+StartupNotify=true
