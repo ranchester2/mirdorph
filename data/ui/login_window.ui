@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <requires lib="gtk+" version="3.24"/>
+    <template class="MirdorphLoginWindow" parent="HdyApplicationWindow">
+    <property name="default-width">750</property>
+    <property name="default-height">616</property>
+    <child>
+      <object class="GtkBox">
+        <property name="visible">True</property>
+        <property name="orientation">vertical</property>
+        <child>
+          <object class="HdySqueezer">
+            <property name="visible">True</property>
+            <child>
+              <object class="HdyHeaderBar">
+                <property name="visible">True</property>
+                <property name="show-close-button">False</property>
+                <property name="width-request">370</property>
+                <property name="title">Connect your Account</property>
+                <child>
+                  <object class="GtkButton" id="login_cancel_button	">
+                    <property name="visible">True</property>
+                    <property name="label">Cancel</property>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="HdyHeaderBar">
+                <property name="visible">True</property>
+                <property name="show-close-button">False</property>
+                <property name="title">Connect your Account</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="GtkStack" id="login_page-stack">
+            <property name="visible">True</property>
+            <child>
+              <object class="GtkBox">
+                <property name="visible">True</property>
+                <property name="valign">GTK_ALIGN_CENTER</property>
+                <property name="orientation">vertical</property>
+                <property name="margin">10</property>
+                <child>
+                  <object class="GtkImage">
+                    <property name="visible">True</property>
+                    <property name="icon-name">org.gnome.gitlab.ranchester.Mirdorph.DiscussionsLogo</property>
+                    <property name="pixel-size">256</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="visible">True</property>
+                    <property name="label">Welcome to Mirdorph</property>
+                    <style>
+                      <class name="title-2"/>
+                    </style>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkBox">
+                    <property name="visible">True</property>
+                    <property name="margin-top">10</property>
+                    <property name="orientation">vertical</property>
+                    <child>
+                      <object class="GtkButton">
+                        <property name="visible">True</property>
+                        <property name="label">Log In</property>
+                        <property name="halign">GTK_ALIGN_CENTER</property>
+                        <property name="width-request">250</property>
+                        <style>
+                          <class name="suggested-action"/>
+                          <class name="circular"/>
+                          <class name="login-button"/>
+                        </style>
+                      </object>
+                  </child>
+                  <child>
+                      <object class="GtkExpander">
+                        <property name="visible">True</property>
+                        <property name="halign">GTK_ALIGN_CENTER</property>
+                        <property name="margin-top">10</property>
+                        <property name="margin-bottom">10</property>
+                        <property name="label">Advanced</property>
+                        <child>
+                          <object class="GtkButton">
+                            <property name="visible">True</property>
+                            <property name="label">Manual Token</property>
+                            <property name="halign">GTK_ALIGN_CENTER</property>
+                            <property name="width-request">250</property>
+                            <signal name="clicked" handler="on_token_button_clicked"/>
+                            <style>
+                              <class name="circular"/>
+                              <class name="login-button"/>
+                            </style>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="pack-type">end</property>
+            <property name="fill">True</property>
+            <property name="expand">True</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+    </template>
+  </interface>

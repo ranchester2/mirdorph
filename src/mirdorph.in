@@ -21,6 +21,12 @@ import os
 import sys
 import signal
 import gettext
+import asyncio
+import threading
+import time
+import keyring
+import discord
+from discord.ext import commands
 
 VERSION = '@VERSION@'
 pkgdatadir = '@pkgdatadir@'
@@ -32,10 +38,37 @@ gettext.install('mirdorph', localedir)
 
 if __name__ == '__main__':
     import gi
-
     from gi.repository import Gio
-    resource = Gio.Resource.load(os.path.join(pkgdatadir, 'mirdorph.gresource'))
-    resource._register()
 
-    from mirdorph import main
-    sys.exit(main.main(VERSION))
+    def init_gtk(discord_loop, client, keyring_exists):
+        time.sleep(1)
+        import gi
+        gi.require_version('Gtk', '3.0')
+        gi.require_version('Handy', '1')
+        from gi.repository import Gio, Gtk, Handy
+
+        resource = Gio.Resource.load(os.path.join(pkgdatadir, 'mirdorph.gresource'))
+        resource._register()
+
+        from mirdorph import main
+        sys.exit(main.main(VERSION, discord_loop=discord_loop, discord_client=client, keyring_exists=keyring_exists))
+
+    def init_discord(discord_client, discord_token):
+        if discord_token is None:
+            pass
+        else:
+            discord_client.run(discord_token, bot=False)
+
+    discord_token = keyring.get_password("mirdorph", "token")
+    if discord_token is None:
+        keyring_exists=False
+    else:
+        keyring_exists=True
+
+    client = commands.Bot(command_prefix="&&&", max_messages=100000000000000000, fetch_offline_members=False, guild_subscriptions=False)
+
+    discord_loop = asyncio.get_event_loop()
+    gtk_thread = threading.Thread(target=init_gtk, args=(discord_loop, client, keyring_exists))
+    gtk_thread.start()
+
+    init_discord(client, discord_token)

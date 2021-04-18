@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gresources>
+  <gresource prefix="/org/gnome/gitlab/ranchester/Mirdorph">
+    <file>icons/org.gnome.gitlab.ranchester.Mirdorph.DiscussionsLogo.svg</file>
+    <file>ui/login_window.ui</file>
+    <file>ui/gtk_style.css</file>
+  </gresource>
+</gresources>

@@ -15,14 +15,16 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from gi.repository import Gtk
+from gi.repository import Gtk, Handy
 
 
-@Gtk.Template(resource_path='/org/gnome/gitlab/ranchester/Mirdorph/window.ui')
-class MirdorphWindow(Gtk.ApplicationWindow):
-    __gtype_name__ = 'MirdorphWindow'
-
-    label = Gtk.Template.Child()
+@Gtk.Template(resource_path='/org/gnome/gitlab/ranchester/Mirdorph/ui/login_window.ui')
+class MirdorphLoginWindow(Handy.ApplicationWindow):
+    __gtype_name__ = 'MirdorphLoginWindow'
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+
+    @Gtk.Template.Callback()
+    def on_token_button_clicked(self, button):
+        print("CLICK")

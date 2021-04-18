@@ -1,14 +1,6 @@
 pkgdatadir = join_paths(get_option('prefix'), get_option('datadir'), meson.project_name())
 moduledir = join_paths(pkgdatadir, 'mirdorph')
 gnome = import('gnome')
-
-gnome.compile_resources('mirdorph',
-  'mirdorph.gresource.xml',
-  gresource_bundle: true,
-  install: true,
-  install_dir: pkgdatadir,
-)
-
 python = import('python')
 
 conf = configuration_data()
@@ -28,7 +20,7 @@ configure_file(
 mirdorph_sources = [
   '__init__.py',
   'main.py',
-  'window.py',
+  'login_window.py',
 ]
 
 install_data(mirdorph_sources, install_dir: moduledir)
