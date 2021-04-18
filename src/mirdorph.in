@@ -57,7 +57,7 @@ if __name__ == '__main__':
         if discord_token is None:
             pass
         else:
-            discord_client.run(discord_token, bot=False)
+            print("GOT TOKEN")
 
     discord_token = keyring.get_password("mirdorph", "token")
     if discord_token is None:

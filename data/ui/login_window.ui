@@ -11,6 +11,8 @@
         <child>
           <object class="HdySqueezer">
             <property name="visible">True</property>
+            <property name="interpolate-size">True</property>
+            <property name="transition-type">1</property>
             <child>
               <object class="HdyHeaderBar">
                 <property name="visible">True</property>
@@ -18,9 +20,10 @@
                 <property name="width-request">370</property>
                 <property name="title">Connect your Account</property>
                 <child>
-                  <object class="GtkButton" id="login_cancel_button	">
+                  <object class="GtkButton">
                     <property name="visible">True</property>
                     <property name="label">Cancel</property>
+                    <signal name="clicked" handler="on_main_cancel_button_clicked"/>
                   </object>
                 </child>
               </object>
@@ -35,10 +38,12 @@
           </object>
         </child>
         <child>
-          <object class="GtkStack" id="login_page-stack">
+          <object class="HdyDeck" id="login_page_deck">
             <property name="visible">True</property>
+            <property name="can-swipe-forward">False</property>
+            <property name="can-swipe-back">True</property>
             <child>
-              <object class="GtkBox">
+              <object class="GtkBox" id="login_welcome_page">
                 <property name="visible">True</property>
                 <property name="valign">GTK_ALIGN_CENTER</property>
                 <property name="orientation">vertical</property>
@@ -97,6 +102,54 @@
                             </style>
                           </object>
                         </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="HdyClamp" id="login_token_page">
+                <property name="visible">True</property>
+                <child>
+                  <object class="GtkBox">
+                    <property name="visible">True</property>
+                    <property name="orientation">vertical</property>
+                    <property name="valign">GTK_ALIGN_CENTER</property>
+                    <property name="margin">20</property>
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="visible">True</property>
+                        <property name="label">Insert Token</property>
+                        <style>
+                          <class name="title-2"/>
+                        </style>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkBox">
+                        <property name="visible">True</property>
+                        <property name="margin-top">20</property>
+                        <property name="halign">GTK_ALIGN_CENTER</property>
+                        <child>
+                          <object class="GtkEntry" id="login_token_entry">
+                            <property name="visible">True</property>
+                            <!-- width-request cause I cant get it to expand horizontally -->
+                            <property name="width-request">230</property>
+                            <signal name="changed" handler="on_login_token_entry_changed"/>
+                            <signal name="activate" handler="on_login_token_entry_inserted"/>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkButton" id="login_token_entry_button">
+                            <property name="visible">True</property>
+                            <property name="label">Insert</property>
+                            <signal name="clicked" handler="on_login_token_entry_inserted"/>
+                          </object>
+                        </child>
+                        <style>
+                          <class name="linked"/>
+                        </style>
                       </object>
                     </child>
                   </object>

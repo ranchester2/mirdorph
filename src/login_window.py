@@ -15,6 +15,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import os
+import sys
+import keyring
 from gi.repository import Gtk, Handy
 
 
@@ -22,9 +25,32 @@ from gi.repository import Gtk, Handy
 class MirdorphLoginWindow(Handy.ApplicationWindow):
     __gtype_name__ = 'MirdorphLoginWindow'
 
+    login_page_deck = Gtk.Template.Child()
+    login_welcome_page = Gtk.Template.Child()
+    login_token_page = Gtk.Template.Child()
+
+    login_token_entry = Gtk.Template.Child()
+    login_token_entry_button = Gtk.Template.Child()
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
     @Gtk.Template.Callback()
     def on_token_button_clicked(self, button):
-        print("CLICK")
+        self.login_page_deck.set_visible_child(self.login_token_page)
+
+    @Gtk.Template.Callback()
+    def on_main_cancel_button_clicked(self, button):
+        os._exit(1)
+
+    @Gtk.Template.Callback()
+    def on_login_token_entry_changed(self, entry):
+        self.login_token_entry_button.get_style_context().add_class("suggested-action")
+
+    @Gtk.Template.Callback()
+    def on_login_token_entry_inserted(self, *args):
+        token = self.login_token_entry.get_text()
+        self.login_token_entry.set_text("")
+        keyring.set_password("mirdorph", "token", token)
+        os.execv(sys.argv[0], sys.argv)
+        os._exit(1)        
