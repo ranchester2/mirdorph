@@ -1,5 +1,3 @@
-# login_window.py
-#
 # Copyright 2021 Raidro Manchester
 #
 # This program is free software: you can redistribute it and/or modify
