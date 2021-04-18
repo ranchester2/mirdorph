@@ -14,6 +14,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import discord
+import logging
 from .event_receiver import EventReceiver
 from gi.repository import Gio, Gtk, Handy
 
@@ -26,6 +27,7 @@ class EventManager:
         self.receivers.append(receiver)
 
     def dispatch_event(self, name: str, *args, **kwargs):
+        logging.info(f"re-dispatcihing event {name} to GLib")
         for receiver in self.receivers:
             func = getattr(receiver, ("disc_" + name))
             func(*args, **kwargs)
