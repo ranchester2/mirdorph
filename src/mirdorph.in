@@ -36,15 +36,15 @@ signal.signal(signal.SIGINT, signal.SIG_DFL)
 gettext.install('mirdorph', localedir)
 
 if __name__ == '__main__':
-    logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(level=logging.info)
 
     import gi
     from gi.repository import Gio
 
     def init_gtk(discord_loop, client, keyring_exists):
         time.sleep(1)
-        logging.basicConfig(level=logging.DEBUG)
-        logging.debug("starting gtk")
+        logging.basicConfig(level=logging.info)
+        logging.info("starting gtk")
         import gi
         gi.require_version('Gtk', '3.0')
         gi.require_version('Handy', '1')
@@ -62,7 +62,7 @@ if __name__ == '__main__':
         else:
             @discord_client.event
             async def on_ready():
-                logging.debug(f"discord logged in as {client.user.name}")
+                logging.info(f"discord logged in as {client.user.name}")
 
             cogs = [
                 'mirdorph.disc_cogs.event_listening'
@@ -73,13 +73,13 @@ if __name__ == '__main__':
 
             discord_client.run(discord_token, bot=False)
 
-    logging.debug("retrieving token")
+    logging.info("retrieving token")
     discord_token = keyring.get_password("mirdorph", "token")
     if discord_token is None:
-        logging.debug("token doesn't exist")
+        logging.info("token doesn't exist")
         keyring_exists=False
     else:
-        logging.debug("token exists")
+        logging.info("token exists")
         keyring_exists=True
 
     client = commands.Bot(command_prefix="&&&", max_messages=100000000000000000, fetch_offline_members=False, guild_subscriptions=False)

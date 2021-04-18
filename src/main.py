@@ -52,13 +52,13 @@ class Application(Gtk.Application):
         )
 
         if self.keyring_exists:
-            logging.debug("launching with token")
+            logging.info("launching with token")
             win = self.props.active_window
             if not win:
                 win = MirdorphMainWindow(application=self)
             win.present()
         else:
-            logging.debug("launching token retrieval sequence")
+            logging.info("launching token retrieval sequence")
             win = self.props.active_window
             if not win:
                 win = MirdorphLoginWindow(application=self)
