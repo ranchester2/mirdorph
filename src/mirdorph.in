@@ -36,14 +36,14 @@ signal.signal(signal.SIGINT, signal.SIG_DFL)
 gettext.install('mirdorph', localedir)
 
 if __name__ == '__main__':
-    logging.basicConfig(level=logging.info)
+    logging.basicConfig(level=logging.INFO)
 
     import gi
     from gi.repository import Gio
 
     def init_gtk(discord_loop, client, keyring_exists):
         time.sleep(1)
-        logging.basicConfig(level=logging.info)
+        logging.basicConfig(level=logging.INFO)
         logging.info("starting gtk")
         import gi
         gi.require_version('Gtk', '3.0')
