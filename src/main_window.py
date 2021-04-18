@@ -17,14 +17,19 @@
 
 import os
 from gi.repository import Gtk, Handy, Gio
+from .event_receiver import EventReceiver
 
 @Gtk.Template(resource_path='/org/gnome/gitlab/ranchester/Mirdorph/ui/main_window.ui')
-class MirdorphMainWindow(Handy.ApplicationWindow):
+class MirdorphMainWindow(Handy.ApplicationWindow, EventReceiver):
     __gtype_name__ = "MirdorphMainWindow"
 
     def __init__(self, *args, **kwargs):
         Handy.ApplicationWindow.__init__(self, *args, **kwargs)
+        EventReceiver.__init__(self)
 
     @Gtk.Template.Callback()
     def on_window_destroy(self, window):
         os._exit(1)
+
+    def disc_on_message(self, message):
+        print(message.content)

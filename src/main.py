@@ -25,6 +25,7 @@ from gi.repository import Gtk, Gdk, Gio, Handy
 
 from .login_window import MirdorphLoginWindow
 from .main_window import MirdorphMainWindow
+from .event_manager import EventManager
 
 
 class Application(Gtk.Application):
@@ -34,6 +35,7 @@ class Application(Gtk.Application):
         self.discord_loop = discord_loop
         self.discord_client = discord_client
         self.keyring_exists = keyring_exists
+        self.event_manager = EventManager()
 
     def do_startup(self):
         Gtk.Application.do_startup(self)
