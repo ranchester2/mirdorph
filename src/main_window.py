@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import os
 from gi.repository import Gtk, Handy, Gio
 
 @Gtk.Template(resource_path='/org/gnome/gitlab/ranchester/Mirdorph/ui/main_window.ui')
@@ -24,3 +25,6 @@ class MirdorphMainWindow(Handy.ApplicationWindow):
     def __init__(self, *args, **kwargs):
         Handy.ApplicationWindow.__init__(self, *args, **kwargs)
 
+    @Gtk.Template.Callback()
+    def on_window_destroy(self, window):
+        os._exit(1)
