@@ -18,6 +18,7 @@
 import os
 import sys
 import keyring
+import logging
 from gi.repository import Gtk, Handy
 
 
@@ -51,6 +52,10 @@ class MirdorphLoginWindow(Handy.ApplicationWindow):
     def on_login_token_entry_inserted(self, *args):
         token = self.login_token_entry.get_text()
         self.login_token_entry.set_text("")
+        logging.debug("setting token in keyring")
         keyring.set_password("mirdorph", "token", token)
+        logging.debug("token set in keyring")
+        logging.debug("launching program duplicate instance")
         os.execv(sys.argv[0], sys.argv)
+        logging.debug("exiting initial program")
         os._exit(1)        
