@@ -66,7 +66,14 @@ if __name__ == '__main__':
             async def on_ready():
                 logging.debug(f"discord logged in as {client.user.name}")
 
-            client.run(discord_token, bot=False)
+            cogs = [
+                'mirdorph.disc_cogs.event_listening'
+            ]
+
+            for cog in cogs:
+                discord_client.load_extension(cog)
+
+            discord_client.run(discord_token, bot=False)
 
     logging.debug("retrieving token")
     discord_token = keyring.get_password("mirdorph", "token")

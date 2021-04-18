@@ -25,3 +25,5 @@ mirdorph_sources = [
 ]
 
 install_data(mirdorph_sources, install_dir: moduledir)
+
+subdir('disc_cogs')
