@@ -21,6 +21,7 @@ mirdorph_sources = [
   '__init__.py',
   'main.py',
   'login_window.py',
+  'main_window.py'
 ]
 
 install_data(mirdorph_sources, install_dir: moduledir)

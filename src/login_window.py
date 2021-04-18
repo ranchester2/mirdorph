@@ -1,4 +1,4 @@
-# window.py
+# login_window.py
 #
 # Copyright 2021 Raidro Manchester
 #

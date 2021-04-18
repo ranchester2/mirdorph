@@ -4,5 +4,6 @@
     <file>icons/org.gnome.gitlab.ranchester.Mirdorph.DiscussionsLogo.svg</file>
     <file>ui/login_window.ui</file>
     <file>ui/gtk_style.css</file>
+    <file>ui/main_window.ui</file>
   </gresource>
 </gresources>

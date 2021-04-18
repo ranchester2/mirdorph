@@ -24,6 +24,7 @@ gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, Gdk, Gio, Handy
 
 from .login_window import MirdorphLoginWindow
+from .main_window import MirdorphMainWindow
 
 
 class Application(Gtk.Application):
@@ -52,6 +53,10 @@ class Application(Gtk.Application):
 
         if self.keyring_exists:
             logging.debug("launching with token")
+            win = self.props.active_window
+            if not win:
+                win = MirdorphMainWindow(application=self)
+            win.present()
         else:
             logging.debug("launching token retrieval sequence")
             win = self.props.active_window
