@@ -62,7 +62,11 @@ if __name__ == '__main__':
         if discord_token is None:
             pass
         else:
-            print("GOT TOKEN")
+            @discord_client.event
+            async def on_ready():
+                logging.debug(f"discord logged in as {client.user.name}")
+
+            client.run(discord_token, bot=False)
 
     logging.debug("retrieving token")
     discord_token = keyring.get_password("mirdorph", "token")
