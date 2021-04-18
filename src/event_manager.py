@@ -10,7 +10,7 @@ class EventManager:
     def register_receiver(self, receiver: EventReceiver):
         self.receivers.append(receiver)
 
-    def dispatch_event(self, name: str, *args):
+    def dispatch_event(self, name: str, *args, **kwargs):
         for receiver in self.receivers:
             func = getattr(receiver, ("disc_" + name))
-            func(*args)
+            func(*args, **kwargs)
