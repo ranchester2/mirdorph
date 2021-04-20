@@ -13,6 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import asyncio
 from gi.repository import Gtk, Handy, Gio
 from .event_receiver import EventReceiver
 
@@ -24,7 +25,7 @@ class ChannelInnerWindow(Gtk.Box, EventReceiver):
     toplevel_empty_stack: Gtk.Stack = Gtk.Template.Child()
     empty_status_page: Handy.StatusPage = Gtk.Template.Child()
 
-    scrolled_window: Gtk.ScrolledWindow = Gtk.Template.Child()
+    content_box: Gtk.Box = Gtk.Template.Child()
 
     popout_button_stack: Gtk.Stack = Gtk.Template.Child()
     popout_button: Gtk.Button = Gtk.Template.Child()
@@ -33,15 +34,27 @@ class ChannelInnerWindow(Gtk.Box, EventReceiver):
     def __init__(self, channel=None, empty=True, *args, **kwargs):
         Gtk.Box.__init__(self, *args, **kwargs)
         EventReceiver.__init__(self)
-        self.channel = channel
+        self.app = Gio.Application.get_default()
+        self.channel_id = channel
         self.empty = empty
-        if self.channel is None:
+        if self.channel_id is None:
             self.empty = True
 
         if not self.empty:
+            # Blocking
+            self.channel_disc = asyncio.run_coroutine_threadsafe(
+                self.app.discord_client.fetch_channel(self.channel_id),
+                self.app.discord_loop
+            ).result()
+
             self.message_view = MessageView(context=self)
             self.message_view.show()
-            self.scrolled_window.add(self.message_view)
+            self.content_box.pack_start(self.message_view, True, True, 0)
+
+            self.message_entry_bar = MessageEntryBar(context=self)
+            self.message_entry_bar.show()
+            self.content_box.pack_end(self.message_entry_bar, False, False, 0)
+            self.content_box.pack_end(Gtk.Separator(visible=True), False, False, 0)
         elif self.empty:
             self.popout_button.destroy()
             self.popin_button.destroy()
@@ -53,12 +66,11 @@ class ChannelInnerWindow(Gtk.Box, EventReceiver):
         flap = self.get_parent()
         flap.remove(self)
 
-        og_win_main: Handy.ApplicationWindow = Gio.Application.get_default().main_win
-        og_win_main.reconfigure_for_popout_window()
+        self.app.main_win.reconfigure_for_popout_window()
 
         self.popout_window = Handy.Window(
-            default_width=400,
-            default_height=290
+            default_width=600,
+            default_height=400
         )
         self.popout_window.add(self)
         self.popout_window.present()
@@ -66,30 +78,54 @@ class ChannelInnerWindow(Gtk.Box, EventReceiver):
 
     @Gtk.Template.Callback()
     def on_popin_context_button_clicked(self, button):
-        og_win_main = Gio.Application.get_default().main_win
-
         self.popout_button_stack.set_visible_child(self.popout_button)
 
         self.popout_window.remove(self)
         self.popout_window.destroy()
 
-        og_win_main.unconfigure_for_popout_window()
+        self.app.main_win.unconfigure_for_popout_window()
 
-        og_win_main.main_flap.set_content(self)
+        self.app.main_win.main_flap.set_content(self)
 
 
-class MessageView(Gtk.ListBox, EventReceiver):
+class MessageView(Gtk.ScrolledWindow, EventReceiver):
     __gtype_name__ = "MessageView"
 
     def __init__(self, context, *args, **kwargs):
         Gtk.ListBox.__init__(self, *args, **kwargs)
         EventReceiver.__init__(self)
 
+        self.message_listbox = Gtk.ListBox()
+        self.message_listbox.show()
+
+        self.add(self.message_listbox)
+
         self.context = context
 
     def disc_on_message(self, message):
-        if message.channel.id == self.context.channel:
+        if message.channel.id == self.context.channel_id:
             message_row = Gtk.ListBoxRow()
             message_row.add(Gtk.Label(label=message.content, xalign=0.0))
             message_row.show_all()
-            self.add(message_row)
+            self.message_listbox.add(message_row)
+
+@Gtk.Template(resource_path='/org/gnome/gitlab/ranchester/Mirdorph/ui/message_entry_bar.ui')
+class MessageEntryBar(Gtk.Box, EventReceiver):
+    __gtype_name__ = "MessageEntryBar"
+
+    def __init__(self, context, *args, **kwargs):
+        Gtk.Box.__init__(self, *args, **kwargs)
+        EventReceiver.__init__(self)
+
+        self.context = context
+        self.app = Gio.Application.get_default()
+
+    @Gtk.Template.Callback()
+    def on_message_entry_activate(self, entry):
+        message = entry.get_text()
+        asyncio.run_coroutine_threadsafe(
+            self.context.channel_disc.send(message),
+            self.app.discord_loop
+        )
+        entry.set_text('')
+        

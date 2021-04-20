@@ -6,5 +6,6 @@
     <file>ui/gtk_style.css</file>
     <file>ui/main_window.ui</file>
     <file>ui/channel_inner_window.ui</file>
+    <file>ui/message_entry_bar.ui</file>
   </gresource>
 </gresources>

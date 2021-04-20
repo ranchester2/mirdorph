@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <requires lib="gtk+" version="3.24"/>
+    <template class="MessageEntryBar" parent="GtkBox">
+      <child>
+        <object class="GtkEntry" id="message_entry">
+          <property name="visible">True</property>
+          <property name="hexpand">True</property>
+          <property name="halign">GTK_ALIGN_FILL</property>
+          <signal name="activate" handler="on_message_entry_activate"/>
+        </object>
+      </child>
+      <style>
+        <class name="inline-toolbar"/>
+      </style>
+    </template>
+</interface>

@@ -51,8 +51,9 @@
         <object class="GtkStack" id="toplevel_empty_stack">
           <property name="visible">True</property>
           <child>
-            <object class="GtkScrolledWindow" id="scrolled_window">
+            <object class="GtkBox" id="content_box">
               <property name="visible">True</property>
+              <property name="orientation">vertical</property>
               <property name="vexpand">True</property>
             </object>
           </child>
