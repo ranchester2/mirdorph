@@ -23,7 +23,8 @@ mirdorph_sources = [
   'login_window.py',
   'main_window.py',
   'event_manager.py',
-  'event_receiver.py'
+  'event_receiver.py',
+  'channel_inner_window.py'
 ]
 
 install_data(mirdorph_sources, install_dir: moduledir)

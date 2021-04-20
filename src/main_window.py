@@ -16,18 +16,53 @@
 import os
 from gi.repository import Gtk, Handy, Gio
 from .event_receiver import EventReceiver
+from .channel_inner_window import ChannelInnerWindow
 
 @Gtk.Template(resource_path='/org/gnome/gitlab/ranchester/Mirdorph/ui/main_window.ui')
 class MirdorphMainWindow(Handy.ApplicationWindow, EventReceiver):
     __gtype_name__ = "MirdorphMainWindow"
 
+    # temp for testing
+    CHANNEL = 829659493708988449
+
+    main_flap: Handy.Flap = Gtk.Template.Child()
+
     def __init__(self, *args, **kwargs):
         Handy.ApplicationWindow.__init__(self, *args, **kwargs)
         EventReceiver.__init__(self)
+
+        self.props.application.create_inner_window_context(self.CHANNEL)
+        self.current_channel_inner_window = self.props.application.retrieve_inner_window_context(self.CHANNEL)
+        self.current_channel_inner_window.show()
+        self.main_flap.set_content(self.current_channel_inner_window)
+
+        self.empty_inner_window = ChannelInnerWindow(empty=True)
+
 
     @Gtk.Template.Callback()
     def on_window_destroy(self, window):
         os._exit(1)
 
-    def disc_on_message(self, message):
-        print(message.content)
+    def reconfigure_for_popout_window(self):
+        """
+        Configure the main win for a popout window
+
+        This basically just makes sure the status page
+        for no channel selected appears.
+
+        NOTE: must be called AFTER you remove the channelcontext
+        """
+        self.main_flap.set_content(self.empty_inner_window)
+
+    def unconfigure_for_popout_window(self):
+        """
+        Unconfigure the main win for a popout window
+
+        This basically removes the status page
+        for no channel selected.
+
+        NOTE: must be called BEFORE you put your channelcontext
+        back in
+        """
+        self.main_flap.remove(self.empty_inner_window)
+        

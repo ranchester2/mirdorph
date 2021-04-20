@@ -24,6 +24,7 @@ from gi.repository import Gtk, Gdk, Gio, Handy
 from .login_window import MirdorphLoginWindow
 from .main_window import MirdorphMainWindow
 from .event_manager import EventManager
+from .channel_inner_window import ChannelInnerWindow
 
 
 class Application(Gtk.Application):
@@ -34,6 +35,7 @@ class Application(Gtk.Application):
         self.discord_client = discord_client
         self.keyring_exists = keyring_exists
         self.event_manager = EventManager()
+        self._inner_window_contexts = {}
 
     def do_startup(self):
         Gtk.Application.do_startup(self)
@@ -53,16 +55,22 @@ class Application(Gtk.Application):
 
         if self.keyring_exists:
             logging.info("launching with token")
-            win = self.props.active_window
-            if not win:
-                win = MirdorphMainWindow(application=self)
-            win.present()
+            self.main_win = MirdorphMainWindow(application=self)
+            self.main_win.present()
         else:
             logging.info("launching token retrieval sequence")
             win = self.props.active_window
             if not win:
                 win = MirdorphLoginWindow(application=self)
             win.present()
+
+    def create_inner_window_context(self, channel: int):
+        context = ChannelInnerWindow(empty=False, channel=channel)
+        self._inner_window_contexts[channel] = context
+
+    def retrieve_inner_window_context(self, channel: int):
+        return self._inner_window_contexts[channel]
+
 
 
 def main(version, discord_loop, discord_client, keyring_exists):

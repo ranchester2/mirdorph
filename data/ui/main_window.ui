@@ -2,6 +2,67 @@
 <interface>
   <requires lib="gtk+" version="3.24"/>
   <template class="MirdorphMainWindow" parent="HdyApplicationWindow">
+    <property name="default-width">1010</property>
+    <property name="default-height">585</property>
     <signal name="destroy" handler="on_window_destroy"/>
+    <child>
+      <object class="HdyDeck">
+        <property name="visible">True</property>
+        <child>
+          <object class="HdyFlap" id="main_flap">
+            <property name="visible">True</property>
+            <property name="modal">True</property>
+            <child type="flap">
+              <object class="GtkBox">
+                <property name="visible">True</property>
+                <property name="orientation">vertical</property>
+                <child>
+                  <object class="HdyHeaderBar">
+                    <property name="visible">True</property>
+                    <child>
+                      <object class="GtkButton" id="add_server_button">
+                        <property name="visible">True</property>
+                        <property name="image">add_server_button_image</property>
+                        <child>
+                          <object class="GtkImage" id="add_server_button_image">
+                            <property name="visible">True</property>
+                            <property name="icon-name">list-add-symbolic</property>
+                          </object>
+                        </child>
+                        <style>
+                          <class name="image-button"/>
+                        </style>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkMenuButton" id="main_menu_button">
+                        <property name="visible">True</property>
+                        <child>
+                          <object class="GtkImage">
+                            <property name="visible">True</property>
+                            <property name="icon-name">open-menu-symbolic</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="pack-type">end</property>
+                      </packing>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child type="separator">
+              <object class="GtkSeparator">
+                <property name="visible">True</property>
+                <style>
+                  <class name="vertical"/>
+                </style>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
   </template>
 </interface>
