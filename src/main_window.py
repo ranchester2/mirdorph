@@ -26,17 +26,21 @@ class MirdorphMainWindow(Handy.ApplicationWindow, EventReceiver):
     CHANNEL = 829659493708988449
 
     main_flap: Handy.Flap = Gtk.Template.Child()
+    context_stack: Gtk.Stack = Gtk.Template.Child()
 
     def __init__(self, *args, **kwargs):
         Handy.ApplicationWindow.__init__(self, *args, **kwargs)
         EventReceiver.__init__(self)
 
+        self.empty_inner_window = ChannelInnerWindow(empty=True)
+        self.context_stack.add(self.empty_inner_window)
+
         self.props.application.create_inner_window_context(self.CHANNEL)
         self.current_channel_inner_window = self.props.application.retrieve_inner_window_context(self.CHANNEL)
         self.current_channel_inner_window.show()
-        self.main_flap.set_content(self.current_channel_inner_window)
 
-        self.empty_inner_window = ChannelInnerWindow(empty=True)
+        self.context_stack.add(self.current_channel_inner_window)
+        self.context_stack.set_visible_child(self.current_channel_inner_window)
 
 
     @Gtk.Template.Callback()
@@ -52,17 +56,9 @@ class MirdorphMainWindow(Handy.ApplicationWindow, EventReceiver):
 
         NOTE: must be called AFTER you remove the channelcontext
         """
-        self.main_flap.set_content(self.empty_inner_window)
+        self.context_stack.set_visible_child(self.empty_inner_window)
 
-    def unconfigure_for_popout_window(self):
-        """
-        Unconfigure the main win for a popout window
+    def unconfigure_popout_window(self, context):
+       self.context_stack.add(context)
+       self.context_stack.set_visible_child(context)
 
-        This basically removes the status page
-        for no channel selected.
-
-        NOTE: must be called BEFORE you put your channelcontext
-        back in
-        """
-        self.main_flap.remove(self.empty_inner_window)
-        

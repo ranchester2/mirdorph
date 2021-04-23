@@ -60,6 +60,11 @@
                 </style>
               </object>
             </child>
+            <child type="content">
+              <object class="GtkStack" id="context_stack">
+                <property name="visible">True</property>
+              </object>
+            </child>
           </object>
         </child>
       </object>

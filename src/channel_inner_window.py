@@ -63,8 +63,7 @@ class ChannelInnerWindow(Gtk.Box, EventReceiver):
 
     @Gtk.Template.Callback()
     def on_popout_context_button_clicked(self, button):
-        flap = self.get_parent()
-        flap.remove(self)
+        self.app.main_win.context_stack.remove(self)
 
         self.app.main_win.reconfigure_for_popout_window()
 
@@ -83,9 +82,7 @@ class ChannelInnerWindow(Gtk.Box, EventReceiver):
         self.popout_window.remove(self)
         self.popout_window.destroy()
 
-        self.app.main_win.unconfigure_for_popout_window()
-
-        self.app.main_win.main_flap.set_content(self)
+        self.app.main_win.unconfigure_popout_window(self)
 
 
 class MessageView(Gtk.ScrolledWindow, EventReceiver):
