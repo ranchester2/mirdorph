@@ -42,7 +42,7 @@ class MirdorphMainWindow(Handy.ApplicationWindow, EventReceiver):
         self.channel_sidebar.show()
         self.flap_box.pack_end(self.channel_sidebar, True, True, 0)
 
-        self.props.application.create_inner_window_context(self.CHANNEL, bar_size_group=bar_size_group)
+        self.props.application.create_inner_window_context(self.CHANNEL, bar_size_group=bar_size_group, flap=self.main_flap)
         self.current_channel_inner_window = self.props.application.retrieve_inner_window_context(self.CHANNEL)
         self.current_channel_inner_window.show()
 

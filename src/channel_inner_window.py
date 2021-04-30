@@ -31,6 +31,8 @@ class ChannelInnerWindow(Gtk.Box, EventReceiver):
     popout_button: Gtk.Button = Gtk.Template.Child()
     popin_button: Gtk.Button = Gtk.Template.Child()
 
+    flap_toggle_button: Gtk.Button = Gtk.Template.Child()
+
     def __init__(self, channel=None, empty=True, bar_size_group=None, *args, **kwargs):
         Gtk.Box.__init__(self, *args, **kwargs)
         EventReceiver.__init__(self)
@@ -61,6 +63,17 @@ class ChannelInnerWindow(Gtk.Box, EventReceiver):
             self.popout_button_stack.destroy()
             self.toplevel_empty_stack.set_visible_child(self.empty_status_page)
 
+    # This is connected in main's handle context
+    def handle_flap_folding(self, flap, folded):
+        if flap.get_folded():
+            self.flap_toggle_button.set_visible(True)
+            self.popout_button_stack.set_visible(False)
+            flap.set_swipe_to_close(True)
+        else:
+            self.flap_toggle_button.set_visible(False)
+            self.popout_button_stack.set_visible(True)
+            flap.set_swipe_to_close(False)
+
     @Gtk.Template.Callback()
     def on_popout_context_button_clicked(self, button):
         self.app.main_win.context_stack.remove(self)
@@ -83,6 +96,12 @@ class ChannelInnerWindow(Gtk.Box, EventReceiver):
         self.popout_window.destroy()
 
         self.app.main_win.unconfigure_popout_window(self)
+
+    @Gtk.Template.Callback()
+    def on_flap_toggle_button_clicked(self, button):
+        self.app.main_win.main_flap.set_reveal_flap(
+            not self.app.main_win.main_flap.get_reveal_flap()
+        )
 
 
 class MessageView(Gtk.ScrolledWindow, EventReceiver):

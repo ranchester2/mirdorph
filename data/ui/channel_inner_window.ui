@@ -9,6 +9,22 @@
           <property name="visible">True</property>
           <property name="show-close-button">True</property>
           <child>
+            <object class="GtkButton" id="flap_toggle_button">
+              <property name="visible">False</property>
+              <signal name="clicked" handler="on_flap_toggle_button_clicked"/>
+              <property name="image">flap_toggle_button_image</property>
+              <child>
+                <object class="GtkImage" id="flap_toggle_button_image">
+                  <property name="visible">True</property>
+                  <property name="icon-name">view-sidebar-symbolic</property>
+                </object>
+              </child>
+              <style>
+                <class name="image-button"/>
+              </style>
+            </object>
+          </child>
+          <child>
             <object class="GtkStack" id="popout_button_stack">
               <property name="visible">True</property>
               <child>

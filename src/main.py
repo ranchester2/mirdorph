@@ -64,8 +64,13 @@ class Application(Gtk.Application):
                 win = MirdorphLoginWindow(application=self)
             win.present()
 
-    def create_inner_window_context(self, channel: int, bar_size_group: Gtk.SizeGroup):
+    def create_inner_window_context(self, channel: int, bar_size_group: Gtk.SizeGroup, flap: Handy.Flap):
         context = ChannelInnerWindow(empty=False, channel=channel, bar_size_group=bar_size_group)
+        # So that it could handle folding
+        # Here not in the init of ocntext, as then the app window
+        # hasn't been created yet, so we need to get a reference from
+        # it somehow before that
+        flap.connect("notify::folded", context.handle_flap_folding)
         self._inner_window_contexts[channel] = context
 
     def retrieve_inner_window_context(self, channel: int):

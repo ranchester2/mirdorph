@@ -11,6 +11,7 @@
         <child>
           <object class="HdyFlap" id="main_flap">
             <property name="visible">True</property>
+            <property name="swipe-to-close">False</property>
             <property name="modal">True</property>
             <child type="flap">
               <object class="GtkBox" id="flap_box">
