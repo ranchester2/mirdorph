@@ -19,8 +19,8 @@ from gi.repository import Gio, Gtk, Handy
 
 class EventReceiver:
     def __init__(self):
-        self.app = Gio.Application.get_default()
-        self.app.event_manager.register_receiver(self)
+        self._ev_app = Gio.Application.get_default()
+        self._ev_app.event_manager.register_receiver(self)
 
     def disc_on_connect(self, *args, **kwargs):
         pass

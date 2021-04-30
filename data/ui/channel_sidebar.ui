@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <requires lib="gtk+" version="3.24"/>
+  <template class="MirdorphChannelSidebar" parent="GtkBox">
+    <property name="orientation">vertical</property>
+    <property name="width-request">240</property>
+    <child>
+      <object class="GtkStack" id="channel_list_type_stack">
+        <property name="visible">True</property>
+        <child>
+          <object class="GtkListBox" id="channel_guild_list">
+            <property name="visible">True</property>
+          </object>
+          <packing>
+            <property name="title">Guilds</property>
+            <property name="icon-name">org.gnome.gitlab.ranchester.Mirdorph.Guilds</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkListBox" id="channel_direct_list">
+            <property name="visible">True</property>
+          </object>
+          <packing>
+            <property name="title">People</property>
+            <property name="icon-name">avatar-default-symbolic</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+    <child>
+      <object class="HdyViewSwitcherBar" id="view_switcher">
+        <property name="visible">True</property>
+        <property name="reveal">True</property>
+        <property name="stack">channel_list_type_stack</property>
+        <property name="policy">HDY_VIEW_SWITCHER_POLICY_NARROW</property>
+      </object>
+      <packing>
+        <property name="pack-type">end</property>
+      </packing>
+    </child>
+    <style>
+      <class name="background"/>
+    </style>
+  </template>
+</interface>

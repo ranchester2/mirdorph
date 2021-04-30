@@ -64,8 +64,8 @@ class Application(Gtk.Application):
                 win = MirdorphLoginWindow(application=self)
             win.present()
 
-    def create_inner_window_context(self, channel: int):
-        context = ChannelInnerWindow(empty=False, channel=channel)
+    def create_inner_window_context(self, channel: int, bar_size_group: Gtk.SizeGroup):
+        context = ChannelInnerWindow(empty=False, channel=channel, bar_size_group=bar_size_group)
         self._inner_window_contexts[channel] = context
 
     def retrieve_inner_window_context(self, channel: int):

@@ -17,6 +17,7 @@ import os
 from gi.repository import Gtk, Handy, Gio
 from .event_receiver import EventReceiver
 from .channel_inner_window import ChannelInnerWindow
+from .channel_sidebar import MirdorphChannelSidebar
 
 @Gtk.Template(resource_path='/org/gnome/gitlab/ranchester/Mirdorph/ui/main_window.ui')
 class MirdorphMainWindow(Handy.ApplicationWindow, EventReceiver):
@@ -27,15 +28,21 @@ class MirdorphMainWindow(Handy.ApplicationWindow, EventReceiver):
 
     main_flap: Handy.Flap = Gtk.Template.Child()
     context_stack: Gtk.Stack = Gtk.Template.Child()
+    flap_box: Gtk.Box = Gtk.Template.Child()
 
     def __init__(self, *args, **kwargs):
         Handy.ApplicationWindow.__init__(self, *args, **kwargs)
         EventReceiver.__init__(self)
 
+        bar_size_group = Gtk.SizeGroup(mode=Gtk.SizeGroupMode.VERTICAL)
         self.empty_inner_window = ChannelInnerWindow(empty=True)
         self.context_stack.add(self.empty_inner_window)
 
-        self.props.application.create_inner_window_context(self.CHANNEL)
+        self.channel_sidebar = MirdorphChannelSidebar(bar_size_group=bar_size_group)
+        self.channel_sidebar.show()
+        self.flap_box.pack_end(self.channel_sidebar, True, True, 0)
+
+        self.props.application.create_inner_window_context(self.CHANNEL, bar_size_group=bar_size_group)
         self.current_channel_inner_window = self.props.application.retrieve_inner_window_context(self.CHANNEL)
         self.current_channel_inner_window.show()
 

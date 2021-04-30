@@ -31,7 +31,7 @@ class ChannelInnerWindow(Gtk.Box, EventReceiver):
     popout_button: Gtk.Button = Gtk.Template.Child()
     popin_button: Gtk.Button = Gtk.Template.Child()
 
-    def __init__(self, channel=None, empty=True, *args, **kwargs):
+    def __init__(self, channel=None, empty=True, bar_size_group=None, *args, **kwargs):
         Gtk.Box.__init__(self, *args, **kwargs)
         EventReceiver.__init__(self)
         self.app = Gio.Application.get_default()
@@ -51,7 +51,7 @@ class ChannelInnerWindow(Gtk.Box, EventReceiver):
             self.message_view.show()
             self.content_box.pack_start(self.message_view, True, True, 0)
 
-            self.message_entry_bar = MessageEntryBar(context=self)
+            self.message_entry_bar = MessageEntryBar(context=self, bar_size_group=bar_size_group)
             self.message_entry_bar.show()
             self.content_box.pack_end(self.message_entry_bar, False, False, 0)
             self.content_box.pack_end(Gtk.Separator(visible=True), False, False, 0)
@@ -110,11 +110,12 @@ class MessageView(Gtk.ScrolledWindow, EventReceiver):
 class MessageEntryBar(Gtk.Box, EventReceiver):
     __gtype_name__ = "MessageEntryBar"
 
-    def __init__(self, context, *args, **kwargs):
+    def __init__(self, context, bar_size_group, *args, **kwargs):
         Gtk.Box.__init__(self, *args, **kwargs)
         EventReceiver.__init__(self)
 
         self.context = context
+        bar_size_group.add_widget(self)
         self.app = Gio.Application.get_default()
 
     @Gtk.Template.Callback()
