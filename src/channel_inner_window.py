@@ -14,6 +14,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import asyncio
+import logging
 from gi.repository import Gtk, Handy, Gio
 from .event_receiver import EventReceiver
 
@@ -69,12 +70,20 @@ class ChannelInnerWindow(Gtk.Box, EventReceiver):
             self.flap_toggle_button.set_visible(True)
             self.popout_button_stack.set_visible(False)
             flap.set_swipe_to_close(True)
+
+            self.popin()
         else:
             self.flap_toggle_button.set_visible(False)
             self.popout_button_stack.set_visible(True)
             flap.set_swipe_to_close(False)
 
     def popin(self):
+        try:
+            assert self.popout_window
+        except AttributeError:
+            logging.warning('attempted popin even though not popped out')
+            return
+
         self.popout_button_stack.set_visible_child(self.popout_button)
 
         self.popout_window.remove(self)
