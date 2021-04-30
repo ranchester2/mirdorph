@@ -74,8 +74,15 @@ class ChannelInnerWindow(Gtk.Box, EventReceiver):
             self.popout_button_stack.set_visible(True)
             flap.set_swipe_to_close(False)
 
-    @Gtk.Template.Callback()
-    def on_popout_context_button_clicked(self, button):
+    def popin(self):
+        self.popout_button_stack.set_visible_child(self.popout_button)
+
+        self.popout_window.remove(self)
+        self.popout_window.destroy()
+
+        self.app.main_win.unconfigure_popout_window(self)
+
+    def popout(self):
         self.app.main_win.context_stack.remove(self)
 
         self.app.main_win.reconfigure_for_popout_window()
@@ -89,13 +96,12 @@ class ChannelInnerWindow(Gtk.Box, EventReceiver):
         self.popout_button_stack.set_visible_child(self.popin_button)
 
     @Gtk.Template.Callback()
+    def on_popout_context_button_clicked(self, button):
+        self.popout()
+
+    @Gtk.Template.Callback()
     def on_popin_context_button_clicked(self, button):
-        self.popout_button_stack.set_visible_child(self.popout_button)
-
-        self.popout_window.remove(self)
-        self.popout_window.destroy()
-
-        self.app.main_win.unconfigure_popout_window(self)
+        self.popin()
 
     @Gtk.Template.Callback()
     def on_flap_toggle_button_clicked(self, button):
