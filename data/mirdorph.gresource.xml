@@ -10,5 +10,6 @@
     <file>ui/channel_inner_window.ui</file>
     <file>ui/message_entry_bar.ui</file>
     <file>ui/channel_sidebar.ui</file>
+    <file>ui/channel_list_entry.ui</file>
   </gresource>
 </gresources>

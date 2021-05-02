@@ -10,6 +10,7 @@
         <child>
           <object class="GtkListBox" id="channel_guild_list">
             <property name="visible">True</property>
+            <signal name="row-activated" handler="on_guild_list_entry_selected"/>
           </object>
           <packing>
             <property name="title">Guilds</property>

@@ -28,6 +28,11 @@ from .channel_inner_window import ChannelInnerWindow
 
 
 class Application(Gtk.Application):
+    CHANNELS = [
+        831469660083847192,
+        838131086436335617
+    ]
+
     def __init__(self, discord_loop, discord_client, keyring_exists=False):
         super().__init__(application_id='org.gnome.gitlab.ranchester.Mirdorph',
                          flags=Gio.ApplicationFlags.FLAGS_NONE)
@@ -35,6 +40,7 @@ class Application(Gtk.Application):
         self.discord_client = discord_client
         self.keyring_exists = keyring_exists
         self.event_manager = EventManager()
+        self.currently_running_channels = []
         self._inner_window_contexts = {}
 
     def do_startup(self):
@@ -56,6 +62,10 @@ class Application(Gtk.Application):
         if self.keyring_exists:
             logging.info("launching with token")
             self.main_win = MirdorphMainWindow(application=self)
+
+            # Weird place, temp
+            self.load_channels(self.CHANNELS)
+
             self.main_win.present()
         else:
             logging.info("launching token retrieval sequence")
@@ -64,14 +74,27 @@ class Application(Gtk.Application):
                 win = MirdorphLoginWindow(application=self)
             win.present()
 
-    def create_inner_window_context(self, channel: int, bar_size_group: Gtk.SizeGroup, flap: Handy.Flap):
-        context = ChannelInnerWindow(empty=False, channel=channel, bar_size_group=bar_size_group)
+    def load_channels(self, channels):
+        for channel in channels:
+            self.create_inner_window_context(channel, flap=self.main_win.main_flap)
+            self.currently_running_channels.append(channel)
+            self.main_win.channel_sidebar.inform_of_new_channel()
+
+    def create_inner_window_context(self, channel: int, flap: Handy.Flap):
+        context = ChannelInnerWindow(empty=False, channel=channel)
+
         # So that it could handle folding
         # Here not in the init of ocntext, as then the app window
         # hasn't been created yet, so we need to get a reference from
         # it somehow before that
         flap.connect("notify::folded", context.handle_flap_folding)
+
+        self.main_win.context_stack.add(context)
         self._inner_window_contexts[channel] = context
+
+    # Temp until proper server support implemented
+    def connect_channel(self, channel: int):
+        self.main_win.channel_sidebar.add_channel(channel)
 
     def retrieve_inner_window_context(self, channel: int):
         return self._inner_window_contexts[channel]

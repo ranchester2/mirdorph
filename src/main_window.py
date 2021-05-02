@@ -23,9 +23,6 @@ from .channel_sidebar import MirdorphChannelSidebar
 class MirdorphMainWindow(Handy.ApplicationWindow, EventReceiver):
     __gtype_name__ = "MirdorphMainWindow"
 
-    # temp for testing
-    CHANNEL = 829659493708988449
-
     main_flap: Handy.Flap = Gtk.Template.Child()
     context_stack: Gtk.Stack = Gtk.Template.Child()
     flap_box: Gtk.Box = Gtk.Template.Child()
@@ -34,20 +31,16 @@ class MirdorphMainWindow(Handy.ApplicationWindow, EventReceiver):
         Handy.ApplicationWindow.__init__(self, *args, **kwargs)
         EventReceiver.__init__(self)
 
-        bar_size_group = Gtk.SizeGroup(mode=Gtk.SizeGroupMode.VERTICAL)
+        # Could be better than basically making this global
+        self.props.application.bar_size_group = Gtk.SizeGroup(mode=Gtk.SizeGroupMode.VERTICAL)
+
         self.empty_inner_window = ChannelInnerWindow(empty=True)
+        self.empty_inner_window.show()
         self.context_stack.add(self.empty_inner_window)
 
-        self.channel_sidebar = MirdorphChannelSidebar(bar_size_group=bar_size_group)
+        self.channel_sidebar = MirdorphChannelSidebar()
         self.channel_sidebar.show()
         self.flap_box.pack_end(self.channel_sidebar, True, True, 0)
-
-        self.props.application.create_inner_window_context(self.CHANNEL, bar_size_group=bar_size_group, flap=self.main_flap)
-        self.current_channel_inner_window = self.props.application.retrieve_inner_window_context(self.CHANNEL)
-        self.current_channel_inner_window.show()
-
-        self.context_stack.add(self.current_channel_inner_window)
-        self.context_stack.set_visible_child(self.current_channel_inner_window)
 
 
     @Gtk.Template.Callback()
@@ -69,3 +62,17 @@ class MirdorphMainWindow(Handy.ApplicationWindow, EventReceiver):
        self.context_stack.add(context)
        self.context_stack.set_visible_child(context)
 
+    def show_active_channel(self, channel_id):
+        context = self.props.application.retrieve_inner_window_context(channel_id)
+        if context.is_poped:
+            temp_win_top = context.get_toplevel()
+            # Function name misleading
+            if temp_win_top.is_toplevel():
+                temp_win_top.present()
+
+            # May seem weird to use it here, however if we don't make it look
+            # like there is no channel selected, then the previous channel is shown
+            self.reconfigure_for_popout_window()
+        else:
+            self.context_stack.set_visible_child(context)
+            

@@ -34,7 +34,7 @@ class ChannelInnerWindow(Gtk.Box, EventReceiver):
 
     flap_toggle_button: Gtk.Button = Gtk.Template.Child()
 
-    def __init__(self, channel=None, empty=True, bar_size_group=None, *args, **kwargs):
+    def __init__(self, channel=None, empty=True, *args, **kwargs):
         Gtk.Box.__init__(self, *args, **kwargs)
         EventReceiver.__init__(self)
         self.app = Gio.Application.get_default()
@@ -42,6 +42,8 @@ class ChannelInnerWindow(Gtk.Box, EventReceiver):
         self.empty = empty
         if self.channel_id is None:
             self.empty = True
+
+        self.is_poped = False
 
         if not self.empty:
             # Blocking
@@ -54,7 +56,7 @@ class ChannelInnerWindow(Gtk.Box, EventReceiver):
             self.message_view.show()
             self.content_box.pack_start(self.message_view, True, True, 0)
 
-            self.message_entry_bar = MessageEntryBar(context=self, bar_size_group=bar_size_group)
+            self.message_entry_bar = MessageEntryBar(context=self)
             self.message_entry_bar.show()
             self.content_box.pack_end(self.message_entry_bar, False, False, 0)
             self.content_box.pack_end(Gtk.Separator(visible=True), False, False, 0)
@@ -90,6 +92,7 @@ class ChannelInnerWindow(Gtk.Box, EventReceiver):
         self.popout_window.destroy()
 
         self.app.main_win.unconfigure_popout_window(self)
+        self.is_poped = False
 
     def popout(self):
         self.app.main_win.context_stack.remove(self)
@@ -103,6 +106,7 @@ class ChannelInnerWindow(Gtk.Box, EventReceiver):
         self.popout_window.add(self)
         self.popout_window.present()
         self.popout_button_stack.set_visible_child(self.popin_button)
+        self.is_poped = True
 
     @Gtk.Template.Callback()
     def on_popout_context_button_clicked(self, button):
@@ -144,12 +148,13 @@ class MessageView(Gtk.ScrolledWindow, EventReceiver):
 class MessageEntryBar(Gtk.Box, EventReceiver):
     __gtype_name__ = "MessageEntryBar"
 
-    def __init__(self, context, bar_size_group, *args, **kwargs):
+    def __init__(self, context, *args, **kwargs):
         Gtk.Box.__init__(self, *args, **kwargs)
         EventReceiver.__init__(self)
 
         self.context = context
-        bar_size_group.add_widget(self)
+        # hacky global
+        Gio.Application.get_default().bar_size_group.add_widget(self)
         self.app = Gio.Application.get_default()
 
     @Gtk.Template.Callback()
