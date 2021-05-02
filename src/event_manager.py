@@ -21,13 +21,13 @@ from gi.repository import Gio, Gtk, Handy
 class EventManager:
     def __init__(self):
         self.app = Gio.Application.get_default()
-        self.receivers = []
+        self._receivers = []
 
     def register_receiver(self, receiver: EventReceiver):
-        self.receivers.append(receiver)
+        self._receivers.append(receiver)
 
     def dispatch_event(self, name: str, *args, **kwargs):
         logging.info(f"re-dispatcihing event {name} to GLib")
-        for receiver in self.receivers:
+        for receiver in self._receivers:
             func = getattr(receiver, ("disc_" + name))
             func(*args, **kwargs)

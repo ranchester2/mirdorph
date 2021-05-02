@@ -24,8 +24,9 @@ class MirdorphMainWindow(Handy.ApplicationWindow, EventReceiver):
     __gtype_name__ = "MirdorphMainWindow"
 
     main_flap: Handy.Flap = Gtk.Template.Child()
+    # Public, the contexts themselves interact with the stack to manage popout and similar
     context_stack: Gtk.Stack = Gtk.Template.Child()
-    flap_box: Gtk.Box = Gtk.Template.Child()
+    _flap_box: Gtk.Box = Gtk.Template.Child()
 
     def __init__(self, *args, **kwargs):
         Handy.ApplicationWindow.__init__(self, *args, **kwargs)
@@ -34,17 +35,22 @@ class MirdorphMainWindow(Handy.ApplicationWindow, EventReceiver):
         # Could be better than basically making this global
         self.props.application.bar_size_group = Gtk.SizeGroup(mode=Gtk.SizeGroupMode.VERTICAL)
 
-        self.empty_inner_window = ChannelInnerWindow(empty=True)
-        self.empty_inner_window.show()
-        self.context_stack.add(self.empty_inner_window)
+        self._empty_inner_window = ChannelInnerWindow(empty=True)
+        self._empty_inner_window.show()
+        self.context_stack.add(self._empty_inner_window)
 
+        # Might be a bit weird to be public.
+        # However this needs to be used in main's connect
+        # and add channel functions.
+        # Would be better if instead of working on the channel sidebar correctly
+        # we had a channel manager object
         self.channel_sidebar = MirdorphChannelSidebar()
         self.channel_sidebar.show()
-        self.flap_box.pack_end(self.channel_sidebar, True, True, 0)
+        self._flap_box.pack_end(self.channel_sidebar, True, True, 0)
 
 
     @Gtk.Template.Callback()
-    def on_window_destroy(self, window):
+    def _on_window_destroy(self, window):
         os._exit(1)
 
     def reconfigure_for_popout_window(self):
@@ -56,7 +62,7 @@ class MirdorphMainWindow(Handy.ApplicationWindow, EventReceiver):
 
         NOTE: must be called AFTER you remove the channelcontext
         """
-        self.context_stack.set_visible_child(self.empty_inner_window)
+        self.context_stack.set_visible_child(self._empty_inner_window)
 
     def unconfigure_popout_window(self, context):
        self.context_stack.add(context)

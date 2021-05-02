@@ -23,16 +23,16 @@ from .event_receiver import EventReceiver
 class ChannelInnerWindow(Gtk.Box, EventReceiver):
     __gtype_name__ = "ChannelInnerWindow"
 
-    toplevel_empty_stack: Gtk.Stack = Gtk.Template.Child()
-    empty_status_page: Handy.StatusPage = Gtk.Template.Child()
+    _toplevel_empty_stack: Gtk.Stack = Gtk.Template.Child()
+    _empty_status_page: Handy.StatusPage = Gtk.Template.Child()
 
-    content_box: Gtk.Box = Gtk.Template.Child()
+    _content_box: Gtk.Box = Gtk.Template.Child()
 
-    popout_button_stack: Gtk.Stack = Gtk.Template.Child()
-    popout_button: Gtk.Button = Gtk.Template.Child()
-    popin_button: Gtk.Button = Gtk.Template.Child()
+    _popout_button_stack: Gtk.Stack = Gtk.Template.Child()
+    _popout_button: Gtk.Button = Gtk.Template.Child()
+    _popin_button: Gtk.Button = Gtk.Template.Child()
 
-    flap_toggle_button: Gtk.Button = Gtk.Template.Child()
+    _flap_toggle_button: Gtk.Button = Gtk.Template.Child()
 
     def __init__(self, channel=None, empty=True, *args, **kwargs):
         Gtk.Box.__init__(self, *args, **kwargs)
@@ -52,44 +52,47 @@ class ChannelInnerWindow(Gtk.Box, EventReceiver):
                 self.app.discord_loop
             ).result()
 
-            self.message_view = MessageView(context=self)
-            self.message_view.show()
-            self.content_box.pack_start(self.message_view, True, True, 0)
+            self._message_view = MessageView(context=self)
+            self._message_view.show()
+            self._content_box.pack_start(self._message_view, True, True, 0)
 
-            self.message_entry_bar = MessageEntryBar(context=self)
-            self.message_entry_bar.show()
-            self.content_box.pack_end(self.message_entry_bar, False, False, 0)
-            self.content_box.pack_end(Gtk.Separator(visible=True), False, False, 0)
+            self._message_entry_bar = MessageEntryBar(context=self)
+            self._message_entry_bar.show()
+            self._content_box.pack_end(self._message_entry_bar, False, False, 0)
+            self._content_box.pack_end(Gtk.Separator(visible=True), False, False, 0)
         elif self.empty:
-            self.popout_button.destroy()
-            self.popin_button.destroy()
-            self.popout_button_stack.destroy()
-            self.toplevel_empty_stack.set_visible_child(self.empty_status_page)
+            self._popout_button.destroy()
+            self._popin_button.destroy()
+            self._popout_button_stack.destroy()
+            self._toplevel_empty_stack.set_visible_child(self._empty_status_page)
 
     # This is connected in main's handle context
+    # Would be better to move this to main_win instead,
+    # this is curently temp as we need to popin, however
+    # we could just go through the list of channel contexts.
     def handle_flap_folding(self, flap, folded):
         if flap.get_folded():
-            self.flap_toggle_button.set_visible(True)
-            self.popout_button_stack.set_visible(False)
+            self._flap_toggle_button.set_visible(True)
+            self._popout_button_stack.set_visible(False)
             flap.set_swipe_to_close(True)
 
             self.popin()
         else:
-            self.flap_toggle_button.set_visible(False)
-            self.popout_button_stack.set_visible(True)
+            self._flap_toggle_button.set_visible(False)
+            self._popout_button_stack.set_visible(True)
             flap.set_swipe_to_close(False)
 
     def popin(self):
         try:
-            assert self.popout_window
+            assert self._popout_window
         except AttributeError:
             logging.warning('attempted popin even though not popped out')
             return
 
-        self.popout_button_stack.set_visible_child(self.popout_button)
+        self._popout_button_stack.set_visible_child(self._popout_button)
 
-        self.popout_window.remove(self)
-        self.popout_window.destroy()
+        self._popout_window.remove(self)
+        self._popout_window.destroy()
 
         self.app.main_win.unconfigure_popout_window(self)
         self.is_poped = False
@@ -99,13 +102,13 @@ class ChannelInnerWindow(Gtk.Box, EventReceiver):
 
         self.app.main_win.reconfigure_for_popout_window()
 
-        self.popout_window = Handy.Window(
+        self._popout_window = Handy.Window(
             default_width=600,
             default_height=400
         )
-        self.popout_window.add(self)
-        self.popout_window.present()
-        self.popout_button_stack.set_visible_child(self.popin_button)
+        self._popout_window.add(self)
+        self._popout_window.present()
+        self._popout_button_stack.set_visible_child(self._popin_button)
         self.is_poped = True
 
     @Gtk.Template.Callback()
@@ -117,7 +120,7 @@ class ChannelInnerWindow(Gtk.Box, EventReceiver):
         self.popin()
 
     @Gtk.Template.Callback()
-    def on_flap_toggle_button_clicked(self, button):
+    def _on_flap_toggle_button_clicked(self, button):
         self.app.main_win.main_flap.set_reveal_flap(
             not self.app.main_win.main_flap.get_reveal_flap()
         )
@@ -130,10 +133,10 @@ class MessageView(Gtk.ScrolledWindow, EventReceiver):
         Gtk.ListBox.__init__(self, *args, **kwargs)
         EventReceiver.__init__(self)
 
-        self.message_listbox = Gtk.ListBox()
-        self.message_listbox.show()
+        self._message_listbox = Gtk.ListBox()
+        self._message_listbox.show()
 
-        self.add(self.message_listbox)
+        self.add(self._message_listbox)
 
         self.context = context
 
@@ -142,7 +145,7 @@ class MessageView(Gtk.ScrolledWindow, EventReceiver):
             message_row = Gtk.ListBoxRow()
             message_row.add(Gtk.Label(label=message.content, xalign=0.0))
             message_row.show_all()
-            self.message_listbox.add(message_row)
+            self._message_listbox.add(message_row)
 
 @Gtk.Template(resource_path='/org/gnome/gitlab/ranchester/Mirdorph/ui/message_entry_bar.ui')
 class MessageEntryBar(Gtk.Box, EventReceiver):

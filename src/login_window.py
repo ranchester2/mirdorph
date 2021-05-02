@@ -24,32 +24,32 @@ from gi.repository import Gtk, Handy
 class MirdorphLoginWindow(Handy.ApplicationWindow):
     __gtype_name__ = 'MirdorphLoginWindow'
 
-    login_page_deck = Gtk.Template.Child()
-    login_welcome_page = Gtk.Template.Child()
-    login_token_page = Gtk.Template.Child()
+    _login_page_deck = Gtk.Template.Child()
+    _login_welcome_page = Gtk.Template.Child()
+    _login_token_page = Gtk.Template.Child()
 
-    login_token_entry = Gtk.Template.Child()
-    login_token_entry_button = Gtk.Template.Child()
+    _login_token_entry = Gtk.Template.Child()
+    _login_token_entry_button = Gtk.Template.Child()
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
     @Gtk.Template.Callback()
-    def on_token_button_clicked(self, button):
-        self.login_page_deck.set_visible_child(self.login_token_page)
+    def _on_token_button_clicked(self, button):
+        self._login_page_deck.set_visible_child(self._login_token_page)
 
     @Gtk.Template.Callback()
-    def on_main_cancel_button_clicked(self, button):
+    def _on_main_cancel_button_clicked(self, button):
         os._exit(1)
 
     @Gtk.Template.Callback()
-    def on_login_token_entry_changed(self, entry):
-        self.login_token_entry_button.get_style_context().add_class("suggested-action")
+    def _on_login_token_entry_changed(self, entry):
+        self._login_token_entry_button.get_style_context().add_class("suggested-action")
 
     @Gtk.Template.Callback()
-    def on_login_token_entry_inserted(self, *args):
-        token = self.login_token_entry.get_text()
-        self.login_token_entry.set_text("")
+    def _on_login_token_entry_inserted(self, *args):
+        token = self._login_token_entry.get_text()
+        self._login_token_entry.set_text("")
         logging.info("setting token in keyring")
         keyring.set_password("mirdorph", "token", token)
         logging.info("token set in keyring")

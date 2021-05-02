@@ -4,7 +4,7 @@
   <template class="MirdorphMainWindow" parent="HdyApplicationWindow">
     <property name="default-width">1010</property>
     <property name="default-height">585</property>
-    <signal name="destroy" handler="on_window_destroy"/>
+    <signal name="destroy" handler="_on_window_destroy"/>
     <child>
       <object class="HdyDeck">
         <property name="visible">True</property>
@@ -14,18 +14,18 @@
             <property name="swipe-to-close">False</property>
             <property name="modal">True</property>
             <child type="flap">
-              <object class="GtkBox" id="flap_box">
+              <object class="GtkBox" id="_flap_box">
                 <property name="visible">True</property>
                 <property name="orientation">vertical</property>
                 <child>
                   <object class="HdyHeaderBar">
                     <property name="visible">True</property>
                     <child>
-                      <object class="GtkButton" id="add_server_button">
+                      <object class="GtkButton" id="_add_server_button">
                         <property name="visible">True</property>
-                        <property name="image">add_server_button_image</property>
+                        <property name="image">_add_server_button_image</property>
                         <child>
-                          <object class="GtkImage" id="add_server_button_image">
+                          <object class="GtkImage" id="_add_server_button_image">
                             <property name="visible">True</property>
                             <property name="icon-name">list-add-symbolic</property>
                           </object>
@@ -36,7 +36,7 @@
                       </object>
                     </child>
                     <child>
-                      <object class="GtkMenuButton" id="main_menu_button">
+                      <object class="GtkMenuButton" id="_main_menu_button">
                         <property name="visible">True</property>
                         <child>
                           <object class="GtkImage">

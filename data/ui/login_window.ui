@@ -23,7 +23,7 @@
                   <object class="GtkButton">
                     <property name="visible">True</property>
                     <property name="label">Cancel</property>
-                    <signal name="clicked" handler="on_main_cancel_button_clicked"/>
+                    <signal name="clicked" handler="_on_main_cancel_button_clicked"/>
                   </object>
                 </child>
               </object>
@@ -38,12 +38,12 @@
           </object>
         </child>
         <child>
-          <object class="HdyDeck" id="login_page_deck">
+          <object class="HdyDeck" id="_login_page_deck">
             <property name="visible">True</property>
             <property name="can-swipe-forward">False</property>
             <property name="can-swipe-back">True</property>
             <child>
-              <object class="GtkBox" id="login_welcome_page">
+              <object class="GtkBox" id="_login_welcome_page">
                 <property name="visible">True</property>
                 <property name="valign">GTK_ALIGN_CENTER</property>
                 <property name="orientation">vertical</property>
@@ -94,7 +94,7 @@
                             <property name="label">Manual Token</property>
                             <property name="halign">GTK_ALIGN_CENTER</property>
                             <property name="width-request">250</property>
-                            <signal name="clicked" handler="on_token_button_clicked"/>
+                            <signal name="clicked" handler="_on_token_button_clicked"/>
                             <style>
                               <class name="circular"/>
                               <class name="login-button"/>
@@ -108,7 +108,7 @@
               </object>
             </child>
             <child>
-              <object class="HdyClamp" id="login_token_page">
+              <object class="HdyClamp" id="_login_token_page">
                 <property name="visible">True</property>
                 <child>
                   <object class="GtkBox">
@@ -131,19 +131,19 @@
                         <property name="margin-top">20</property>
                         <property name="halign">GTK_ALIGN_CENTER</property>
                         <child>
-                          <object class="GtkEntry" id="login_token_entry">
+                          <object class="GtkEntry" id="_login_token_entry">
                             <property name="visible">True</property>
                             <!-- width-request cause I cant get it to expand horizontally -->
                             <property name="width-request">230</property>
-                            <signal name="changed" handler="on_login_token_entry_changed"/>
-                            <signal name="activate" handler="on_login_token_entry_inserted"/>
+                            <signal name="changed" handler="_on_login_token_entry_changed"/>
+                            <signal name="activate" handler="_on_login_token_entry_inserted"/>
                           </object>
                         </child>
                         <child>
-                          <object class="GtkButton" id="login_token_entry_button">
+                          <object class="GtkButton" id="_login_token_entry_button">
                             <property name="visible">True</property>
                             <property name="label">Insert</property>
-                            <signal name="clicked" handler="on_login_token_entry_inserted"/>
+                            <signal name="clicked" handler="_on_login_token_entry_inserted"/>
                           </object>
                         </child>
                         <style>

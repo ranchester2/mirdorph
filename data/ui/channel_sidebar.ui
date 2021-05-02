@@ -5,12 +5,12 @@
     <property name="orientation">vertical</property>
     <property name="width-request">240</property>
     <child>
-      <object class="GtkStack" id="channel_list_type_stack">
+      <object class="GtkStack" id="_channel_list_type_stack">
         <property name="visible">True</property>
         <child>
-          <object class="GtkListBox" id="channel_guild_list">
+          <object class="GtkListBox" id="_channel_guild_list">
             <property name="visible">True</property>
-            <signal name="row-activated" handler="on_guild_list_entry_selected"/>
+            <signal name="row-activated" handler="_on_guild_list_entry_selected"/>
           </object>
           <packing>
             <property name="title">Guilds</property>
@@ -18,7 +18,7 @@
           </packing>
         </child>
         <child>
-          <object class="GtkListBox" id="channel_direct_list">
+          <object class="GtkListBox" id="_channel_direct_list">
             <property name="visible">True</property>
           </object>
           <packing>
@@ -29,10 +29,10 @@
       </object>
     </child>
     <child>
-      <object class="HdyViewSwitcherBar" id="view_switcher">
+      <object class="HdyViewSwitcherBar" id="_view_switcher">
         <property name="visible">True</property>
         <property name="reveal">True</property>
-        <property name="stack">channel_list_type_stack</property>
+        <property name="stack">_channel_list_type_stack</property>
         <property name="policy">HDY_VIEW_SWITCHER_POLICY_NARROW</property>
       </object>
       <packing>

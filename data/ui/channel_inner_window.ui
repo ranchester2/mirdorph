@@ -9,12 +9,12 @@
           <property name="visible">True</property>
           <property name="show-close-button">True</property>
           <child>
-            <object class="GtkButton" id="flap_toggle_button">
+            <object class="GtkButton" id="_flap_toggle_button">
               <property name="visible">False</property>
-              <signal name="clicked" handler="on_flap_toggle_button_clicked"/>
-              <property name="image">flap_toggle_button_image</property>
+              <signal name="clicked" handler="_on_flap_toggle_button_clicked"/>
+              <property name="image">_flap_toggle_button_image</property>
               <child>
-                <object class="GtkImage" id="flap_toggle_button_image">
+                <object class="GtkImage" id="_flap_toggle_button_image">
                   <property name="visible">True</property>
                   <property name="icon-name">view-sidebar-symbolic</property>
                 </object>
@@ -25,15 +25,15 @@
             </object>
           </child>
           <child>
-            <object class="GtkStack" id="popout_button_stack">
+            <object class="GtkStack" id="_popout_button_stack">
               <property name="visible">True</property>
               <child>
-                <object class="GtkButton" id="popout_button">
+                <object class="GtkButton" id="_popout_button">
                   <property name="visible">True</property>
-                  <property name="image">popout_context_button_image</property>
+                  <property name="image">_popout_context_button_image</property>
                   <signal name="clicked" handler="on_popout_context_button_clicked"/>
                   <child>
-                    <object class="GtkImage" id="popout_context_button_image">
+                    <object class="GtkImage" id="_popout_context_button_image">
                       <property name="visible">True</property>
                       <property name="icon-name">view-fullscreen-symbolic</property>
                     </object>
@@ -44,12 +44,12 @@
                 </object>
               </child>
               <child>
-                <object class="GtkButton" id="popin_button">
+                <object class="GtkButton" id="_popin_button">
                   <property name="visible">True</property>
-                  <property name="image">popin_context_button_image</property>
+                  <property name="image">_popin_context_button_image</property>
                   <signal name="clicked" handler="on_popin_context_button_clicked"/>
                   <child>
-                    <object class="GtkImage" id="popin_context_button_image">
+                    <object class="GtkImage" id="_popin_context_button_image">
                       <property name="visible">True</property>
                       <property name="icon-name">view-restore-symbolic</property>
                     </object>
@@ -64,17 +64,17 @@
         </object>
       </child>
       <child>
-        <object class="GtkStack" id="toplevel_empty_stack">
+        <object class="GtkStack" id="_toplevel_empty_stack">
           <property name="visible">True</property>
           <child>
-            <object class="GtkBox" id="content_box">
+            <object class="GtkBox" id="_content_box">
               <property name="visible">True</property>
               <property name="orientation">vertical</property>
               <property name="vexpand">True</property>
             </object>
           </child>
           <child>
-            <object class="HdyStatusPage" id="empty_status_page">
+            <object class="HdyStatusPage" id="_empty_status_page">
               <property name="visible">True</property>
               <property name="title">Choose a channel</property>
               <property name="icon-name">find-location-symbolic</property>
