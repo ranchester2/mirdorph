@@ -25,8 +25,6 @@ class ConfManager:
 
     BASE_SCHEMA = {
         'added_channels': [
-            831469660083847192,
-            838131086436335617
         ]
     }
 
