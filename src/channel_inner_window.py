@@ -198,9 +198,22 @@ class MirdorphMessage(Gtk.ListBoxRow, EventReceiver):
         self.uniq_id = disc_message.id
         self.timestamp = disc_message.created_at.timestamp()
 
-        self._message_label = Gtk.Label(visible=True, label=disc_message.content,
-            xalign=0.0)
-        self.add(self._message_label)
+        main_hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+
+        self._username_label = Gtk.Label(
+            use_markup=True,
+            # NOTE: a specific username can mess up the pango formatting
+            label=f"<b>{disc_message.author.name}: </b>",
+            xalign=0.0
+        )
+        self._message_label = Gtk.Label(label=disc_message.content, xalign=0.0)
+
+        main_hbox.pack_start(self._username_label, False, False, 0)
+        main_hbox.pack_start(self._message_label, True, True, 0)
+
+        main_hbox.show_all()
+
+        self.add(main_hbox)
 
 class MessageView(Gtk.ScrolledWindow, EventReceiver):
     __gtype_name__ = "MessageView"
