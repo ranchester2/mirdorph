@@ -14,7 +14,11 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
-from gi.repository import Gtk, Handy, Gio
+import logging
+import threading
+import queue
+import time
+from gi.repository import Gtk, Handy, Gio, GLib
 from .event_receiver import EventReceiver
 from .channel_inner_window import ChannelInnerWindow
 from .channel_sidebar import MirdorphChannelSidebar
@@ -39,6 +43,13 @@ class MirdorphMainWindow(Handy.ApplicationWindow, EventReceiver):
         self._empty_inner_window.show()
         self.context_stack.add(self._empty_inner_window)
 
+
+        # This is so that we could know when was the first time channel was selected
+        # and then scroll to bottom. For show_active_channel
+        self._previously_selected_channels = [
+
+        ]
+
         # Might be a bit weird to be public.
         # However this needs to be used in main's connect
         # and add channel functions.
@@ -48,6 +59,12 @@ class MirdorphMainWindow(Handy.ApplicationWindow, EventReceiver):
         self.channel_sidebar.show()
         self._flap_box.pack_end(self.channel_sidebar, True, True, 0)
 
+    @Gtk.Template.Callback()
+    def _on_context_stack_focus_change(self, stack, strpar):
+        try:
+            stack.get_visible_child().load_history()
+        except AttributeError:
+            logging.warning("impossible to load history of empty status context")
 
     @Gtk.Template.Callback()
     def _on_window_destroy(self, window):
@@ -68,6 +85,33 @@ class MirdorphMainWindow(Handy.ApplicationWindow, EventReceiver):
        self.context_stack.add(context)
        self.context_stack.set_visible_child(context)
 
+    def _is_channel_selected_first_time(self, channel_id):
+        return (True if (channel_id not in self._previously_selected_channels) else False)
+
+    def _setting_messages_to_bottom_first_time_target(self, channel_id):
+        stop_qu = queue.Queue()
+        while True:
+            try:
+                is_compl = stop_qu.get(timeout=0.1)
+                if is_compl:
+                    return
+            except queue.Empty:
+                pass
+
+            time.sleep(0.1)
+            GLib.idle_add(
+                self._setting_messages_to_bottom_check_and_run_gtk_target,
+                channel_id,
+                stop_qu
+            )
+
+    def _setting_messages_to_bottom_check_and_run_gtk_target(self, channel_id, stop_qu):
+        context = self.props.application.retrieve_inner_window_context(channel_id)
+        if context.history_loading_is_complete:
+            context.scroll_messages_to_bottom()
+            stop_qu.put(True)
+
+
     def show_active_channel(self, channel_id):
         context = self.props.application.retrieve_inner_window_context(channel_id)
         if context.is_poped:
@@ -82,3 +126,16 @@ class MirdorphMainWindow(Handy.ApplicationWindow, EventReceiver):
         else:
             self.context_stack.set_visible_child(context)
             
+        if self._is_channel_selected_first_time(channel_id):
+            self._previously_selected_channels.append(channel_id)
+
+            # Because loading channels is in another thread, we cannot directly
+            # try scrolling the messages here as it might not have finished yet
+            # which is why we create another thread that continually checks if it has completed
+            stop_thread = False
+
+            setting_messages_to_bot_thread = threading.Thread(
+                target=self._setting_messages_to_bottom_first_time_target,
+                args=(channel_id,)
+            )
+            setting_messages_to_bot_thread.start()

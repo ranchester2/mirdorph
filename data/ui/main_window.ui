@@ -64,6 +64,10 @@
             <child type="content">
               <object class="GtkStack" id="context_stack">
                 <property name="visible">True</property>
+                <!-- NOTE: This will not work with already poped out windows, however it should be enough -->
+                <!-- since windows are currently never popped out by default -->
+                <!-- and by then adding messages with events has already taken over -->
+                <signal name="notify::visible-child" handler="_on_context_stack_focus_change"/>
               </object>
             </child>
           </object>
