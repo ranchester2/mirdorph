@@ -14,6 +14,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import asyncio
+import logging
 from gi.repository import Gtk, Handy, Gio
 from .event_receiver import EventReceiver
 
@@ -65,10 +66,23 @@ class MirdorphChannelSidebar(Gtk.Box, EventReceiver):
             self._list_entries.remove(entry)
             entry.get_parent().remove(entry)
             entry.destroy()
+            del(entry)
 
         for channel in Gio.Application.get_default().currently_running_channels:
             context = Gio.Application.get_default().retrieve_inner_window_context(channel)
             self.add_channel(context)
+
+        # Check for dupes, because for whatever reason they happen
+        found_ids = []
+        for entry in self._list_entries:
+            if entry.id in found_ids:
+                logging.warning("channel sidebar: DUPE FOUND")
+                self._list_entries.remove(entry)
+                entry.get_parent().remove(entry)
+                entry.destroy()
+                continue
+
+            found_ids.append(entry.id)
 
     @Gtk.Template.Callback()
     def _on_guild_list_entry_selected(self, listbox, row):

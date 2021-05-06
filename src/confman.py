@@ -17,6 +17,7 @@
 
 import os
 import json
+import logging
 import copy
 from pathlib import Path
 
@@ -36,6 +37,7 @@ class ConfManager:
                 with open(str(self.path)) as fd:
                     self._conf = json.loads(fd.read())
                 # verify thatfor k in ConfManager.BASE_SCHEMA:
+                for k in ConfManager.BASE_SCHEMA:
                     if k not in self._conf.keys():
                         if isinstance(
                                 ConfManager.BASE_SCHEMA[k], (list, dict)
@@ -43,16 +45,17 @@ class ConfManager:
                             self._conf[k] = ConfManager.BASE_SCHEMA[k].copy()
                         else:
                             self._conf[k] = ConfManager.BASE_SCHEMA[k]
-            except Exception:
+            except Exception as e:
+                logging.warning("unknown conf error, resetting conf")
                 self._conf = ConfManager.BASE_SCHEMA.copy()
                 self.save_conf()
         else:
+            logging.warning("no conf file found, creating")
             self._conf = ConfManager.BASE_SCHEMA.copy()
             self.save_conf()
 
     def save_conf(self, *args):
         with open(str(self.path), 'w') as fd:
-            print(self._conf)
             fd.write(json.dumps(self._conf))
 
     def set_value(self, name: str, val: any):

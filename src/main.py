@@ -76,9 +76,24 @@ class Application(Gtk.Application):
 
     def load_channels(self, channels):
         for channel in channels:
-            self.create_inner_window_context(channel, flap=self.main_win.main_flap)
-            self.currently_running_channels.append(channel)
-            self.main_win.channel_sidebar.inform_of_new_channel()
+            # Because might be called by reload_channels
+            # and thus be called multiple times, we don't want
+            # to create duplicate contexts, so if the context
+            # already exists we don't do anything
+            try:
+                self.retrieve_inner_window_context(channel)
+            except Exception as e:
+                self.create_inner_window_context(channel, flap=self.main_win.main_flap)
+                self.currently_running_channels.append(channel)
+                self.main_win.channel_sidebar.inform_of_new_channel()
+
+    def reload_channels(self, channels=None):
+        # Just calls load_channels because it currently always fully
+        # reloads channels anyways
+        if channels is None:
+            self.load_channels(self.currently_running_channels.copy())
+        else:
+            self.load_channels(channels)
 
     def create_inner_window_context(self, channel: int, flap: Handy.Flap):
         context = ChannelInnerWindow(empty=False, channel=channel)
