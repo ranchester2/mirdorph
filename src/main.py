@@ -29,10 +29,6 @@ from .confman import ConfManager
 
 
 class Application(Gtk.Application):
-    CHANNELS = [
-        831469660083847192,
-        838131086436335617
-    ]
 
     def __init__(self, discord_loop, discord_client, keyring_exists=False):
         super().__init__(application_id='org.gnome.gitlab.ranchester.Mirdorph',
@@ -68,7 +64,7 @@ class Application(Gtk.Application):
             self.main_win = MirdorphMainWindow(application=self)
 
             # Weird place, temp
-            self.load_channels(self.CHANNELS)
+            self.load_channels(self.confman.get_value("added_channels"))
 
             self.main_win.present()
         else:
