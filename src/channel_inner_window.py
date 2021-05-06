@@ -15,7 +15,8 @@
 
 import asyncio
 import logging
-from gi.repository import Gtk, Handy, Gio
+import threading
+from gi.repository import Gtk, Handy, Gio, GLib
 from .event_receiver import EventReceiver
 
 
@@ -58,6 +59,9 @@ class ChannelInnerWindow(Gtk.Box, EventReceiver):
 
             self._message_entry_bar = MessageEntryBar(context=self)
             self._message_entry_bar.show()
+
+            self._msg_sending_scrl_mode_en = False
+
             self._content_box.pack_end(self._message_entry_bar, False, False, 0)
             self._content_box.pack_end(Gtk.Separator(visible=True), False, False, 0)
         elif self.empty:
@@ -82,6 +86,36 @@ class ChannelInnerWindow(Gtk.Box, EventReceiver):
             self._popout_button_stack.set_visible(True)
             flap.set_swipe_to_close(False)
 
+    # wrapper to load history in the messageview for message sending
+    def load_history(self):
+        self._message_view.load_history()
+
+    # Could be better if this was defined in message_view instead?
+    @property
+    def is_loading_history(self):
+        # Since we know that the history_loading_spinner
+        # only exists while messages are currently being loaded,
+        # we can use it as an indicator to test if to try loading or not
+        # as this can be easily triggered many times
+        try:
+            self._message_view._history_loading_spinner
+        except AttributeError:
+            return False
+        else:
+            return True
+
+    @property
+    def history_loading_is_complete(self):
+        """
+        Wrapper around message view's is history loading complete
+        """
+        return self._message_view.history_loading_is_complete
+
+
+    def scroll_messages_to_bottom(self):
+        adj = self._message_view.get_vadjustment()
+        adj.set_value(adj.get_upper())
+
     def popin(self):
         try:
             assert self._popout_window
@@ -93,6 +127,8 @@ class ChannelInnerWindow(Gtk.Box, EventReceiver):
 
         self._popout_window.remove(self)
         self._popout_window.destroy()
+        # If we don't then the popin detection and folding breaks
+        del(self._popout_window)
 
         self.app.main_win.unconfigure_popout_window(self)
         self.is_poped = False
@@ -111,6 +147,28 @@ class ChannelInnerWindow(Gtk.Box, EventReceiver):
         self._popout_button_stack.set_visible_child(self._popin_button)
         self.is_poped = True
 
+    def prepare_scroll_for_msg_send(self):
+        """
+        Schedule next message to cause screen to scroll
+        """
+        self._msg_sending_scrl_mode_en = True
+
+    def unprepare_scroll_for_msg_send(self):
+        """
+        Disable mode of scheduling next messages to cause
+        screen to scroll
+        """
+        self._msg_sending_scrl_mode_en = False
+
+    @property
+    def is_scroll_for_msg_send(self):
+        """
+        Wether currently the next received message is expected to be
+        the one sent by the user, and it is expected that the view
+        is scrolled to their message
+        """
+        return self._msg_sending_scrl_mode_en
+
     @Gtk.Template.Callback()
     def on_popout_context_button_clicked(self, button):
         self.popout()
@@ -125,6 +183,24 @@ class ChannelInnerWindow(Gtk.Box, EventReceiver):
             not self.app.main_win.main_flap.get_reveal_flap()
         )
 
+class MirdorphMessage(Gtk.ListBoxRow, EventReceiver):
+    __gtype_name__ = "MirdorphMessage"
+
+    def __init__(self, disc_message, *args, **kwargs):
+        Gtk.ListBoxRow.__init__(self, *args, **kwargs)
+        EventReceiver.__init__(self)
+        self._disc_message = disc_message
+
+        # Overall unique identifier to tell duplicates apart
+        # here it is a message id, however other ways are possible.
+        # standard checking won't work because a message can have multiple
+        # objects
+        self.uniq_id = disc_message.id
+        self.timestamp = disc_message.created_at.timestamp()
+
+        self._message_label = Gtk.Label(visible=True, label=disc_message.content,
+            xalign=0.0)
+        self.add(self._message_label)
 
 class MessageView(Gtk.ScrolledWindow, EventReceiver):
     __gtype_name__ = "MessageView"
@@ -134,18 +210,134 @@ class MessageView(Gtk.ScrolledWindow, EventReceiver):
         EventReceiver.__init__(self)
 
         self._message_listbox = Gtk.ListBox()
+        # When nearly empty channel, messages should not pile up on top
+        self._message_listbox.set_valign(Gtk.Align.END)
+
+        # Due to events, the messages might often become out of order
+        # this ensures that the messages that were created earlier
+        # are always displayed *before* the later ones. This is for history
+        def message_listbox_sort_func(row_1, row_2, data, notify_destroy):
+            # For history loading spinner, which is a special case
+            if not isinstance(row_1, MirdorphMessage) or not isinstance(row_2, MirdorphMessage):
+                return -1
+            if row_1.timestamp < row_2.timestamp:
+                return -1
+            else:
+                return (row_1.timestamp < row_2.timestamp) + 1
+
+        self._message_listbox.set_sort_func(message_listbox_sort_func, None, False)
         self._message_listbox.show()
 
         self.add(self._message_listbox)
 
         self.context = context
 
+    def _on_msg_send_mode_scl_send_wrap(self):
+        self.context.scroll_messages_to_bottom()
+
     def disc_on_message(self, message):
         if message.channel.id == self.context.channel_id:
-            message_row = Gtk.ListBoxRow()
-            message_row.add(Gtk.Label(label=message.content, xalign=0.0))
-            message_row.show_all()
-            self._message_listbox.add(message_row)
+            message_wid = MirdorphMessage(message)
+            message_wid.show()
+            # No risk of this being a duplicate as this event never happens twice
+            self._message_listbox.add(message_wid)
+
+            if self.context.is_scroll_for_msg_send:
+                # With GLIB.idle_add and a wrapper instead of directly,
+                # since for some reason it only works like this.
+                GLib.idle_add(self._on_msg_send_mode_scl_send_wrap)
+
+            # We unset it here since currently it always intended for one message - the next one
+            # And it is extremely unlikely that the next on_message isn't the one that has been sent.
+            # This isnt called in the async send msg function with GLib.idle_add because it for some
+            # reason executes in the wrong order then and misses the message
+            self.context.unprepare_scroll_for_msg_send()
+
+    @property
+    def history_loading_is_complete(self):
+        """
+        If history loading has completed atleast once
+
+        This is useful for calling something that depends on history getting loaded,
+        like scrolling the messages to the bottom. Not 100% accurate
+        """
+        # Works as the message listboxes are direct children of the message listbox
+        # However not 100% accurate as some could have been from on_message,
+        # but that is highly unlikely
+        for child in self._message_listbox.get_children():
+            if isinstance(child, MirdorphMessage):
+                return True
+        return False
+
+    async def _get_history_messages_to_list(self, channel):
+        """
+        Return a list of Discord messages in current history,
+        useful to call in other thread and use the list to build
+        message objects
+        """
+        tmp_list = []
+        async for message in channel.history(limit=200):
+            tmp_list.append(message)
+        return tmp_list
+
+    def _history_loading_gtk_target(self, messages: list):
+        for message in messages:
+            message_wid = MirdorphMessage(message)
+            message_wid.show()
+
+            # We need to check for duplicates and not add it if it is one
+            # because load_history will often be called multiple times
+            duplicate = False
+            # The message listbox currently just has messages directly as children
+            # so this work fine
+            for already_existing_message in self._message_listbox.get_children():
+                if (isinstance(already_existing_message, MirdorphMessage) and
+                   message_wid.uniq_id == already_existing_message.uniq_id):
+                    duplicate = True
+                    break
+            if not duplicate:
+                self._message_listbox.add(message_wid)
+            else:
+                message_wid.destroy()
+                del(message_wid)
+
+        self._history_loading_spinner.stop()
+
+        # This aquard thing needed because a listboxrow is automatically
+        # inserted between the spinner and the listbox
+        spin_row = self._history_loading_spinner.get_parent()
+        spin_row.get_parent().remove(
+            spin_row
+        )
+        spin_row.remove(self._history_loading_spinner)
+        spin_row.destroy()
+        del(spin_row)
+
+        self._history_loading_spinner.destroy()
+        del(self._history_loading_spinner)
+
+    def _history_loading_target(self):
+        messages = list(
+            asyncio.run_coroutine_threadsafe(
+                self._get_history_messages_to_list(
+                    self.context.channel_disc
+                ),
+                Gio.Application.get_default().discord_loop
+            ).result()
+        )
+
+        GLib.idle_add(self._history_loading_gtk_target, messages)
+
+    def load_history(self):
+        if self.context.is_loading_history:
+            logging.warning("attempted to load history even if already loading")
+            return
+        self._history_loading_spinner = Gtk.Spinner()
+        self._message_listbox.add(self._history_loading_spinner)
+        self._history_loading_spinner.start()
+        message_loading_thread = threading.Thread(target=self._history_loading_target)
+        message_loading_thread.start()
+
 
 @Gtk.Template(resource_path='/org/gnome/gitlab/ranchester/Mirdorph/ui/message_entry_bar.ui')
 class MessageEntryBar(Gtk.Box, EventReceiver):
@@ -163,6 +355,12 @@ class MessageEntryBar(Gtk.Box, EventReceiver):
     @Gtk.Template.Callback()
     def on_message_entry_activate(self, entry):
         message = entry.get_text()
+        # Done here, not with a separate async wrapper with idle_add
+        # because it doesn't help because if we do it from that
+        # it executes in the wrong order.
+
+        # Unsetting happens in on_message due to similar reasons
+        self.context.prepare_scroll_for_msg_send()
         asyncio.run_coroutine_threadsafe(
             self.context.channel_disc.send(message),
             self.app.discord_loop
