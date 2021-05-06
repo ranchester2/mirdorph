@@ -336,6 +336,7 @@ class MessageView(Gtk.ScrolledWindow, EventReceiver):
             return
         self._history_loading_spinner = Gtk.Spinner()
         self._message_listbox.add(self._history_loading_spinner)
+        self._history_loading_spinner.show()
         self._history_loading_spinner.start()
         message_loading_thread = threading.Thread(target=self._history_loading_target)
         message_loading_thread.start()
