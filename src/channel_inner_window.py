@@ -276,7 +276,9 @@ class MessageView(Gtk.ScrolledWindow, EventReceiver):
         message objects
         """
         tmp_list = []
-        async for message in channel.history(limit=200):
+        # big limit temporary solution until we implement history reloading
+        # on scroll
+        async for message in channel.history(limit=1000):
             tmp_list.append(message)
         return tmp_list
 
