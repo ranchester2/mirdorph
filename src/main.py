@@ -25,6 +25,7 @@ from .login_window import MirdorphLoginWindow
 from .main_window import MirdorphMainWindow
 from .event_manager import EventManager
 from .channel_inner_window import ChannelInnerWindow
+from .confman import ConfManager
 
 
 class Application(Gtk.Application):
@@ -39,7 +40,10 @@ class Application(Gtk.Application):
         self.discord_loop = discord_loop
         self.discord_client = discord_client
         self.keyring_exists = keyring_exists
+
+        self.confman = ConfManager()
         self.event_manager = EventManager()
+
         self.currently_running_channels = []
         self._inner_window_contexts = {}
 
