@@ -204,7 +204,9 @@ class MirdorphMessage(Gtk.ListBoxRow, EventReceiver):
             use_markup=True,
             # NOTE: a specific username can mess up the pango formatting
             label=f"<b>{disc_message.author.name}: </b>",
-            xalign=0.0
+            xalign=0.0,
+            vexpand=True,
+            valign=Gtk.Align.START
         )
         self._message_label = Gtk.Label(label=disc_message.content, xalign=0.0)
 
