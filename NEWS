@@ -1,0 +1,11 @@
+v0.0.1:
+
+Initial MVP released, features:
+	* login support with token and secret storage
+	* somewhat adaptive
+	* adding channels
+	* opening channels
+	* poping out channels into separate windows
+	* sending messages
+	* receiving messages
+	* seeing previous messages
