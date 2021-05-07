@@ -118,6 +118,7 @@ class ChannelInnerWindow(Gtk.Box, EventReceiver):
         """
         Wrapper around message view's is history loading complete
         """
+
         return self._message_view.history_loading_is_complete
 
 
@@ -128,8 +129,21 @@ class ChannelInnerWindow(Gtk.Box, EventReceiver):
         NOTE: you need to add to this box BEFORE you scroll
         if you wish to go to the real bottom
         """
+
         adj = self._message_view.get_vadjustment()
         adj.set_value(adj.get_upper())
+
+    @property
+    def is_scroll_at_bottom(self):
+        """
+        Is the user currently scrolled to the very bottom of the
+        view
+        """
+        adj = self._message_view.get_vadjustment()
+        # We can't check for it exactly, because if you scroll
+        # for some reason it isn't the true bottom. So we use an "almost"
+        difference = abs(adj.get_value() - adj.get_upper())
+        return difference < 1000
 
     def popin(self):
         """
@@ -280,7 +294,7 @@ class MessageView(Gtk.ScrolledWindow, EventReceiver):
             # No risk of this being a duplicate as this event never happens twice
             self._message_listbox.add(message_wid)
 
-            if self.context.is_scroll_for_msg_send:
+            if self.context.is_scroll_for_msg_send or self.context.is_scroll_at_bottom:
                 # With GLIB.idle_add and a wrapper instead of directly,
                 # since for some reason it only works like this.
                 GLib.idle_add(self._on_msg_send_mode_scl_send_wrap)
