@@ -36,6 +36,15 @@ class ChannelInnerWindow(Gtk.Box, EventReceiver):
     _flap_toggle_button: Gtk.Button = Gtk.Template.Child()
 
     def __init__(self, channel=None, empty=True, *args, **kwargs):
+        """
+        Create a new ChannelInnerWindow. NOTE: don't use this, use
+        that of your application instead.
+
+        param:
+            channel: channel id that this context uses (note: if none empty is on)
+            empty: if this is just an empty state for its status message
+        """
+        
         Gtk.Box.__init__(self, *args, **kwargs)
         EventReceiver.__init__(self)
         self.app = Gio.Application.get_default()
@@ -113,10 +122,20 @@ class ChannelInnerWindow(Gtk.Box, EventReceiver):
 
 
     def scroll_messages_to_bottom(self):
+        """
+        Scroll the view to the very bottom
+
+        NOTE: you need to add to this box BEFORE you scroll
+        if you wish to go to the real bottom
+        """
         adj = self._message_view.get_vadjustment()
         adj.set_value(adj.get_upper())
 
     def popin(self):
+        """
+        Popin back to the main window
+        """
+
         try:
             assert self._popout_window
         except AttributeError:
@@ -134,6 +153,10 @@ class ChannelInnerWindow(Gtk.Box, EventReceiver):
         self.is_poped = False
 
     def popout(self):
+        """
+        Popout the channel into a separate window
+        """
+
         self.app.main_win.context_stack.remove(self)
 
         self.app.main_win.reconfigure_for_popout_window()
@@ -170,7 +193,7 @@ class ChannelInnerWindow(Gtk.Box, EventReceiver):
         return self._msg_sending_scrl_mode_en
 
     @Gtk.Template.Callback()
-    def on_popout_context_button_clicked(self, button):
+    def _on_popout_context_button_clicked(self, button):
         self.popout()
 
     @Gtk.Template.Callback()
@@ -346,6 +369,11 @@ class MessageView(Gtk.ScrolledWindow, EventReceiver):
         GLib.idle_add(self._history_loading_gtk_target, messages)
 
     def load_history(self):
+        """
+        Load the history of the view and it's channel
+
+        You can only load once at a time, async operation
+        """
         if self.context.is_loading_history:
             logging.warning("attempted to load history even if already loading")
             return

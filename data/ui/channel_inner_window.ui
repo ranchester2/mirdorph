@@ -31,7 +31,7 @@
                 <object class="GtkButton" id="_popout_button">
                   <property name="visible">True</property>
                   <property name="image">_popout_context_button_image</property>
-                  <signal name="clicked" handler="on_popout_context_button_clicked"/>
+                  <signal name="clicked" handler="_on_popout_context_button_clicked"/>
                   <child>
                     <object class="GtkImage" id="_popout_context_button_image">
                       <property name="visible">True</property>

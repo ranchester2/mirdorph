@@ -22,6 +22,13 @@ import copy
 from pathlib import Path
 
 class ConfManager:
+    """
+    The ConfManager is a system that helps manage the configuration
+    of the application.
+
+    It is recommended to ever only have one instane, and add it to 
+    your application class
+    """
 
     BASE_SCHEMA = {
         'added_channels': [
@@ -29,6 +36,11 @@ class ConfManager:
     }
 
     def __init__(self):
+        """
+        Create a ConfManager
+
+        The path is automatically hardcoded by your vendor
+        """
         self.path = Path(os.environ["XDG_CONFIG_HOME"] + "/" + "mirdorph.conf.json")
         if self.path.is_file():
             try:
@@ -52,11 +64,26 @@ class ConfManager:
             self._conf = ConfManager.BASE_SCHEMA.copy()
             self.save_conf()
 
-    def save_conf(self, *args):
+    def save_conf(self):
+        """
+        Force save current configuration to disk
+        """
         with open(str(self.path), 'w') as fd:
             fd.write(json.dumps(self._conf))
 
     def set_value(self, name: str, val: any):
+        """
+        Set a value in the configuration
+
+        You do not need to use save_conf after this
+        as it is done automatically.
+        
+
+        param:
+            name: str name of the key, can be any json
+            serializable object
+            vaL: any json serializable value
+        """
         self._conf[name] = copy.deepcopy(val)
         self.save_conf()
 

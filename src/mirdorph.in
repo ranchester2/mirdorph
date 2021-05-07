@@ -81,7 +81,9 @@ if __name__ == '__main__':
         logging.info("token exists")
         keyring_exists=True
 
-    client = commands.Bot(command_prefix="&&&", max_messages=100000000000000000, fetch_offline_members=False, guild_subscriptions=False)
+    # If stuff breaks, drop intents and set fetch_offline_members to False again.
+    intents = discord.Intents.all()
+    client = commands.Bot(command_prefix="&&&", intents=intents, max_messages=100000000000000000, fetch_offline_members=True, guild_subscriptions=False)
 
     discord_loop = asyncio.get_event_loop()
     gtk_thread = threading.Thread(target=init_gtk, args=(discord_loop, client, keyring_exists))

@@ -94,6 +94,7 @@ class MirdorphMainWindow(Handy.ApplicationWindow, EventReceiver):
 
     @Gtk.Template.Callback()
     def _on_window_destroy(self, window):
+        # Dangerous, but we need to kill all threads instantly for now
         os._exit(1)
 
     def reconfigure_for_popout_window(self):
@@ -105,11 +106,22 @@ class MirdorphMainWindow(Handy.ApplicationWindow, EventReceiver):
 
         NOTE: must be called AFTER you remove the channelcontext
         """
+
         self.context_stack.set_visible_child(self._empty_inner_window)
 
     def unconfigure_popout_window(self, context):
-       self.context_stack.add(context)
-       self.context_stack.set_visible_child(context)
+        """
+        Unconfigure the main win for a popout window
+
+        This basically adds it back to the stack and makes it
+        the currently displayed one
+
+        param:
+            context - the ChannelInnerWindow context
+        """
+
+        self.context_stack.add(context)
+        self.context_stack.set_visible_child(context)
 
     def _is_channel_selected_first_time(self, channel_id):
         return (True if (channel_id not in self._previously_selected_channels) else False)
@@ -139,6 +151,14 @@ class MirdorphMainWindow(Handy.ApplicationWindow, EventReceiver):
 
 
     def show_active_channel(self, channel_id):
+        """
+        Display a specifed channel to the user
+
+        param:
+            channel_id: int of the channel that you want
+            to display
+        """
+
         context = self.props.application.retrieve_inner_window_context(channel_id)
         if context.is_poped:
             temp_win_top = context.get_toplevel()

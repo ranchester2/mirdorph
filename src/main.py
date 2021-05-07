@@ -75,6 +75,12 @@ class Application(Gtk.Application):
             win.present()
 
     def load_channels(self, channels):
+        """
+        Load initial channels
+
+        param:
+            channels: list of channel int ids
+        """
         for channel in channels:
             # Because might be called by reload_channels
             # and thus be called multiple times, we don't want
@@ -88,6 +94,12 @@ class Application(Gtk.Application):
                 self.main_win.channel_sidebar.inform_of_new_channel()
 
     def reload_channels(self, channels=None):
+        """
+        Force a reload of all channels
+
+        param:
+            channels (optional): a list of channel ids that will be used instead
+        """
         # Just calls load_channels because it currently always fully
         # reloads channels anyways
         if channels is None:
@@ -99,7 +111,7 @@ class Application(Gtk.Application):
         context = ChannelInnerWindow(empty=False, channel=channel)
 
         # So that it could handle folding
-        # Here not in the init of ocntext, as then the app window
+        # Here not in the init of context, as then the app window
         # hasn't been created yet, so we need to get a reference from
         # it somehow before that
         flap.connect("notify::folded", context.handle_flap_folding)
@@ -107,13 +119,8 @@ class Application(Gtk.Application):
         self.main_win.context_stack.add(context)
         self._inner_window_contexts[channel] = context
 
-    # Temp until proper server support implemented
-    def connect_channel(self, channel: int):
-        self.main_win.channel_sidebar.add_channel(channel)
-
     def retrieve_inner_window_context(self, channel: int):
         return self._inner_window_contexts[channel]
-
 
 
 def main(version, discord_loop, discord_client, keyring_exists):

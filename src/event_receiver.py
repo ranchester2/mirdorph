@@ -18,6 +18,14 @@ from gi.repository import Gio, Gtk, Handy
 
 
 class EventReceiver:
+    """
+    An object used to receive Discord events
+
+    To use, subclass it and init it.
+    Then on functions "disc_" + event name from documentation
+    you can receive events and all the arguments
+    """
+    
     def __init__(self):
         self._ev_app = Gio.Application.get_default()
         self._ev_app.event_manager.register_receiver(self)

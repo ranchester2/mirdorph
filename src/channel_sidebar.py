@@ -51,17 +51,31 @@ class MirdorphChannelSidebar(Gtk.Box, EventReceiver):
         Gio.Application.get_default().bar_size_group.add_widget(self._view_switcher)
 
     def add_channel(self, context):
+        """
+        Forcibly add a channel
+
+        NOTE: it is not recommended to use this,
+        instead create a context and use `inform_of_new_channel`
+
+        param:
+            context - the context of the channel you want to add
+        """
+
         list_entry = MirdorphChannelListEntry(context)
         list_entry.show()
         self._list_entries.append(list_entry)
         self._channel_guild_list.add(list_entry)
 
     def inform_of_new_channel(self):
+        """
+        Check for channels and rebuild the sidebar
+        if needed
+        """
+
         # This is to simply inform of when a new chaannel is added
         # so that we could react accordingly.
         # Which is why we need to destroy all currently added ones
         # to avoid duplicates
-
         for entry in self._list_entries:
             self._list_entries.remove(entry)
             entry.get_parent().remove(entry)

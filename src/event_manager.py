@@ -19,11 +19,25 @@ from .event_receiver import EventReceiver
 from gi.repository import Gio, Gtk, Handy
 
 class EventManager:
+    """
+    Manages events and event receivers
+
+    You need your application to have on as .event_manager
+    for the event receivers to register against.
+    """
     def __init__(self):
         self.app = Gio.Application.get_default()
         self._receivers = []
 
     def register_receiver(self, receiver: EventReceiver):
+        """
+        Register a receiver
+
+        param:
+            receiver: the receiver object that will now receive e
+                NOTE: usually users don't use this as the EventReeiver __init__
+                does it
+        """
         self._receivers.append(receiver)
 
     def dispatch_event(self, name: str, *args, **kwargs):
