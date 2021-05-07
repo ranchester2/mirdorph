@@ -10,8 +10,7 @@
 		"--share=ipc",
 		"--socket=fallback-x11",
 		"--socket=wayland",
-		"--talk-name=org.freedesktop.secrets",
-		"--talk-name=org.kde.kwalletd5.service"
+		"--talk-name=org.freedesktop.secrets"
 	],
 	"cleanup": [
 		"/include",
@@ -89,20 +88,6 @@
 				{
 					"type": "patch",
 					"path": "./patches/0001-add-workaround-for-on_message-on-self-bots.patch"
-				}
-			]
-		},
-		{
-			"name": "python-dbus",
-			"buildsystem": "simple",
-			"build-commands": [
-				"python3 setup.py install --prefix=/app --root=/ --optimize=1"
-			],
-			"sources": [
-				{
-					"type": "git",
-					"url": "https://gitlab.freedesktop.org/dbus/dbus-python.git",
-					"commit": "39b3099e"
 				}
 			]
 		},
