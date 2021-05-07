@@ -24,10 +24,10 @@
 	],
 	"modules": [
 		{
-			"name": "python-discord.py",
+			"name": "python-discord-deps",
 			"buildsystem": "simple",
 			"build-commands": [
-				"pip3 install --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"discord.py\" --no-build-isolation"
+				"pip3 install --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"aiohttp\" --no-build-isolation"
 			],
 			"sources": [
 				{
@@ -67,13 +67,26 @@
 				},
 				{
 					"type": "file",
-					"url": "https://files.pythonhosted.org/packages/38/32/e1fed56bc8a0a1ee70b024da605cffe2fdc255d9c75db455efc10d088ecc/discord.py-1.7.1.tar.gz",
-					"sha256": "82bc5e6325ab7557db9c466f638c98e18be03c330f56ad9bf4c18bdcf19faf55"
-				},
-				{
-					"type": "file",
 					"url": "https://files.pythonhosted.org/packages/a1/78/aae1545aba6e87e23ecab8d212b58bb70e72164b67eb090b81bb17ad38e3/async-timeout-3.0.1.tar.gz",
 					"sha256": "0c3c816a028d47f659d6ff5c745cb2acf1f966da1fe5c19c77a70282b25f4c5f"
+				}
+			]
+		},
+		{
+			"name": "python-discord",
+			"buildsystem": "simple",
+			"build-commands": [
+				"python3 setup.py install --prefix=/app --root=/ --optimize=1"
+			],
+			"sources": [
+				{
+					"type": "git",
+					"url": "https://github.com/Rapptz/discord.py.git",
+					"tag": "v1.7.2"
+				},
+				{
+					"type": "patch",
+					"path": "./patches/0001-add-workaround-for-on_message-on-self-bots.patch"
 				}
 			]
 		},
