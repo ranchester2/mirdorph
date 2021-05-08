@@ -35,13 +35,18 @@ class ConfManager:
         ]
     }
 
-    def __init__(self):
+    def __init__(self, path=None):
         """
         Create a ConfManager
 
-        The path is automatically hardcoded by your vendor
+        param:
+            path: (optional) override the default path
         """
-        self.path = Path(os.environ["XDG_CONFIG_HOME"] + "/" + "mirdorph.conf.json")
+        if path is None:
+            self.path = Path(os.environ["XDG_CONFIG_HOME"] + "/" + "mirdorph.conf.json")
+        else:
+            self.path = path
+            
         if self.path.is_file():
             try:
                 with open(str(self.path)) as fd:
