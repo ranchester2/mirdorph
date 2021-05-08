@@ -31,17 +31,24 @@ class ConfManager:
     """
 
     BASE_SCHEMA = {
+        # Example and for testing
+        'example': 0,
         'added_channels': [
         ]
     }
 
-    def __init__(self):
+    def __init__(self, path: Path = None):
         """
         Create a ConfManager
 
-        The path is automatically hardcoded by your vendor
+        param:
+            path: (optional) override the default path
         """
-        self.path = Path(os.environ["XDG_CONFIG_HOME"] + "/" + "mirdorph.conf.json")
+        if path is None:
+            self.path = Path(os.environ["XDG_CONFIG_HOME"] + "/" + "mirdorph.conf.json")
+        else:
+            self.path = path
+            
         if self.path.is_file():
             try:
                 with open(str(self.path)) as fd:
