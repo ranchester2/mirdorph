@@ -63,9 +63,6 @@ class Application(Gtk.Application):
             logging.info("launching with token")
             self.main_win = MirdorphMainWindow(application=self)
 
-            # Weird place, temp
-            self.load_channels(self.confman.get_value("added_channels"))
-
             self.main_win.present()
         else:
             logging.info("launching token retrieval sequence")
@@ -73,39 +70,6 @@ class Application(Gtk.Application):
             if not win:
                 win = MirdorphLoginWindow(application=self)
             win.present()
-
-    def load_channels(self, channels):
-        """
-        Load initial channels
-
-        param:
-            channels: list of channel int ids
-        """
-        for channel in channels:
-            # Because might be called by reload_channels
-            # and thus be called multiple times, we don't want
-            # to create duplicate contexts, so if the context
-            # already exists we don't do anything
-            try:
-                self.retrieve_inner_window_context(channel)
-            except Exception as e:
-                self.create_inner_window_context(channel, flap=self.main_win.main_flap)
-                self.currently_running_channels.append(channel)
-                self.main_win.channel_sidebar.inform_of_new_channel()
-
-    def reload_channels(self, channels=None):
-        """
-        Force a reload of all channels
-
-        param:
-            channels (optional): a list of channel ids that will be used instead
-        """
-        # Just calls load_channels because it currently always fully
-        # reloads channels anyways
-        if channels is None:
-            self.load_channels(self.currently_running_channels.copy())
-        else:
-            self.load_channels(channels)
 
     def create_inner_window_context(self, channel: int, flap: Handy.Flap):
         context = ChannelInnerWindow(empty=False, channel=channel)
@@ -120,6 +84,18 @@ class Application(Gtk.Application):
         self._inner_window_contexts[channel] = context
 
     def retrieve_inner_window_context(self, channel: int):
+        """
+        Retrieve an inner window context for a channel
+
+        NOTE: If one does not already exist, it will be
+        automatically created
+
+        param:
+            channel: integer of the id of the channel
+        """
+        if channel not in self._inner_window_contexts:
+            self.create_inner_window_context(channel, self.main_win.main_flap)
+
         return self._inner_window_contexts[channel]
 
 
