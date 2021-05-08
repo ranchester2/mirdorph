@@ -31,11 +31,13 @@ class ConfManager:
     """
 
     BASE_SCHEMA = {
+        # Example and for testing
+        'example': 0,
         'added_channels': [
         ]
     }
 
-    def __init__(self, path=None):
+    def __init__(self, path: Path = None):
         """
         Create a ConfManager
 
