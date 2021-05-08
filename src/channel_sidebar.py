@@ -14,8 +14,10 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import asyncio
+import threading
 import logging
-from gi.repository import Gtk, Handy, Gio
+import discord
+from gi.repository import Gtk, Handy, Gio, GLib, Pango
 from .event_receiver import EventReceiver
 
 @Gtk.Template(resource_path='/org/gnome/gitlab/ranchester/Mirdorph/ui/channel_list_entry.ui')
@@ -24,10 +26,103 @@ class MirdorphChannelListEntry(Gtk.ListBoxRow):
 
     _channel_label: Gtk.Label = Gtk.Template.Child()
 
-    def __init__(self, context, *args, **kwargs):
+    def __init__(self, discord_channel: discord.abc.GuildChannel, *args, **kwargs):
         Gtk.ListBoxRow.__init__(self, *args, **kwargs)
-        self.id = context.channel_id
-        self._channel_label.set_label('#' + context.channel_disc.name)
+        self.id = discord_channel.id
+        self._channel_label.set_label('#' + discord_channel.name)
+
+class MirdorphGuildEntry(Handy.ExpanderRow):
+    __gtype_name__ = "MirdorphGuildEntry"
+
+    def __init__(self, guild_id, *args, **kwargs):
+        Gtk.ListBoxRow.__init__(self, *args, **kwargs)
+
+        # Initially its just a spinner until we load everything
+        self._loading_state_spinner = Gtk.Spinner()
+        self._loading_state_spinner.show()
+        self.add_prefix(self._loading_state_spinner)
+        self._loading_state_spinner.start()
+
+        # For whatever reason it is needed
+        self.set_hexpand(False)
+
+        fetching_guild_thread = threading.Thread(
+            target=self._fetching_guild_threaded_target,
+            args=(guild_id,)
+        )
+        fetching_guild_thread.start()
+
+    async def _get_guild_advanced_wrapper(self, client, guild_id):
+        tmp_guild = await client.fetch_guild(guild_id)
+
+        await asyncio.sleep(0.1)
+        while client.get_guild(guild_id) is None:
+            logging.info("couldnt get channel, sleeping for additional second")
+            await asyncio.sleep(1)
+
+        return client.get_guild(guild_id)
+
+    async def _channel_is_private_to_you(self, self_member, channel):
+        our_permissions = channel.permissions_for(self_member)
+        return not our_permissions.view_channel
+
+    async def _get_self_member(self, client):
+        return await self._guild_disc.fetch_member(client.user.id)
+
+    def _fetching_guild_threaded_target(self, guild_id):
+        self._guild_disc = asyncio.run_coroutine_threadsafe(
+            self._get_guild_advanced_wrapper(
+                Gio.Application.get_default().discord_client,
+                guild_id
+            ),
+            Gio.Application.get_default().discord_loop
+        ).result()
+
+        # So that we could query our permissions, not in loop for rate limit
+        self_member = asyncio.run_coroutine_threadsafe(
+            self._get_self_member(
+                Gio.Application.get_default().discord_client
+            ),
+            Gio.Application.get_default().discord_loop
+        ).result()
+        self._private_guild_channel_ids = []
+        for channel in self._guild_disc.channels:
+            is_private = asyncio.run_coroutine_threadsafe(
+                self._channel_is_private_to_you(
+                    self_member,
+                    channel
+                ),
+                Gio.Application.get_default().discord_loop
+            ).result()
+            if is_private:
+                self._private_guild_channel_ids.append(channel.id)
+
+        GLib.idle_add(self._build_guild_gtk_target)
+
+    def _build_guild_gtk_target(self):
+        self.set_title(self._guild_disc.name)
+
+        self._channel_listbox = Gtk.ListBox()
+        self._channel_listbox.show()
+        self._channel_listbox.connect("row-activated", self._on_channel_list_entry_activated)
+
+        self.add(self._channel_listbox)
+
+        for channel in self._guild_disc.channels:
+            if isinstance(channel, (discord.VoiceChannel, discord.StageChannel, discord.CategoryChannel)):
+                continue
+
+            if channel.id in self._private_guild_channel_ids:
+                continue
+
+            channel_entry = MirdorphChannelListEntry(channel)
+            channel_entry.show()
+            self._channel_listbox.add(channel_entry)
+
+        self.remove(self._loading_state_spinner)
+
+    def _on_channel_list_entry_activated(self, listbox, row):
+        Gio.Application.get_default().main_win.show_active_channel(row.id)
 
 @Gtk.Template(resource_path='/org/gnome/gitlab/ranchester/Mirdorph/ui/channel_sidebar.ui')
 class MirdorphChannelSidebar(Gtk.Box, EventReceiver):
@@ -36,68 +131,48 @@ class MirdorphChannelSidebar(Gtk.Box, EventReceiver):
     _view_switcher: Handy.ViewSwitcherBar = Gtk.Template.Child()
     _channel_guild_list: Gtk.ListBox = Gtk.Template.Child()
 
+    _channel_guild_loading_stack: Gtk.Stack = Gtk.Template.Child()
+    _channel_guild_list_scrolled_win: Gtk.ScrolledWindow = Gtk.Template.Child()
+    _channel_guild_loading_spinner_page: Gtk.Spinner = Gtk.Template.Child()
+
     def __init__(self, *args, **kwargs):
         Gtk.Box.__init__(self, *args, **kwargs)
         EventReceiver.__init__(self)
 
-        # Temp, we could use containe.get_children too
-        # However the guild list will need a complete
-        # redesign when we implement it as in mockup
-        # and give it the required functionality
-        self._list_entries = [
-        ]
-
         # hacky global
         Gio.Application.get_default().bar_size_group.add_widget(self._view_switcher)
 
-    def add_channel(self, context):
-        """
-        Forcibly add a channel
+        self._channel_guild_loading_stack.set_visible_child(self._channel_guild_loading_spinner_page)
+        build_guilds_thread = threading.Thread(target=self._build_guilds_target)
+        build_guilds_thread.start()
 
-        NOTE: it is not recommended to use this,
-        instead create a context and use `inform_of_new_channel`
+    async def _get_guild_ids_list(self, client):
+        # Why the waiting?
+        # We can't get guilds with all the feauters with fetching
+        # So we wait here for the cache to get built up so that we
+        # could get guild objects
+        await asyncio.sleep(0.25)
+        while not client.guilds:
+            logging.info("couldnt get list, sleeping for additional quarter second")
+            await asyncio.sleep(0.25)
 
-        param:
-            context - the context of the channel you want to add
-        """
+        guild_ids_list = [guild.id for guild in client.guilds]
+        return guild_ids_list
 
-        list_entry = MirdorphChannelListEntry(context)
-        list_entry.show()
-        self._list_entries.append(list_entry)
-        self._channel_guild_list.add(list_entry)
+    def _build_guilds_target(self):
+        guild_ids = asyncio.run_coroutine_threadsafe(
+            self._get_guild_ids_list(
+                Gio.Application.get_default().discord_client
+            ),
+            Gio.Application.get_default().discord_loop
+        ).result()
 
-    def inform_of_new_channel(self):
-        """
-        Check for channels and rebuild the sidebar
-        if needed
-        """
+        GLib.idle_add(self._build_guilds_gtk_target, guild_ids)
 
-        # This is to simply inform of when a new chaannel is added
-        # so that we could react accordingly.
-        # Which is why we need to destroy all currently added ones
-        # to avoid duplicates
-        for entry in self._list_entries:
-            self._list_entries.remove(entry)
-            entry.get_parent().remove(entry)
-            entry.destroy()
-            del(entry)
+    def _build_guilds_gtk_target(self, guild_ids):
+        for guild_id in guild_ids:
+            guild_entry = MirdorphGuildEntry(guild_id)
+            guild_entry.show()
+            self._channel_guild_list.add(guild_entry)
+        self._channel_guild_loading_stack.set_visible_child(self._channel_guild_list_scrolled_win)
 
-        for channel in Gio.Application.get_default().currently_running_channels:
-            context = Gio.Application.get_default().retrieve_inner_window_context(channel)
-            self.add_channel(context)
-
-        # Check for dupes, because for whatever reason they happen
-        found_ids = []
-        for entry in self._list_entries:
-            if entry.id in found_ids:
-                logging.warning("channel sidebar: DUPE FOUND")
-                self._list_entries.remove(entry)
-                entry.get_parent().remove(entry)
-                entry.destroy()
-                continue
-
-            found_ids.append(entry.id)
-
-    @Gtk.Template.Callback()
-    def _on_guild_list_entry_selected(self, listbox, row):
-        Gio.Application.get_default().main_win.show_active_channel(row.id)

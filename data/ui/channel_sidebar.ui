@@ -7,10 +7,30 @@
     <child>
       <object class="GtkStack" id="_channel_list_type_stack">
         <property name="visible">True</property>
+        <property name="vexpand">True</property>
         <child>
-          <object class="GtkListBox" id="_channel_guild_list">
+          <object class="GtkStack" id="_channel_guild_loading_stack">
             <property name="visible">True</property>
-            <signal name="row-activated" handler="_on_guild_list_entry_selected"/>
+            <child>
+              <object class="GtkScrolledWindow" id="_channel_guild_list_scrolled_win">
+                <property name="visible">True</property>
+                <property name="hscrollbar-policy">2</property>
+                <child>
+                  <object class="GtkListBox" id="_channel_guild_list">
+                    <property name="visible">True</property>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkSpinner" id="_channel_guild_loading_spinner_page">
+                <property name="visible">True</property>
+                <property name="active">True</property>
+                <property name="valign">GTK_ALIGN_CENTER</property>
+                <property name="height-request">256</property>
+                <property name="width-request">256</property>
+              </object>
+            </child>
           </object>
           <packing>
             <property name="title">Guilds</property>
