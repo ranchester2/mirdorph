@@ -24,6 +24,8 @@ from .event_receiver import EventReceiver
 class ChannelInnerWindow(Gtk.Box, EventReceiver):
     __gtype_name__ = "ChannelInnerWindow"
 
+    _context_headerbar: Handy.HeaderBar = Gtk.Template.Child()
+
     _toplevel_empty_stack: Gtk.Stack = Gtk.Template.Child()
     _empty_status_page: Handy.StatusPage = Gtk.Template.Child()
 
@@ -61,6 +63,10 @@ class ChannelInnerWindow(Gtk.Box, EventReceiver):
                 self.app.discord_client.fetch_channel(self.channel_id),
                 self.app.discord_loop
             ).result()
+
+            self._context_headerbar.set_title("#" + self.channel_disc.name)
+            if self.channel_disc.topic is not None:
+                self._context_headerbar.set_subtitle(self.channel_disc.topic)
 
             self._message_view = MessageView(context=self)
             self._message_view.show()
