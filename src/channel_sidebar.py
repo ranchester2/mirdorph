@@ -62,6 +62,13 @@ class MirdorphGuildEntry(Handy.ExpanderRow):
 
         return client.get_guild(guild_id)
 
+    async def _channel_is_private_to_you(self, self_member, channel):
+        our_permissions = channel.permissions_for(self_member)
+        return not our_permissions.view_channel
+
+    async def _get_self_member(self, client):
+        return await self._guild_disc.fetch_member(client.user.id)
+
     def _fetching_guild_threaded_target(self, guild_id):
         self._guild_disc = asyncio.run_coroutine_threadsafe(
             self._get_guild_advanced_wrapper(
@@ -70,6 +77,25 @@ class MirdorphGuildEntry(Handy.ExpanderRow):
             ),
             Gio.Application.get_default().discord_loop
         ).result()
+
+        # So that we could query our permissions, not in loop for rate limit
+        self_member = asyncio.run_coroutine_threadsafe(
+            self._get_self_member(
+                Gio.Application.get_default().discord_client
+            ),
+            Gio.Application.get_default().discord_loop
+        ).result()
+        self._private_guild_channel_ids = []
+        for channel in self._guild_disc.channels:
+            is_private = asyncio.run_coroutine_threadsafe(
+                self._channel_is_private_to_you(
+                    self_member,
+                    channel
+                ),
+                Gio.Application.get_default().discord_loop
+            ).result()
+            if is_private:
+                self._private_guild_channel_ids.append(channel.id)
 
         GLib.idle_add(self._build_guild_gtk_target)
 
@@ -85,6 +111,10 @@ class MirdorphGuildEntry(Handy.ExpanderRow):
         for channel in self._guild_disc.channels:
             if isinstance(channel, (discord.VoiceChannel, discord.StageChannel, discord.CategoryChannel)):
                 continue
+
+            if channel.id in self._private_guild_channel_ids:
+                continue
+
             channel_entry = MirdorphChannelListEntry(channel)
             channel_entry.show()
             self._channel_listbox.add(channel_entry)
