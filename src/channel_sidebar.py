@@ -14,6 +14,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import asyncio
+import threading
 import logging
 from gi.repository import Gtk, Handy, Gio
 from .event_receiver import EventReceiver
@@ -28,6 +29,37 @@ class MirdorphChannelListEntry(Gtk.ListBoxRow):
         Gtk.ListBoxRow.__init__(self, *args, **kwargs)
         self.id = context.channel_id
         self._channel_label.set_label('#' + context.channel_disc.name)
+
+class MirdorphGuildEntry(Handy.ExpanderRow):
+    __gtype_name__ = "MirdorphGuildEntry"
+
+    def __init__(self, guild_id, *args, **kwargs):
+        Gtk.ListBoxRow.__init__(self, *args, **kwargs):
+
+        # Initially its just a spinner until we load everything
+        self._loading_state_spinner = Gtk.Spinner()
+        self._loading_state_spinner.show()
+        self.add_prefix(self._loading_state_spinner)
+        self._loading_state_spinner.start()
+
+        fetching_guild_thread = threading.Thread(
+            target=self._fetching_guild_threaded_target,
+            args=(guild_id,)
+        )
+
+
+    def _fetching_guild_threaded_target(self, guild_id):
+        self._guild_disc = asyncio.run_coroutine_threadsafe(
+            Gio.Application.get_default().discord_client.fetch_guild(guild_id),
+            Gio.Application.get_default().discord_loop
+        ).result()
+
+        GLib.idle_add(self._build_guild_gtk_target)
+
+    def _build_guild_gtk_target(self):
+        self.remove(self._loading_state_spinner)
+        self.set_title(self._guild_disc.name)
+
 
 @Gtk.Template(resource_path='/org/gnome/gitlab/ranchester/Mirdorph/ui/channel_sidebar.ui')
 class MirdorphChannelSidebar(Gtk.Box, EventReceiver):
