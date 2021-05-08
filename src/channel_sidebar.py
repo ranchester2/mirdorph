@@ -121,10 +121,10 @@ class MirdorphChannelSidebar(Gtk.Box, EventReceiver):
         # We can't get guilds with all the feauters with fetching
         # So we wait here for the cache to get built up so that we
         # could get guild objects
-        await asyncio.sleep(1)
+        await asyncio.sleep(0.25)
         while not client.guilds:
-            logging.info("couldnt get list, sleeping for additional second")
-            await asyncio.sleep(1)
+            logging.info("couldnt get list, sleeping for additional quarter second")
+            await asyncio.sleep(0.25)
 
         guild_ids_list = [guild.id for guild in client.guilds]
         return guild_ids_list
