@@ -4,9 +4,8 @@ That is it, and it uses discord.py and GTK3.
 
 To run:
 
-Have flatpak installed.
-Install `org.gnome.Sdk` (I am not sure if you need to do that manually on a
-fresh install, but get it from flathub just in case)
+Have flatpak and flatpak-builder installed.
+Install `org.gnome.Sdk` and `org.gnome.Platform` (v40) if they are not allready installed
 
 And from the source directory:
 
