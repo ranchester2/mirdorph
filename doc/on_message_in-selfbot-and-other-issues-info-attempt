@@ -1,0 +1,20 @@
+What someone has found out about the current issue.
+
+> I've been investigating for the past week or so, and from what I can gather
+> there are a couple of issues.
+>
+> 1. Intents need to be disabled. Users don't use intents, and enabling
+> intents seems to be one of the causes of this problem. Discord may have
+> even done it on purpose.
+>
+> 2. The IDENTIFY packet sent needs to be changed. To log on to the API,
+> whatever is using it (be it discord.py or the official Discord client),
+> sends an IDENTIFY packet with the token and some other info. These are
+> different for bot and user, and also seem to be part of the problem.
+
+> I disabled intents and replaced the IDENTIFY packet in gateway.py, but
+> anything that needs intents (e.g. on_message), doesn't fire at all. There's
+> either another problem, or there's an internal check that disables things
+> that need intents if the specific intent is disabled, even though it
+> *does* have
+> the correct permissions.
