@@ -170,6 +170,9 @@ class MirdorphGuildEntry(Handy.ExpanderRow):
 
     def _on_channel_list_entry_activated(self, listbox, row):
         Gio.Application.get_default().main_win.show_active_channel(row.id)
+        # Most mobile sidebar switching implementations work like this
+        if Gio.Application.get_default().main_win.main_flap.get_folded():
+            Gio.Application.get_default().main_win.main_flap.set_reveal_flap(False)
 
 @Gtk.Template(resource_path='/org/gnome/gitlab/ranchester/Mirdorph/ui/channel_sidebar.ui')
 class MirdorphChannelSidebar(Gtk.Box, EventReceiver):
