@@ -1,0 +1,4 @@
+Icons for the app.
+Note the meson.build and hicolorm, the builder template does it like this,
+but then they don't work in apps, but gresource does work in apps.
+So for the app icon I did both by copy and pasting

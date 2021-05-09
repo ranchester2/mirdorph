@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gresources>
   <gresource prefix="/org/gnome/gitlab/ranchester/Mirdorph">
+    <!-- In addition to the /icons install method, as gresource too as that -->
+    <!-- doesn't work everywhere-->
+    <file>icons/org.gnome.gitlab.ranchester.Mirdorph.svg</file>
+    <file>icons/org.gnome.gitlab.ranchester.Mirdorph-symbolic.svg</file>
     <file>icons/org.gnome.gitlab.ranchester.Mirdorph.DiscussionsLogo.svg</file>
     <file>icons/org.gnome.gitlab.ranchester.Mirdorph.Guilds.svg</file>
     <file>icons/view-sidebar-symbolic.svg</file>
@@ -11,5 +15,9 @@
     <file>ui/message_entry_bar.ui</file>
     <file>ui/channel_sidebar.ui</file>
     <file>ui/channel_list_entry.ui</file>
+    <file>ui/general_menu.ui</file>
+    <file>ui/context_menu.ui</file>
+    <!-- Not in /ui due to cryptic meson error-->
+    <file>about_dialog.ui</file>
   </gresource>
 </gresources>

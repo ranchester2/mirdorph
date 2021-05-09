@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+    <menu id="generalMenu">
+        <section>
+            <item>
+                <attribute name="label">Preferences</attribute>
+                <attribute name="action">app.settings</attribute>
+            </item>
+            <item>
+                <attribute name="label">About Mirdorph</attribute>
+                <attribute name="action">app.about</attribute>
+            </item>
+        </section>
+    </menu>
+</interface>
