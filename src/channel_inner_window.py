@@ -16,7 +16,7 @@
 import asyncio
 import logging
 import threading
-from gi.repository import Gtk, Handy, Gio, GLib
+from gi.repository import Gtk, Handy, Gio, GLib, Pango
 from .event_receiver import EventReceiver
 
 
@@ -263,6 +263,8 @@ class MirdorphMessage(Gtk.ListBoxRow, EventReceiver):
         EventReceiver.__init__(self)
         self._disc_message = disc_message
 
+        self.get_style_context().add_class("discord-message")
+
         # Overall unique identifier to tell duplicates apart
         # here it is a message id, however other ways are possible.
         # standard checking won't work because a message can have multiple
@@ -270,13 +272,14 @@ class MirdorphMessage(Gtk.ListBoxRow, EventReceiver):
         self.uniq_id = disc_message.id
         self.timestamp = disc_message.created_at.timestamp()
 
-        main_hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+        main_vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
 
         # Cause we use xml markup, and some names can break that, and then
         # you have a broken label
         safe_name = disc_message.author.name.translate({ord(c): None for c in '"\'<>&'})
 
         # Message that doesn't have any spaces for a very long time can break wrapping
+        # NOTE: this is now seamy useless with the new wrap_mode
         if len(disc_message.content) > 60 and ' ' not in disc_message.content:
             safe_message = "UNSAFE CONTENT: CENSORING"
             logging.warning("censoring unsafe message")
@@ -285,19 +288,22 @@ class MirdorphMessage(Gtk.ListBoxRow, EventReceiver):
 
         self._username_label = Gtk.Label(
             use_markup=True,
-            label=f"<b>{safe_name}: </b>",
-            xalign=0.0,
-            vexpand=True,
-            valign=Gtk.Align.START
+            label=f"<b>{safe_name}</b>",
+            xalign=0.0
         )
-        self._message_label = Gtk.Label(label=safe_message, xalign=0.0, wrap=True)
+        self._message_label = Gtk.Label(
+            label=safe_message,
+            xalign=0.0,
+            wrap=True,
+            wrap_mode=Pango.WrapMode.WORD_CHAR
+        )
 
-        main_hbox.pack_start(self._username_label, False, False, 0)
-        main_hbox.pack_start(self._message_label, True, True, 0)
+        main_vbox.pack_start(self._username_label, False, False, 0)
+        main_vbox.pack_start(self._message_label, True, True, 0)
 
-        main_hbox.show_all()
+        main_vbox.show_all()
 
-        self.add(main_hbox)
+        self.add(main_vbox)
 
 class MessageView(Gtk.ScrolledWindow, EventReceiver):
     __gtype_name__ = "MessageView"
