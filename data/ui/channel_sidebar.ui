@@ -18,6 +18,9 @@
                 <child>
                   <object class="GtkListBox" id="_channel_guild_list">
                     <property name="visible">True</property>
+                    <style>
+                      <class name="guild-list"/>
+                    </style>
                   </object>
                 </child>
               </object>
