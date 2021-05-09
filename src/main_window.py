@@ -170,6 +170,9 @@ class MirdorphMainWindow(Handy.ApplicationWindow, EventReceiver):
             # like there is no channel selected, then the previous channel is shown
             self.reconfigure_for_popout_window()
         else:
+            # Temp hack to get it to work when switching channels in mobile
+            # mode
+            context.handle_flap_folding(self.main_flap, None)
             self.context_stack.set_visible_child(context)
             
         if self._is_channel_selected_first_time(channel_id):
