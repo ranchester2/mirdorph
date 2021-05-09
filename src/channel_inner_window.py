@@ -184,7 +184,6 @@ class ChannelInnerWindow(Gtk.Box, EventReceiver):
             default_width=600,
             default_height=400
         )
-        self._popout_window.connect("destroy", self._on_popout_window_destroy_attempt)
         self._popout_window.add(self)
         self._popout_window.present()
         self._popout_button_stack.set_visible_child(self._popin_button)
@@ -225,9 +224,6 @@ class ChannelInnerWindow(Gtk.Box, EventReceiver):
         self.app.main_win.main_flap.set_reveal_flap(
             not self.app.main_win.main_flap.get_reveal_flap()
         )
-
-    def _on_popout_window_destroy_attempt(self, win):
-        self.popin()
 
 class MirdorphMessage(Gtk.ListBoxRow, EventReceiver):
     __gtype_name__ = "MirdorphMessage"
