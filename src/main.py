@@ -95,14 +95,19 @@ class Application(Gtk.Application):
     def show_settings_window(self, *args):
         # Temp until proper
         settings_window = Handy.ApplicationWindow(application=self)
-        settings_window.show_all()
+        # Modal doesn't work
+        settings_window.set_modal(True)
+        settings_window.set_transient_for(self.main_win)
         settings_window.present()
 
     def show_about_dialog(self, *args):
-        # Temp until proper
-        about_dialog = Handy.ApplicationWindow(application=self)
-        about_dialog.show_all()
-        about_dialog.present()
+        about_builder = Gtk.Builder.new_from_resource(
+            '/org/gnome/gitlab/ranchester/Mirdorph/about_dialog.ui'
+        )
+        dialog = about_builder.get_object('about_dialog')
+        dialog.set_modal(True)
+        dialog.set_transient_for(self.main_win)
+        dialog.present()
 
     def create_inner_window_context(self, channel: int, flap: Handy.Flap):
         context = ChannelInnerWindow(empty=False, channel=channel)

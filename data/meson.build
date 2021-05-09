@@ -2,11 +2,20 @@ pkgdatadir = join_paths(get_option('prefix'), get_option('datadir'), meson.proje
 moduledir = join_paths(pkgdatadir, 'mirdorph')
 gnome = import('gnome')
 
-gnome.compile_resources('mirdorph',
+subdir('ui')
+app_resources = gnome.compile_resources(
+  'mirdorph',
   'mirdorph.gresource.xml',
   gresource_bundle: true,
   install: true,
   install_dir: pkgdatadir,
+  dependencies: [
+    configure_file(
+      input: 'ui/about_dialog.ui.in',
+      output: 'about_dialog.ui',
+      configuration: glade_conf
+    )
+  ]
 )
 
 desktop_file = i18n.merge_file(
