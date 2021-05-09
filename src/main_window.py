@@ -44,6 +44,7 @@ class MirdorphMainWindow(Handy.ApplicationWindow, EventReceiver):
         self.props.application.bar_size_group = Gtk.SizeGroup(mode=Gtk.SizeGroupMode.VERTICAL)
 
         self._empty_inner_window = ChannelInnerWindow(empty=True)
+        self.main_flap.connect("notify::folded", self._empty_inner_window.handle_flap_folding)
         self._empty_inner_window.show()
         self.context_stack.add(self._empty_inner_window)
 

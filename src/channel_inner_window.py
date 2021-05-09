@@ -85,7 +85,6 @@ class ChannelInnerWindow(Gtk.Box, EventReceiver):
             self._popout_button_stack.destroy()
             self._toplevel_empty_stack.set_visible_child(self._empty_status_page)
 
-    # This is connected in main's handle context
     # Would be better to move this to main_win instead,
     # this is curently temp as we need to popin, however
     # we could just go through the list of channel contexts.
