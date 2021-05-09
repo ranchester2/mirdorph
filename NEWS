@@ -1,3 +1,23 @@
+v0.0.2:
+
+Basic very early improvements:
+	* When a message is sent by another user and you are near the
+bottom of the view, you are now automatically scrolled to see the message
+	* Added running and building instructions
+	* Slightly improved the discord.py patch for on_message
+	* Initial unit testing, currently only for confman, don't really see how
+to test most other current stuff
+	* Channels now have their name and topic in the titlebar
+	* Redesigned sidebar that shows all the guilds you are part of, has images, and looks
+somewhat nice (however a lot more to come)
+	* You can now toggle the flap without swiping while a channel is not selected
+	* Removed add channel function, obseleter with guild supprt. Adding guild support will
+come in the future
+	* Improved startup performance by lazy loading channels
+	* Documented attempts at solving the April 30th selfbot issue
+	* Nice loading animations for the guild list
+	* Updated screenshots
+
 v0.0.1:
 
 Initial MVP released, features:
