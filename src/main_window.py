@@ -33,8 +33,6 @@ class MirdorphMainWindow(Handy.ApplicationWindow, EventReceiver):
     _flap_box: Gtk.Box = Gtk.Template.Child()
 
     _add_server_button: Gtk.ToggleButton = Gtk.Template.Child()
-    _basic_add_channel_popover: Gtk.Popover = Gtk.Template.Child()
-    _add_channel_entry: Gtk.Entry = Gtk.Template.Child()
 
     def __init__(self, *args, **kwargs):
         Handy.ApplicationWindow.__init__(self, *args, **kwargs)
@@ -63,28 +61,6 @@ class MirdorphMainWindow(Handy.ApplicationWindow, EventReceiver):
         self.channel_sidebar = MirdorphChannelSidebar()
         self.channel_sidebar.show()
         self._flap_box.pack_end(self.channel_sidebar, True, True, 0)
-
-    @Gtk.Template.Callback()
-    def _on_add_server_button_toggled(self, button):
-        if button.get_active():
-            self._basic_add_channel_popover.popup()
-        else:
-            self._basic_add_channel_popover.popdown()
-
-    @Gtk.Template.Callback()
-    def _on_basic_add_channel_popover_closed(self, popover):
-        self._add_server_button.set_active(False)
-
-    @Gtk.Template.Callback()
-    def _on_add_channel_entry_activate(self, entry):
-        new_chan_id = int(entry.get_text())
-        entry.set_text('')
-        new_tmp_curr_chan_list = self.props.application.confman.get_value("added_channels")
-        new_tmp_curr_chan_list.append(new_chan_id)
-        self.props.application.confman.set_value("added_channels", new_tmp_curr_chan_list)
-        self.props.application.reload_channels(
-            self.props.application.confman.get_value("added_channels")
-        )
 
     @Gtk.Template.Callback()
     def _on_context_stack_focus_change(self, stack, strpar):

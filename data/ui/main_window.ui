@@ -1,18 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
   <requires lib="gtk+" version="3.24"/>
-  <object class="GtkPopover" id="_basic_add_channel_popover">
-    <property name="visible">False</property>
-    <property name="relative-to">_add_server_button</property>
-    <signal name="closed" handler="_on_basic_add_channel_popover_closed"/>
-    <child>
-      <object class="GtkEntry" id="_add_channel_entry">
-        <property name="visible">True</property>
-        <property name="activates-default">True</property>
-        <signal name="activate" handler="_on_add_channel_entry_activate"/>
-      </object>
-    </child>
-  </object>
   <template class="MirdorphMainWindow" parent="HdyApplicationWindow">
     <property name="default-width">1010</property>
     <property name="default-height">585</property>
@@ -33,10 +21,9 @@
                   <object class="HdyHeaderBar">
                     <property name="visible">True</property>
                     <child>
-                      <object class="GtkToggleButton" id="_add_server_button">
+                      <object class="GtkButton" id="_add_server_button">
                         <property name="visible">True</property>
                         <property name="image">_add_server_button_image</property>
-                        <signal name="toggled" handler="_on_add_server_button_toggled"/>
                         <child>
                           <object class="GtkImage" id="_add_server_button_image">
                             <property name="visible">True</property>
