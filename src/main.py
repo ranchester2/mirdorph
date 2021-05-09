@@ -46,6 +46,27 @@ class Application(Gtk.Application):
     def do_startup(self):
         Gtk.Application.do_startup(self)
         Handy.init()
+        actions = [
+            {
+                'name': 'settings',
+                'func': self.show_settings_window,
+                'accel': '<Primary>comma'
+            },
+            {
+                'name': 'about',
+                'func': self.show_about_dialog
+            }
+        ]
+
+        for a in actions:
+            c_action = Gio.SimpleAction.new(a['name'], None)
+            c_action.connect('activate', a['func'])
+            self.add_action(c_action)
+            if 'accel' in a.keys():
+                self.set_accels_for_action(
+                    f'app{a["name"]}',
+                    [a['accel']]
+                )
 
     def do_activate(self):
         stylecontext = Gtk.StyleContext()
@@ -70,6 +91,18 @@ class Application(Gtk.Application):
             if not win:
                 win = MirdorphLoginWindow(application=self)
             win.present()
+
+    def show_settings_window(self, *args):
+        # Temp until proper
+        settings_window = Handy.ApplicationWindow(application=self)
+        settings_window.show_all()
+        settings_window.present()
+
+    def show_about_dialog(self, *args):
+        # Temp until proper
+        about_dialog = Handy.ApplicationWindow(application=self)
+        about_dialog.show_all()
+        about_dialog.present()
 
     def create_inner_window_context(self, channel: int, flap: Handy.Flap):
         context = ChannelInnerWindow(empty=False, channel=channel)

@@ -32,11 +32,20 @@ class MirdorphMainWindow(Handy.ApplicationWindow, EventReceiver):
     context_stack: Gtk.Stack = Gtk.Template.Child()
     _flap_box: Gtk.Box = Gtk.Template.Child()
 
+    _main_menu_popover: Gtk.Popover = Gtk.Template.Child()
+    _main_menu_button: Gtk.Button = Gtk.Template.Child()
+
     _add_server_button: Gtk.ToggleButton = Gtk.Template.Child()
 
     def __init__(self, *args, **kwargs):
         Handy.ApplicationWindow.__init__(self, *args, **kwargs)
         EventReceiver.__init__(self)
+
+        menu_builder = Gtk.Builder.new_from_resource(
+            '/org/gnome/gitlab/ranchester/Mirdorph/ui/general_menu.ui'
+        )
+        menu = menu_builder.get_object('generalMenu')
+        self._main_menu_popover.bind_model(menu)
 
         # Could be better than basically making this global
         self.props.application.bar_size_group = Gtk.SizeGroup(mode=Gtk.SizeGroupMode.VERTICAL)
