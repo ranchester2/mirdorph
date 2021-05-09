@@ -17,7 +17,9 @@ import asyncio
 import threading
 import logging
 import discord
-from gi.repository import Gtk, Handy, Gio, GLib, Pango
+import os
+from pathlib import Path
+from gi.repository import Gtk, Handy, Gio, GLib, Pango, GdkPixbuf
 from .event_receiver import EventReceiver
 
 @Gtk.Template(resource_path='/org/gnome/gitlab/ranchester/Mirdorph/ui/channel_list_entry.ui')
@@ -33,6 +35,8 @@ class MirdorphChannelListEntry(Gtk.ListBoxRow):
 
 class MirdorphGuildEntry(Handy.ExpanderRow):
     __gtype_name__ = "MirdorphGuildEntry"
+
+    _guild_icon_dir_path = Path(os.environ["XDG_CACHE_HOME"])
 
     def __init__(self, guild_id, *args, **kwargs):
         Gtk.ListBoxRow.__init__(self, *args, **kwargs)
@@ -52,6 +56,9 @@ class MirdorphGuildEntry(Handy.ExpanderRow):
         )
         fetching_guild_thread.start()
 
+    def _get_icon_path_from_guild_id(self, guild_id) -> Path:
+        return Path(self._guild_icon_dir_path / Path("icon" + "_" + str(guild_id) + ".png"))
+
     async def _get_guild_advanced_wrapper(self, client, guild_id):
         tmp_guild = await client.fetch_guild(guild_id)
 
@@ -68,6 +75,12 @@ class MirdorphGuildEntry(Handy.ExpanderRow):
 
     async def _get_self_member(self, client):
         return await self._guild_disc.fetch_member(client.user.id)
+
+    async def _save_guild_icon(self, guild, asset):
+        try:
+            await asset.save(self._get_icon_path_from_guild_id(guild.id))
+        except discord.errors.DiscordException:
+            logging.warning("guild does not have icon, not saving")
 
     def _fetching_guild_threaded_target(self, guild_id):
         self._guild_disc = asyncio.run_coroutine_threadsafe(
@@ -97,10 +110,44 @@ class MirdorphGuildEntry(Handy.ExpanderRow):
             if is_private:
                 self._private_guild_channel_ids.append(channel.id)
 
+        # We also need to put guild icons in a temp dir
+
+        # They are saved in the cache path /
+        # icon+guild_id+.png
+        icon_asset = self._guild_disc.icon_url_as(size=4096, format="png")
+        asyncio.run_coroutine_threadsafe(
+            self._save_guild_icon(
+                self._guild_disc,
+                icon_asset
+            ),
+            Gio.Application.get_default().discord_loop
+        ).result()
+
         GLib.idle_add(self._build_guild_gtk_target)
 
     def _build_guild_gtk_target(self):
         self.set_title(self._guild_disc.name)
+
+        guild_image_path = self._get_icon_path_from_guild_id(self._guild_disc.id)
+        if guild_image_path.is_file():
+            guild_image = Handy.Avatar(size=32)
+            def load_image(size, guild_image_path):
+                pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(
+                    str(guild_image_path),
+                    width=size,
+                    height=size,
+                    preserve_aspect_ratio=False
+                )
+                return pixbuf
+            guild_image.set_image_load_func(load_image, guild_image_path)
+            guild_image.show()
+            self.add_prefix(guild_image)
+        else:
+            fallback_initials = ''.join([x[0].upper() for x in self._guild_disc.name.split(' ')])
+            guild_image = Handy.Avatar(size=32, show_initials=True)
+            guild_image.set_text(fallback_initials)
+            guild_image.show()
+            self.add_prefix(guild_image)
 
         self._channel_listbox = Gtk.ListBox()
         self._channel_listbox.show()
