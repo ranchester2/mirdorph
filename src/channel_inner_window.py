@@ -35,6 +35,9 @@ class ChannelInnerWindow(Gtk.Box, EventReceiver):
     _popout_button: Gtk.Button = Gtk.Template.Child()
     _popin_button: Gtk.Button = Gtk.Template.Child()
 
+    _context_menu_button: Gtk.MenuButton = Gtk.Template.Child()
+    _context_menu_popover: Gtk.PopoverMenu = Gtk.Template.Child()
+
     _flap_toggle_button: Gtk.Button = Gtk.Template.Child()
 
     def __init__(self, channel=None, empty=True, *args, **kwargs):
@@ -79,7 +82,26 @@ class ChannelInnerWindow(Gtk.Box, EventReceiver):
 
             self._content_box.pack_end(self._message_entry_bar, False, False, 0)
             self._content_box.pack_end(Gtk.Separator(visible=True), False, False, 0)
+
+            self._context_action_group = Gio.SimpleActionGroup()
+            prop_action = Gio.SimpleAction.new("properties", None)
+            prop_action.connect("activate", self._on_channel_properties)
+            self._context_action_group.add_action(prop_action)
+            search_action = Gio.SimpleAction.new("search", None)
+            search_action.connect("activate", self._on_channel_search)
+            self._context_action_group.add_action(search_action)
+            self.insert_action_group("context", self._context_action_group)
+            context_menu_builder = Gtk.Builder.new_from_resource(
+                "/org/gnome/gitlab/ranchester/Mirdorph/ui/context_menu.ui"
+            )
+            context_menu = context_menu_builder.get_object(
+                "contextMenu"
+            )
+            self._context_menu_popover.bind_model(context_menu)
+
+
         elif self.empty:
+            self._context_menu_button.destroy()
             self._popout_button.destroy()
             self._popin_button.destroy()
             self._popout_button_stack.destroy()
@@ -225,6 +247,14 @@ class ChannelInnerWindow(Gtk.Box, EventReceiver):
             not self.app.main_win.main_flap.get_reveal_flap()
         )
 
+    def _on_channel_properties(self, action, param):
+        # placeholder
+        print(f"channel props for {self.channel_disc.name}")
+
+    def _on_channel_search(self, action, param):
+        # placeholder
+        print(f"channel search for {self.channel_disc.name}")
+
 class MirdorphMessage(Gtk.ListBoxRow, EventReceiver):
     __gtype_name__ = "MirdorphMessage"
 
@@ -242,15 +272,25 @@ class MirdorphMessage(Gtk.ListBoxRow, EventReceiver):
 
         main_hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
 
+        # Cause we use xml markup, and some names can break that, and then
+        # you have a broken label
+        safe_name = disc_message.author.name.translate({ord(c): None for c in '"\'<>&'})
+
+        # Message that doesn't have any spaces for a very long time can break wrapping
+        if len(disc_message.content) > 60 and ' ' not in disc_message.content:
+            safe_message = "UNSAFE CONTENT: CENSORING"
+            logging.warning("censoring unsafe message")
+        else:
+            safe_message = disc_message.content
+
         self._username_label = Gtk.Label(
             use_markup=True,
-            # NOTE: a specific username can mess up the pango formatting
-            label=f"<b>{disc_message.author.name}: </b>",
+            label=f"<b>{safe_name}: </b>",
             xalign=0.0,
             vexpand=True,
             valign=Gtk.Align.START
         )
-        self._message_label = Gtk.Label(label=disc_message.content, xalign=0.0, wrap=True)
+        self._message_label = Gtk.Label(label=safe_message, xalign=0.0, wrap=True)
 
         main_hbox.pack_start(self._username_label, False, False, 0)
         main_hbox.pack_start(self._message_label, True, True, 0)

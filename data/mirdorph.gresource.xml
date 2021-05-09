@@ -12,5 +12,6 @@
     <file>ui/channel_sidebar.ui</file>
     <file>ui/channel_list_entry.ui</file>
     <file>ui/general_menu.ui</file>
+    <file>ui/context_menu.ui</file>
   </gresource>
 </gresources>
