@@ -17,7 +17,9 @@ import os
 import sys
 import keyring
 import logging
-from gi.repository import Gtk, Handy
+import subprocess
+import threading
+from gi.repository import Gtk, Handy, GLib
 
 
 @Gtk.Template(resource_path='/org/gnome/gitlab/ranchester/Mirdorph/ui/login_window.ui')
@@ -45,6 +47,20 @@ class MirdorphLoginWindow(Handy.ApplicationWindow):
     @Gtk.Template.Callback()
     def _on_login_token_entry_changed(self, entry):
         self._login_token_entry_button.get_style_context().add_class("suggested-action")
+
+    @Gtk.Template.Callback()
+    def _on_main_login_button_clicked(self, button):
+        self.set_sensitive(False)
+        token_web_retrieval_thread = threading.Thread(target=self._token_web_retrieval_target)
+        token_web_retrieval_thread.start()
+
+    def _token_web_retrieval_target(self):
+        token = subprocess.check_output('discordlogin', shell=True, text=True)
+        GLib.idle_add(self._token_web_retrieval_gtk_target, token)
+
+    def _token_web_retrieval_gtk_target(self, token):
+        self._save_token(token)
+        self._relaunch()
 
     @Gtk.Template.Callback()
     def _on_login_token_entry_inserted(self, *args):
