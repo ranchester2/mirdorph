@@ -50,10 +50,16 @@ class MirdorphLoginWindow(Handy.ApplicationWindow):
     def _on_login_token_entry_inserted(self, *args):
         token = self._login_token_entry.get_text()
         self._login_token_entry.set_text("")
+        self._save_token(token)
+        self._relaunch()
+
+    def _save_token(self, token: str):
         logging.info("setting token in keyring")
         keyring.set_password("mirdorph", "token", token)
         logging.info("token set in keyring")
+
+    def _relaunch(self):
         logging.info("launching program duplicate instance")
         os.execv(sys.argv[0], sys.argv)
         logging.info("exiting initial program")
-        os._exit(1)        
+        os._exit(1)
