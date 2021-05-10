@@ -76,9 +76,9 @@ class MirdorphGuildEntry(Handy.ExpanderRow):
     async def _get_self_member(self, client):
         return await self._guild_disc.fetch_member(client.user.id)
 
-    async def _save_guild_icon(self, guild, asset):
+    async def _save_guild_icon(self, asset):
         try:
-            await asset.save(self._get_icon_path_from_guild_id(guild.id))
+            await asset.save(self._get_icon_path_from_guild_id(self._guild_disc.id))
         except discord.errors.DiscordException:
             logging.warning("guild does not have icon, not saving")
 
@@ -117,7 +117,6 @@ class MirdorphGuildEntry(Handy.ExpanderRow):
         icon_asset = self._guild_disc.icon_url_as(size=4096, format="png")
         asyncio.run_coroutine_threadsafe(
             self._save_guild_icon(
-                self._guild_disc,
                 icon_asset
             ),
             Gio.Application.get_default().discord_loop
@@ -143,9 +142,8 @@ class MirdorphGuildEntry(Handy.ExpanderRow):
             guild_image.show()
             self.add_prefix(guild_image)
         else:
-            fallback_initials = ''.join([x[0].upper() for x in self._guild_disc.name.split(' ')])
             guild_image = Handy.Avatar(size=32, show_initials=True)
-            guild_image.set_text(fallback_initials)
+            guild_image.set_text(self._guild_disc.name)
             guild_image.show()
             self.add_prefix(guild_image)
 
