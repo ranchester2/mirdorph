@@ -16,7 +16,10 @@
 import asyncio
 import logging
 import threading
-from gi.repository import Gtk, Handy, Gio, GLib, Pango
+import discord
+import os
+from pathlib import Path
+from gi.repository import Gtk, Handy, Gio, GLib, GdkPixbuf, Pango
 from .event_receiver import EventReceiver
 
 
@@ -255,6 +258,61 @@ class ChannelInnerWindow(Gtk.Box, EventReceiver):
         # placeholder
         print(f"channel search for {self.channel_disc.name}")
 
+class UserMessageAvatar(Handy.Avatar):
+    __gtype_name__ = "UserMessageAvatar"
+
+    _avatar_icon_dir_path = Path(os.environ["XDG_CACHE_HOME"])
+
+    def __init__(self, user: discord.User, *args, **kwargs):
+        Handy.Avatar.__init__(self, size=32, text=user.name, show_initials=True, *args, **kwargs)
+
+        self._user_disc = user
+        self._avatar_icon_path = self._get_avatar_path_from_user_id(self._user_disc.id)
+
+        fetch_avatar_thread = threading.Thread(target=self._fetch_avatar_target)
+        fetch_avatar_thread.start()
+
+    def _get_avatar_path_from_user_id(self, user_id) -> Path:
+        return Path(self._avatar_icon_dir_path / Path("user" + "_" + str(user_id) + ".png"))
+
+    async def _save_avatar_icon(self, asset):
+        await asset.save(str(self._avatar_icon_path))
+
+    def _fetch_avatar_target(self):
+        avatar_asset = self._user_disc.avatar_url_as(size=1024, format="png")
+
+        # Unlike with guilds, we will have many, many things attempting to download
+        # and save it there, which causes weird errors
+        # We don't lose to much by doing this aside from having to clear cache to
+        # see new image
+        if not self._avatar_icon_path.is_file():
+            asyncio.run_coroutine_threadsafe(
+                self._save_avatar_icon(
+                    avatar_asset
+                ),
+                Gio.Application.get_default().discord_loop
+            ).result()
+
+        GLib.idle_add(self._set_avatar_gtk_target)
+
+    def _set_avatar_gtk_target(self):
+        if self._avatar_icon_path.is_file():
+            self.set_image_load_func(self._load_image_func)
+
+    def _load_image_func(self, size):
+        try:
+            pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(
+                str(self._avatar_icon_path),
+                width=size,
+                height=size,
+                preserve_aspect_ratio=False
+            )
+        except GLib.Error as e:
+            logging.warning(f"encountered unkown avatar error as {e}")
+            pixbuf = None
+        return pixbuf
+
+
 class MirdorphMessage(Gtk.ListBoxRow, EventReceiver):
     __gtype_name__ = "MirdorphMessage"
 
@@ -272,19 +330,23 @@ class MirdorphMessage(Gtk.ListBoxRow, EventReceiver):
         self.uniq_id = disc_message.id
         self.timestamp = disc_message.created_at.timestamp()
 
-        main_vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        # Spacing bad idea for now, ideally css, however css would have to be somehow
+        # for the children of the message
+        main_hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=5)
+        avatar_vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        user_and_content_vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
 
         # Cause we use xml markup, and some names can break that, and then
         # you have a broken label
-        safe_name = disc_message.author.name.translate({ord(c): None for c in '"\'<>&'})
+        safe_name = self._disc_message.author.name.translate({ord(c): None for c in '"\'<>&'})
 
         # Message that doesn't have any spaces for a very long time can break wrapping
         # NOTE: this is now seamy useless with the new wrap_mode
-        if len(disc_message.content) > 60 and ' ' not in disc_message.content:
+        if len(self._disc_message.content) > 60 and ' ' not in self._disc_message.content:
             safe_message = "UNSAFE CONTENT: CENSORING"
             logging.warning("censoring unsafe message")
         else:
-            safe_message = disc_message.content
+            safe_message = self._disc_message.content
 
         self._username_label = Gtk.Label(
             use_markup=True,
@@ -298,12 +360,17 @@ class MirdorphMessage(Gtk.ListBoxRow, EventReceiver):
             wrap_mode=Pango.WrapMode.WORD_CHAR
         )
 
-        main_vbox.pack_start(self._username_label, False, False, 0)
-        main_vbox.pack_start(self._message_label, True, True, 0)
+        avatar = UserMessageAvatar(self._disc_message.author, margin_top=3)
 
-        main_vbox.show_all()
+        user_and_content_vbox.pack_start(self._username_label, False, False, 0)
+        user_and_content_vbox.pack_start(self._message_label, True, True, 0)
+        avatar_vbox.pack_start(avatar, False, False, 0)
+        main_hbox.pack_start(avatar_vbox, False, False, 0)
+        main_hbox.pack_start(user_and_content_vbox, False, False, 0)
 
-        self.add(main_vbox)
+        main_hbox.show_all()
+
+        self.add(main_hbox)
 
 class MessageView(Gtk.ScrolledWindow, EventReceiver):
     __gtype_name__ = "MessageView"
