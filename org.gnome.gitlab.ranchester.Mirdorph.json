@@ -111,6 +111,36 @@
 			]
 		},
 		{
+			"name": "discordlogin",
+			"buildsystem": "simple",
+			"build-options": {
+				"env": {
+					"GOBIN": "/app/bin/"
+				}
+			},
+			"build-commands": [
+				"mkdir -p src/github.com/diamondburned/discordlogin; mv -vn ./* src/github.com/diamondburned/discordlogin; . /usr/lib/sdk/golang/enable.sh; export GOPATH=$PWD; go env -w GO111MODULE=off; go install github.com/diamondburned/discordlogin"
+			],
+			"sources": [
+				{
+					"type": "git",
+					"url": "https://github.com/diamondburned/discordlogin",
+					"commit": "5772dfbb1dc132263b1ba396c478a93937710880"
+				},
+				{
+					"type": "patch",
+					"path":"./patches/0002-fix-webview-dependency.patch",
+					"use-git": true
+				},
+				{
+					"type": "git",
+					"url": "https://github.com/webview/webview",
+					"commit": "10ddbc570a0b",
+					"dest": "src/github.com/webview/webview"
+				}
+			]
+		},
+		{
 			"name": "mirdorph",
 			"builddir": true,
 			"buildsystem": "meson",

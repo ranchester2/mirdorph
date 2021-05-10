@@ -70,7 +70,12 @@ if __name__ == '__main__':
             for cog in cogs:
                 discord_client.load_extension(cog)
 
-            discord_client.run(discord_token, bot=False)
+            try:
+                discord_client.run(discord_token, bot=False)
+            # This usually catches improper tokens, unfortunatly can't relaunch
+            except discord.errors.LoginFailure:
+                keyring.delete_password("mirdorph", "token")
+                os._exit(1)
 
     logging.info("retrieving token")
     discord_token = keyring.get_password("mirdorph", "token")

@@ -17,8 +17,19 @@ import os
 import sys
 import keyring
 import logging
-from gi.repository import Gtk, Handy
+import subprocess
+import threading
+from gi.repository import Gtk, Gdk, GLib, Handy
 
+# Needs to be custom because GDK_IS_WAYLAND_DISPLAY seems to only exist
+# in C and isn't really documented, just appears once in a random blog post
+def check_if_wayland() -> bool:
+    display = Gdk.Display.get_default()
+    if "wayland" in display.get_name().lower():
+        return True
+    else:
+        if "XDG_SESSION_TYPE" in os.environ:
+            return os.environ["XDG_SESSION_TYPE"] == "wayland"
 
 @Gtk.Template(resource_path='/org/gnome/gitlab/ranchester/Mirdorph/ui/login_window.ui')
 class MirdorphLoginWindow(Handy.ApplicationWindow):
@@ -47,13 +58,48 @@ class MirdorphLoginWindow(Handy.ApplicationWindow):
         self._login_token_entry_button.get_style_context().add_class("suggested-action")
 
     @Gtk.Template.Callback()
+    def _on_main_login_button_clicked(self, button):
+        # Discordlogin doesn't work properly on X11 for some reason
+        if not check_if_wayland():
+            wayland_only_dialog = Gtk.MessageDialog(
+                message_type=Gtk.MessageType.INFO,
+                buttons=Gtk.ButtonsType.CLOSE,
+                text="Graphical login is not supported on the X11 windowing system",
+                secondary_text="""\
+Graphical login is only supported on Wayland, if you cannot use Wayland, use the \
+advanced 'Manual Token' method instead."""
+            )
+            wayland_only_dialog.set_transient_for(self)
+            wayland_only_dialog.run()
+            wayland_only_dialog.destroy()
+        else:
+            self.set_sensitive(False)
+            token_web_retrieval_thread = threading.Thread(target=self._token_web_retrieval_target)
+            token_web_retrieval_thread.start()
+
+    def _token_web_retrieval_target(self):
+        token = subprocess.check_output('discordlogin', shell=True, text=True)
+        GLib.idle_add(self._token_web_retrieval_gtk_target, token)
+
+    def _token_web_retrieval_gtk_target(self, token):
+        if token:
+            self._save_token(token)
+        self._relaunch()
+
+    @Gtk.Template.Callback()
     def _on_login_token_entry_inserted(self, *args):
         token = self._login_token_entry.get_text()
         self._login_token_entry.set_text("")
+        self._save_token(token)
+        self._relaunch()
+
+    def _save_token(self, token: str):
         logging.info("setting token in keyring")
         keyring.set_password("mirdorph", "token", token)
         logging.info("token set in keyring")
+
+    def _relaunch(self):
         logging.info("launching program duplicate instance")
         os.execv(sys.argv[0], sys.argv)
         logging.info("exiting initial program")
-        os._exit(1)        
+        os._exit(1)

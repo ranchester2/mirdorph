@@ -5,7 +5,8 @@ That is it, and it uses discord.py and GTK3.
 To run:
 
 Have flatpak and flatpak-builder installed.
-Install `org.gnome.Sdk` and `org.gnome.Platform` (v40) if they are not allready installed
+Install `org.gnome.Sdk` and `org.gnome.Platform` and `org.freedesktop.Sdk.Extension.golang` if they are
+not allready installed
 
 And from the source directory:
 
