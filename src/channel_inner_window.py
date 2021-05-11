@@ -20,6 +20,7 @@ import discord
 import os
 import time
 import random
+import sys
 from pathlib import Path
 from gi.repository import Gtk, Handy, Gio, GLib, GdkPixbuf, Pango
 from .event_receiver import EventReceiver
@@ -77,6 +78,7 @@ class ChannelInnerWindow(Gtk.Box, EventReceiver):
                 self._context_headerbar.set_subtitle(self.channel_disc.topic)
 
             self._message_view = MessageView(context=self)
+            self._message_view.build_scroll()
             self._message_view.show()
             self._content_box.pack_start(self._message_view, True, True, 0)
 
@@ -296,7 +298,7 @@ class UserMessageAvatar(Handy.Avatar):
             ).result()
 
         # So that they don't try to load all at the same time from the same file
-        time.sleep(random.uniform(0.25, 2.0)),
+        time.sleep(random.uniform(0.25, 5.0)),
 
         GLib.idle_add(self._set_avatar_gtk_target)
 
@@ -381,6 +383,8 @@ class MirdorphMessage(Gtk.ListBoxRow, EventReceiver):
 class MessageView(Gtk.ScrolledWindow, EventReceiver):
     __gtype_name__ = "MessageView"
 
+    _STANDARD_HISTORY_LOADING = 40
+
     _message_column: Gtk.Box = Gtk.Template.Child()
 
     def __init__(self, context, *args, **kwargs):
@@ -410,19 +414,42 @@ class MessageView(Gtk.ScrolledWindow, EventReceiver):
 
         self._adj = self.get_vadjustment()
         self._orig_upper = self._adj.get_upper()
+        self._balance = None
+        self._autoscroll = False
 
-        self._adj.connect("notify::upper", self._handle_upper_adj_change)
         self.context = context
 
-    # Copied from Fractal (but translated from python badly), idk how it works,
-    # but it works
-    def _handle_upper_adj_change(self, view, param):
+    def set_balance_top(self):
+        # DONTFIXME: Workaround: https://gitlab.gnome.org/GNOME/gtk/merge_requests/395
+        self.set_kinetic_scrolling(False)
+        self._balance = Gtk.PositionType.TOP
+
+    def _handle_upper_adj_notify(self, upper, adjparam):
         new_upper = self._adj.get_upper()
         diff = new_upper - self._orig_upper
 
         # Don't do anything if upper didn't change
         if diff != 0.0:
-            self._orig_upper.set(new_upper)
+            self._orig_upper = new_upper
+            if self._autoscroll:
+                self._adj.set_value(self._adj.get_upper() - self._adj.get_page_size())
+            elif self._balance == Gtk.PositionType.TOP:
+                self._balance = False
+                self._adj.set_value(self._adj.get_value() + diff)
+                self.set_kinetic_scrolling(True)
+
+    def _handle_value_adj_changed(self, adj):
+        bottom = adj.get_upper() - adj.get_page_size()
+        self._autoscroll = (abs(adj.get_value() - bottom) < sys.float_info.epsilon)
+        if adj.get_value() < adj.get_page_size() * 1.5:
+            self.load_history(additional=15)
+
+    # Copied from Fractal in rust, idk how this works
+    def build_scroll(self):
+        upper = self._orig_upper
+
+        self._adj.connect("notify::upper", self._handle_upper_adj_notify)
+        self._adj.connect("value-changed", self._handle_value_adj_changed)
 
 
     def _on_msg_send_mode_scl_send_wrap(self):
@@ -462,7 +489,7 @@ class MessageView(Gtk.ScrolledWindow, EventReceiver):
                 return True
         return False
 
-    async def _get_history_messages_to_list(self, channel):
+    async def _get_history_messages_to_list(self, channel, amount_to_load):
         """
         Return a list of Discord messages in current history,
         useful to call in other thread and use the list to build
@@ -471,7 +498,7 @@ class MessageView(Gtk.ScrolledWindow, EventReceiver):
         tmp_list = []
         # big limit temporary solution until we implement history reloading
         # on scroll
-        async for message in channel.history(limit=1000):
+        async for message in channel.history(limit=amount_to_load):
             tmp_list.append(message)
         return tmp_list
 
@@ -491,6 +518,7 @@ class MessageView(Gtk.ScrolledWindow, EventReceiver):
                     duplicate = True
                     break
             if not duplicate:
+                self.set_balance_top()
                 self._message_listbox.add(message_wid)
             else:
                 message_wid.destroy()
@@ -511,11 +539,16 @@ class MessageView(Gtk.ScrolledWindow, EventReceiver):
         self._history_loading_spinner.destroy()
         del(self._history_loading_spinner)
 
-    def _history_loading_target(self):
+    def _history_loading_target(self, additional):
+        amount_to_load = self._STANDARD_HISTORY_LOADING
+        if additional is not None:
+            amount_to_load = len(self._message_listbox.get_children()) + additional
+
         messages = list(
             asyncio.run_coroutine_threadsafe(
                 self._get_history_messages_to_list(
-                    self.context.channel_disc
+                    self.context.channel_disc,
+                    amount_to_load
                 ),
                 Gio.Application.get_default().discord_loop
             ).result()
@@ -523,11 +556,15 @@ class MessageView(Gtk.ScrolledWindow, EventReceiver):
 
         GLib.idle_add(self._history_loading_gtk_target, messages)
 
-    def load_history(self):
+    def load_history(self, additional=None):
         """
         Load the history of the view and it's channel
 
         You can only load once at a time, async operation
+
+        param:
+            additional - additional ammount of messages to load, useful
+            only if previously loaded
         """
         if self.context.is_loading_history:
             logging.warning("attempted to load history even if already loading")
@@ -536,7 +573,7 @@ class MessageView(Gtk.ScrolledWindow, EventReceiver):
         self._message_listbox.add(self._history_loading_spinner)
         self._history_loading_spinner.show()
         self._history_loading_spinner.start()
-        message_loading_thread = threading.Thread(target=self._history_loading_target)
+        message_loading_thread = threading.Thread(target=self._history_loading_target, args=(additional,))
         message_loading_thread.start()
 
 
