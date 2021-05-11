@@ -408,7 +408,22 @@ class MessageView(Gtk.ScrolledWindow, EventReceiver):
 
         self._message_column.add(self._message_listbox)
 
+        self._adj = self.get_vadjustment()
+        self._orig_upper = self._adj.get_upper()
+
+        self._adj.connect("notify::upper", self._handle_upper_adj_change)
         self.context = context
+
+    # Copied from Fractal (but translated from python badly), idk how it works,
+    # but it works
+    def _handle_upper_adj_change(self, view, param):
+        new_upper = self._adj.get_upper()
+        diff = new_upper - self._orig_upper
+
+        # Don't do anything if upper didn't change
+        if diff != 0.0:
+            self._orig_upper.set(new_upper)
+
 
     def _on_msg_send_mode_scl_send_wrap(self):
         self.context.scroll_messages_to_bottom()
