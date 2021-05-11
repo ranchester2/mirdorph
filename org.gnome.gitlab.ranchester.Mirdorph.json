@@ -3,6 +3,9 @@
 	"runtime": "org.gnome.Platform",
 	"runtime-version": "40",
 	"sdk": "org.gnome.Sdk",
+	"sdk-extensions": [
+		"org.freedesktop.Sdk.Extension.golang"
+	],
 	"appstream-compose": false,
 	"command": "mirdorph",
 	"finish-args": [
