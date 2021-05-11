@@ -479,7 +479,7 @@ class MessageView(Gtk.ScrolledWindow, EventReceiver):
         If history loading has completed atleast once
 
         This is useful for calling something that depends on history getting loaded,
-        like scrolling the messages to the bottom. Not 100% accurate
+        like scrolling the messages to the bottom for the first time. Not 100% accurate
         """
         # Works as the message listboxes are direct children of the message listbox
         # However not 100% accurate as some could have been from on_message,
@@ -504,9 +504,6 @@ class MessageView(Gtk.ScrolledWindow, EventReceiver):
 
     def _history_loading_gtk_target(self, messages: list):
         for message in messages:
-            message_wid = MirdorphMessage(message)
-            message_wid.show()
-
             # We need to check for duplicates and not add it if it is one
             # because load_history will often be called multiple times
             duplicate = False
@@ -514,15 +511,14 @@ class MessageView(Gtk.ScrolledWindow, EventReceiver):
             # so this work fine
             for already_existing_message in self._message_listbox.get_children():
                 if (isinstance(already_existing_message, MirdorphMessage) and
-                   message_wid.uniq_id == already_existing_message.uniq_id):
-                    duplicate = True
-                    break
+                    message.id == already_existing_message.uniq_id):
+                        duplicate = True
+                        break
             if not duplicate:
+                message_wid = MirdorphMessage(message)
+                message_wid.show()
                 self.set_balance_top()
                 self._message_listbox.add(message_wid)
-            else:
-                message_wid.destroy()
-                del(message_wid)
 
         self._history_loading_spinner.stop()
 
