@@ -377,17 +377,15 @@ class MirdorphMessage(Gtk.ListBoxRow, EventReceiver):
 
         self.add(main_hbox)
 
+@Gtk.Template(resource_path='/org/gnome/gitlab/ranchester/Mirdorph/ui/message_view.ui')
 class MessageView(Gtk.ScrolledWindow, EventReceiver):
     __gtype_name__ = "MessageView"
 
-    def __init__(self, context, *args, **kwargs):
-        Gtk.ListBox.__init__(self, *args, **kwargs)
-        EventReceiver.__init__(self)
+    _message_column: Gtk.Box = Gtk.Template.Child()
 
-        self.set_policy(
-            hscrollbar_policy=Gtk.PolicyType.NEVER,
-            vscrollbar_policy=Gtk.PolicyType.AUTOMATIC
-        )
+    def __init__(self, context, *args, **kwargs):
+        Gtk.ScrolledWindow.__init__(self, *args, **kwargs)
+        EventReceiver.__init__(self)
 
         self._message_listbox = Gtk.ListBox()
         # When nearly empty channel, messages should not pile up on top
@@ -408,7 +406,7 @@ class MessageView(Gtk.ScrolledWindow, EventReceiver):
         self._message_listbox.set_sort_func(message_listbox_sort_func, None, False)
         self._message_listbox.show()
 
-        self.add(self._message_listbox)
+        self._message_column.add(self._message_listbox)
 
         self.context = context
 
