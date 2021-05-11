@@ -18,6 +18,8 @@ import logging
 import threading
 import discord
 import os
+import time
+import random
 from pathlib import Path
 from gi.repository import Gtk, Handy, Gio, GLib, GdkPixbuf, Pango
 from .event_receiver import EventReceiver
@@ -292,6 +294,9 @@ class UserMessageAvatar(Handy.Avatar):
                 ),
                 Gio.Application.get_default().discord_loop
             ).result()
+
+        # So that they don't try to load all at the same time from the same file
+        time.sleep(random.uniform(0.25, 2.0)),
 
         GLib.idle_add(self._set_avatar_gtk_target)
 
