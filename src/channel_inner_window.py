@@ -393,9 +393,10 @@ class MessageView(Gtk.ScrolledWindow, EventReceiver):
         Gtk.ScrolledWindow.__init__(self, *args, **kwargs)
         EventReceiver.__init__(self)
 
-        self._message_listbox = Gtk.ListBox(hexpand=True)
+        self._message_listbox = Gtk.ListBox(hexpand=True, selection_mode=Gtk.SelectionMode.NONE)
         # When nearly empty channel, messages should not pile up on top
         self._message_listbox.set_valign(Gtk.Align.END)
+        self._message_listbox.get_style_context().add_class("message-history")
 
         # Due to events, the messages might often become out of order
         # this ensures that the messages that were created earlier
@@ -419,7 +420,10 @@ class MessageView(Gtk.ScrolledWindow, EventReceiver):
         self._history_loading_row.add(self._history_loading_spinner)
         self._message_listbox.add(self._history_loading_row)
 
-        self._message_column.add(self._message_listbox)
+        self._message_clamp = Handy.Clamp()
+        self._message_clamp.show()
+        self._message_clamp.add(self._message_listbox)
+        self._message_column.add(self._message_clamp)
 
         self._adj = self.get_vadjustment()
         self._orig_upper = self._adj.get_upper()
