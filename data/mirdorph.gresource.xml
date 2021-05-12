@@ -20,6 +20,7 @@
     <file>ui/general_menu.ui</file>
     <file>ui/context_menu.ui</file>
     <file>ui/message_view.ui</file>
+    <file>ui/channel_properties_window.ui</file>
     <!-- Not in /ui due to cryptic meson error-->
     <file>about_dialog.ui</file>
   </gresource>

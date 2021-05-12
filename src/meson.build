@@ -26,7 +26,8 @@ mirdorph_sources = [
   'event_receiver.py',
   'channel_inner_window.py',
   'channel_sidebar.py',
-  'confman.py'
+  'confman.py',
+  'channel_properties_window.py'
 ]
 
 install_data(mirdorph_sources, install_dir: moduledir)

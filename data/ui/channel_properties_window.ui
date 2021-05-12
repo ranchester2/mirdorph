@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <requires lib="gtk+" version="3.24" />
+  <template class="ChannelPropertiesWindow" parent="HdyWindow">
+    <property name="default-width">375</property>
+    <property name="default-height">550</property>
+    <child>
+      <object class="GtkBox">
+        <property name="visible">True</property>
+        <property name="orientation">vertical</property>
+        <child>
+          <object class="HdySqueezer">
+            <property name="visible">True</property>
+            <property name="interpolate-size">True</property>
+            <property name="transition-type">1</property>
+            <child>
+              <object class="HdyHeaderBar">
+                <property name="visible">True</property>
+                <property name="show-close-button">True</property>
+                <property name="width-request">370</property>
+                <property name="title">Channel Properties</property>
+              </object>
+            </child>
+            <child>
+              <object class="HdyHeaderBar">
+                <property name="visible">True</property>
+                <property name="show-close-button">True</property>
+                <property name="title">Channel Properties</property>
+                <child>
+                  <object class="GtkButton" id="_back_button">
+                    <property name="visible">True</property>
+                    <property name="image">_back_button_image</property>
+                    <child>
+                      <object class="GtkImage" id="_back_button_image">
+                        <property name="visible">True</property>
+                        <property name="icon-name">go-previous-symbolic</property>
+                      </object>
+                    </child>
+                    <style>
+                      <class name="image-button" />
+                    </style>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="GtkBox">
+            <property name="visible">True</property>
+            <property name="orientation">vertical</property>
+            <child>
+              <object class="GtkBox">
+                <property name="visible">True</property>
+                <property name="orientation">horizontal</property>
+                <property name="spacing">5</property>
+                <child>
+                  <object class="HdyAvatar" id="_channel_avatar">
+                    <property name="visible">True</property>
+                    <property name="size">48</property>
+                    <property name="text"></property>
+                    <property name="show-initials">True</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkBox">
+                    <property name="visible">True</property>
+                    <property name="orientation">vertical</property>
+                    <child>
+                      <object class="GtkLabel" id="_name_label">
+                        <property name="visible">True</property>
+                        <property name="xalign">0.0</property>
+                        <property name="label">#</property>
+                        <property name="ellipsize">3</property>
+                        <style>
+                          <class name="large-title" />
+                          <class name="reverse-text" />
+                        </style>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkLabel" id="_description_label">
+                        <property name="visible">True</property>
+                        <property name="xalign">0.0</property>
+                        <property name="label">Unknown usage</property>
+                        <!-- About enough to not oversize window-->
+                        <property name="max-width-chars">45</property>
+                        <property name="ellipsize">3</property>
+                        <style>
+                          <class name="caption" />
+                          <class name="reverse-text" />
+                        </style>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="pack-type">start</property>
+                  </packing>
+                </child>
+                <style>
+                  <class name="channel-banner-box" />
+                </style>
+              </object>
+            </child>
+            <child>
+              <object class="GtkNotebook">
+                <property name="visible">True</property>
+                <child>
+                  <object class="GtkBox" id="_general_tab_content">
+                    <property name="visible">True</property>
+                    <child>
+                      <object class="HdyPreferencesGroup">
+                        <property name="visible">True</property>
+                        <property name="title">Activity</property>
+                        <property name="vexpand">True</property>
+                        <child>
+                          <object class="HdyActionRow">
+                            <property name="visible">True</property>
+                            <property name="title">Last Activity</property>
+                            <property name="activatable-widget">_last_activity_button</property>
+                            <child>
+                              <object class="GtkButton" id="_last_activity_button">
+                                <property name="visible">True</property>
+                                <property name="label">Unknown</property>
+                                <property name="valign">GTK_ALIGN_CENTER</property>
+                                <signal name="activate" handler="_on_last_activity_button_activate" />
+                                <style>
+                                  <class name="flat" />
+                                </style>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="HdyActionRow">
+                            <!-- Not yet implemented, remember my discord datatools? -->
+                            <property name="visible">True</property>
+                            <property name="title">Statistics</property>
+                            <property name="activatable-widget">_statistics_button</property>
+                            <child>
+                              <object class="GtkButton" id="_statistics_button">
+                                <property name="visible">True</property>
+                                <property name="valign">GTK_ALIGN_CENTER</property>
+                                <property name="image">_statistics_button_image</property>
+                                <signal name="activate" handler="_on_statistics_button_activate" />
+                                <child>
+                                  <object class="GtkImage" id="_statistics_button_image">
+                                    <property name="visible">True</property>
+                                    <property name="icon-name">go-next-symbolic</property>
+                                  </object>
+                                </child>
+                                <style>
+                                  <class name="image-button" />
+                                </style>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <style>
+                      <class name="dialog-content-container" />
+                    </style>
+                  </object>
+                </child>
+                <child type="tab">
+                  <object class="GtkLabel">
+                    <property name="visible">True</property>
+                    <property name="label">General</property>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">True</property>
+            <property name="pack-type">end</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+  </template>
+</interface>
