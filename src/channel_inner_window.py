@@ -80,6 +80,9 @@ class ChannelInnerWindow(Gtk.Box, EventReceiver):
             self._message_view = MessageView(context=self)
             self._message_view.build_scroll()
             self._message_view.show()
+
+            self._loading_history = False
+
             self._content_box.pack_start(self._message_view, True, True, 0)
 
             self._message_entry_bar = MessageEntryBar(context=self)
@@ -136,16 +139,15 @@ class ChannelInnerWindow(Gtk.Box, EventReceiver):
     # Could be better if this was defined in message_view instead?
     @property
     def is_loading_history(self):
-        # Since we know that the history_loading_spinner
-        # only exists while messages are currently being loaded,
-        # we can use it as an indicator to test if to try loading or not
-        # as this can be easily triggered many times
-        try:
-            self._message_view._history_loading_spinner
-        except AttributeError:
-            return False
-        else:
-            return True
+        # Not using the spinner like before because .get_active()
+        # seems undocumented and broken right now
+        return self._loading_history
+
+    def signify_loading_hs(self):
+        self._loading_history = True
+
+    def signify_stopped_loading_hs(self):
+        self._loading_history = False
 
     @property
     def history_loading_is_complete(self):
@@ -391,7 +393,7 @@ class MessageView(Gtk.ScrolledWindow, EventReceiver):
         Gtk.ScrolledWindow.__init__(self, *args, **kwargs)
         EventReceiver.__init__(self)
 
-        self._message_listbox = Gtk.ListBox()
+        self._message_listbox = Gtk.ListBox(hexpand=True)
         # When nearly empty channel, messages should not pile up on top
         self._message_listbox.set_valign(Gtk.Align.END)
 
@@ -409,6 +411,13 @@ class MessageView(Gtk.ScrolledWindow, EventReceiver):
 
         self._message_listbox.set_sort_func(message_listbox_sort_func, None, False)
         self._message_listbox.show()
+
+        self._history_loading_row = Gtk.ListBoxRow(height_request=32)
+        self._history_loading_row.show()
+        self._history_loading_spinner = Gtk.Spinner()
+        self._history_loading_spinner.show()
+        self._history_loading_row.add(self._history_loading_spinner)
+        self._message_listbox.add(self._history_loading_row)
 
         self._message_column.add(self._message_listbox)
 
@@ -521,19 +530,7 @@ class MessageView(Gtk.ScrolledWindow, EventReceiver):
                 self._message_listbox.add(message_wid)
 
         self._history_loading_spinner.stop()
-
-        # This aquard thing needed because a listboxrow is automatically
-        # inserted between the spinner and the listbox
-        spin_row = self._history_loading_spinner.get_parent()
-        spin_row.get_parent().remove(
-            spin_row
-        )
-        spin_row.remove(self._history_loading_spinner)
-        spin_row.destroy()
-        del(spin_row)
-
-        self._history_loading_spinner.destroy()
-        del(self._history_loading_spinner)
+        self.context.signify_stopped_loading_hs()
 
     def _history_loading_target(self, additional):
         amount_to_load = self._STANDARD_HISTORY_LOADING
@@ -565,9 +562,7 @@ class MessageView(Gtk.ScrolledWindow, EventReceiver):
         if self.context.is_loading_history:
             logging.warning("attempted to load history even if already loading")
             return
-        self._history_loading_spinner = Gtk.Spinner()
-        self._message_listbox.add(self._history_loading_spinner)
-        self._history_loading_spinner.show()
+        self.context.signify_loading_hs()
         self._history_loading_spinner.start()
         message_loading_thread = threading.Thread(target=self._history_loading_target, args=(additional,))
         message_loading_thread.start()
