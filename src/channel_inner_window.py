@@ -24,6 +24,7 @@ import sys
 from pathlib import Path
 from gi.repository import Gtk, Handy, Gio, GLib, GdkPixbuf, Pango
 from .event_receiver import EventReceiver
+from .channel_properties_window import ChannelPropertiesWindow
 
 
 @Gtk.Template(resource_path='/org/gnome/gitlab/ranchester/Mirdorph/ui/channel_inner_window.ui')
@@ -257,8 +258,13 @@ class ChannelInnerWindow(Gtk.Box, EventReceiver):
         )
 
     def _on_channel_properties(self, action, param):
-        # placeholder
-        print(f"channel props for {self.channel_disc.name}")
+        properties_window = ChannelPropertiesWindow(channel=self.channel_disc)
+        properties_window.set_modal(True)
+        if self.is_poped:
+            properties_window.set_transient_for(self._popout_window)
+        else:
+            properties_window.set_transient_for(self.app.main_win)
+        properties_window.present()
 
     def _on_channel_search(self, action, param):
         # placeholder
