@@ -187,9 +187,6 @@ class MirdorphChannelSidebar(Gtk.Box, EventReceiver):
         Gtk.Box.__init__(self, *args, **kwargs)
         EventReceiver.__init__(self)
 
-        # hacky global
-        Gio.Application.get_default().bar_size_group.add_widget(self._view_switcher)
-
         self._channel_guild_loading_stack.set_visible_child(self._channel_guild_loading_spinner_page)
         build_guilds_thread = threading.Thread(target=self._build_guilds_target)
         build_guilds_thread.start()

@@ -47,9 +47,6 @@ class MirdorphMainWindow(Handy.ApplicationWindow, EventReceiver):
         menu = menu_builder.get_object('generalMenu')
         self._main_menu_popover.bind_model(menu)
 
-        # Could be better than basically making this global
-        self.props.application.bar_size_group = Gtk.SizeGroup(mode=Gtk.SizeGroupMode.VERTICAL)
-
         self._empty_inner_window = ChannelInnerWindow(empty=True)
         self.main_flap.connect("notify::folded", self._empty_inner_window.handle_flap_folding)
         self._empty_inner_window.show()
