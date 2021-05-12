@@ -17,10 +17,11 @@ flatpak-builder --force-clean --user --install build-dir org.gnome.gitlab.ranche
 flatpak run org.gnome.gitlab.ranchester.Mirdorph
 ```
 
-Here are a few screenshots of 0.0.2 (except for one of them):
+Here are a few screenshots of 0.0.3 (except for one of them):
 
 ![image](./doc/asset/mirdorph-login.png)
 ![image](./doc/asset/mirdorph-login-token.png)
+![image](./doc/asset/mirdorph-login-gui.png)
 ![image](./doc/asset/mirdorph-unselected-main-win.png)
 ![image](./doc/asset/mirdorph-with-channel.png)
 ![image](./doc/asset/mirdorph-popped-out.png)

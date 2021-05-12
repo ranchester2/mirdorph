@@ -1,3 +1,22 @@
+v0.0.3:
+
+More basic very early improvements:
+	* Messages now wrap and you now longer have clunky horizontal
+scrollbar
+	* Initial basic main app menu with empty preferences and fancy
+about dialog!
+	* Channels now have guild and search in an extra menu that currently
+don't do anything
+	* Now the flap closes automatically when you select a channel in
+mobile mode
+	* Now you have graphical discord login, no more messing with
+getting your token, nice login email and password gui
+	* Messages now have profile icons
+	* Flatpak is now buildable offline apart from one module
+	* Things can now be gpu accelerated
+	* You can now scroll endlessly in channels and history is loaded on the fly
+	* Prettier messages view with clamp
+
 v0.0.2:
 
 Basic very early improvements:
