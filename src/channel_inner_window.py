@@ -457,10 +457,7 @@ class MessageView(Gtk.ScrolledWindow, EventReceiver):
         if adj.get_value() < adj.get_page_size() * 1.5:
             self.load_history(additional=15)
 
-    # Copied from Fractal in rust, idk how this works
     def build_scroll(self):
-        upper = self._orig_upper
-
         self._adj.connect("notify::upper", self._handle_upper_adj_notify)
         self._adj.connect("value-changed", self._handle_value_adj_changed)
 
@@ -484,6 +481,8 @@ class MessageView(Gtk.ScrolledWindow, EventReceiver):
             # And it is extremely unlikely that the next on_message isn't the one that has been sent.
             # This isnt called in the async send msg function with GLib.idle_add because it for some
             # reason executes in the wrong order then and misses the message
+            # However this now be a bit different (seems a bit more accurate) with the additional
+            # Fractal scrolling code.
             self.context.unprepare_scroll_for_msg_send()
 
     @property
@@ -509,8 +508,6 @@ class MessageView(Gtk.ScrolledWindow, EventReceiver):
         message objects
         """
         tmp_list = []
-        # big limit temporary solution until we implement history reloading
-        # on scroll
         async for message in channel.history(limit=amount_to_load):
             tmp_list.append(message)
         return tmp_list
@@ -591,6 +588,9 @@ class MessageEntryBar(Gtk.Box, EventReceiver):
         # Done here, not with a separate async wrapper with idle_add
         # because it doesn't help because if we do it from that
         # it executes in the wrong order.
+
+        # However now it may be a bit different with the fractal scrolling
+        # like system.
 
         # Unsetting happens in on_message due to similar reasons
         self.context.prepare_scroll_for_msg_send()
