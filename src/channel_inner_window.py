@@ -18,6 +18,9 @@ import logging
 import threading
 import discord
 import os
+import time
+import random
+import sys
 from pathlib import Path
 from gi.repository import Gtk, Handy, Gio, GLib, GdkPixbuf, Pango
 from .event_receiver import EventReceiver
@@ -75,7 +78,11 @@ class ChannelInnerWindow(Gtk.Box, EventReceiver):
                 self._context_headerbar.set_subtitle(self.channel_disc.topic)
 
             self._message_view = MessageView(context=self)
+            self._message_view.build_scroll()
             self._message_view.show()
+
+            self._loading_history = False
+
             self._content_box.pack_start(self._message_view, True, True, 0)
 
             self._message_entry_bar = MessageEntryBar(context=self)
@@ -132,16 +139,15 @@ class ChannelInnerWindow(Gtk.Box, EventReceiver):
     # Could be better if this was defined in message_view instead?
     @property
     def is_loading_history(self):
-        # Since we know that the history_loading_spinner
-        # only exists while messages are currently being loaded,
-        # we can use it as an indicator to test if to try loading or not
-        # as this can be easily triggered many times
-        try:
-            self._message_view._history_loading_spinner
-        except AttributeError:
-            return False
-        else:
-            return True
+        # Not using the spinner like before because .get_active()
+        # seems undocumented and broken right now
+        return self._loading_history
+
+    def signify_loading_hs(self):
+        self._loading_history = True
+
+    def signify_stopped_loading_hs(self):
+        self._loading_history = False
 
     @property
     def history_loading_is_complete(self):
@@ -293,6 +299,9 @@ class UserMessageAvatar(Handy.Avatar):
                 Gio.Application.get_default().discord_loop
             ).result()
 
+        # So that they don't try to load all at the same time from the same file
+        time.sleep(random.uniform(0.25, 5.0)),
+
         GLib.idle_add(self._set_avatar_gtk_target)
 
     def _set_avatar_gtk_target(self):
@@ -372,19 +381,19 @@ class MirdorphMessage(Gtk.ListBoxRow, EventReceiver):
 
         self.add(main_hbox)
 
+@Gtk.Template(resource_path='/org/gnome/gitlab/ranchester/Mirdorph/ui/message_view.ui')
 class MessageView(Gtk.ScrolledWindow, EventReceiver):
     __gtype_name__ = "MessageView"
 
+    _STANDARD_HISTORY_LOADING = 40
+
+    _message_column: Gtk.Box = Gtk.Template.Child()
+
     def __init__(self, context, *args, **kwargs):
-        Gtk.ListBox.__init__(self, *args, **kwargs)
+        Gtk.ScrolledWindow.__init__(self, *args, **kwargs)
         EventReceiver.__init__(self)
 
-        self.set_policy(
-            hscrollbar_policy=Gtk.PolicyType.NEVER,
-            vscrollbar_policy=Gtk.PolicyType.AUTOMATIC
-        )
-
-        self._message_listbox = Gtk.ListBox()
+        self._message_listbox = Gtk.ListBox(hexpand=True)
         # When nearly empty channel, messages should not pile up on top
         self._message_listbox.set_valign(Gtk.Align.END)
 
@@ -403,9 +412,54 @@ class MessageView(Gtk.ScrolledWindow, EventReceiver):
         self._message_listbox.set_sort_func(message_listbox_sort_func, None, False)
         self._message_listbox.show()
 
-        self.add(self._message_listbox)
+        self._history_loading_row = Gtk.ListBoxRow(height_request=32)
+        self._history_loading_row.show()
+        self._history_loading_spinner = Gtk.Spinner()
+        self._history_loading_spinner.show()
+        self._history_loading_row.add(self._history_loading_spinner)
+        self._message_listbox.add(self._history_loading_row)
+
+        self._message_column.add(self._message_listbox)
+
+        self._adj = self.get_vadjustment()
+        self._orig_upper = self._adj.get_upper()
+        self._balance = None
+        self._autoscroll = False
 
         self.context = context
+
+    def set_balance_top(self):
+        # DONTFIXME: Workaround: https://gitlab.gnome.org/GNOME/gtk/merge_requests/395
+        self.set_kinetic_scrolling(False)
+        self._balance = Gtk.PositionType.TOP
+
+    def _handle_upper_adj_notify(self, upper, adjparam):
+        new_upper = self._adj.get_upper()
+        diff = new_upper - self._orig_upper
+
+        # Don't do anything if upper didn't change
+        if diff != 0.0:
+            self._orig_upper = new_upper
+            if self._autoscroll:
+                self._adj.set_value(self._adj.get_upper() - self._adj.get_page_size())
+            elif self._balance == Gtk.PositionType.TOP:
+                self._balance = False
+                self._adj.set_value(self._adj.get_value() + diff)
+                self.set_kinetic_scrolling(True)
+
+    def _handle_value_adj_changed(self, adj):
+        bottom = adj.get_upper() - adj.get_page_size()
+        self._autoscroll = (abs(adj.get_value() - bottom) < sys.float_info.epsilon)
+        if adj.get_value() < adj.get_page_size() * 1.5:
+            self.load_history(additional=15)
+
+    # Copied from Fractal in rust, idk how this works
+    def build_scroll(self):
+        upper = self._orig_upper
+
+        self._adj.connect("notify::upper", self._handle_upper_adj_notify)
+        self._adj.connect("value-changed", self._handle_value_adj_changed)
+
 
     def _on_msg_send_mode_scl_send_wrap(self):
         self.context.scroll_messages_to_bottom()
@@ -434,7 +488,7 @@ class MessageView(Gtk.ScrolledWindow, EventReceiver):
         If history loading has completed atleast once
 
         This is useful for calling something that depends on history getting loaded,
-        like scrolling the messages to the bottom. Not 100% accurate
+        like scrolling the messages to the bottom for the first time. Not 100% accurate
         """
         # Works as the message listboxes are direct children of the message listbox
         # However not 100% accurate as some could have been from on_message,
@@ -444,7 +498,7 @@ class MessageView(Gtk.ScrolledWindow, EventReceiver):
                 return True
         return False
 
-    async def _get_history_messages_to_list(self, channel):
+    async def _get_history_messages_to_list(self, channel, amount_to_load):
         """
         Return a list of Discord messages in current history,
         useful to call in other thread and use the list to build
@@ -453,15 +507,12 @@ class MessageView(Gtk.ScrolledWindow, EventReceiver):
         tmp_list = []
         # big limit temporary solution until we implement history reloading
         # on scroll
-        async for message in channel.history(limit=1000):
+        async for message in channel.history(limit=amount_to_load):
             tmp_list.append(message)
         return tmp_list
 
     def _history_loading_gtk_target(self, messages: list):
         for message in messages:
-            message_wid = MirdorphMessage(message)
-            message_wid.show()
-
             # We need to check for duplicates and not add it if it is one
             # because load_history will often be called multiple times
             duplicate = False
@@ -469,35 +520,28 @@ class MessageView(Gtk.ScrolledWindow, EventReceiver):
             # so this work fine
             for already_existing_message in self._message_listbox.get_children():
                 if (isinstance(already_existing_message, MirdorphMessage) and
-                   message_wid.uniq_id == already_existing_message.uniq_id):
-                    duplicate = True
-                    break
+                    message.id == already_existing_message.uniq_id):
+                        duplicate = True
+                        break
             if not duplicate:
+                message_wid = MirdorphMessage(message)
+                message_wid.show()
+                self.set_balance_top()
                 self._message_listbox.add(message_wid)
-            else:
-                message_wid.destroy()
-                del(message_wid)
 
         self._history_loading_spinner.stop()
+        self.context.signify_stopped_loading_hs()
 
-        # This aquard thing needed because a listboxrow is automatically
-        # inserted between the spinner and the listbox
-        spin_row = self._history_loading_spinner.get_parent()
-        spin_row.get_parent().remove(
-            spin_row
-        )
-        spin_row.remove(self._history_loading_spinner)
-        spin_row.destroy()
-        del(spin_row)
+    def _history_loading_target(self, additional):
+        amount_to_load = self._STANDARD_HISTORY_LOADING
+        if additional is not None:
+            amount_to_load = len(self._message_listbox.get_children()) + additional
 
-        self._history_loading_spinner.destroy()
-        del(self._history_loading_spinner)
-
-    def _history_loading_target(self):
         messages = list(
             asyncio.run_coroutine_threadsafe(
                 self._get_history_messages_to_list(
-                    self.context.channel_disc
+                    self.context.channel_disc,
+                    amount_to_load
                 ),
                 Gio.Application.get_default().discord_loop
             ).result()
@@ -505,20 +549,22 @@ class MessageView(Gtk.ScrolledWindow, EventReceiver):
 
         GLib.idle_add(self._history_loading_gtk_target, messages)
 
-    def load_history(self):
+    def load_history(self, additional=None):
         """
         Load the history of the view and it's channel
 
         You can only load once at a time, async operation
+
+        param:
+            additional - additional ammount of messages to load, useful
+            only if previously loaded
         """
         if self.context.is_loading_history:
             logging.warning("attempted to load history even if already loading")
             return
-        self._history_loading_spinner = Gtk.Spinner()
-        self._message_listbox.add(self._history_loading_spinner)
-        self._history_loading_spinner.show()
+        self.context.signify_loading_hs()
         self._history_loading_spinner.start()
-        message_loading_thread = threading.Thread(target=self._history_loading_target)
+        message_loading_thread = threading.Thread(target=self._history_loading_target, args=(additional,))
         message_loading_thread.start()
 
 
