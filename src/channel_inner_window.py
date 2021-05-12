@@ -366,6 +366,7 @@ class MirdorphMessage(Gtk.ListBoxRow, EventReceiver):
             label=safe_message,
             xalign=0.0,
             wrap=True,
+            selectable=True,
             wrap_mode=Pango.WrapMode.WORD_CHAR
         )
 
