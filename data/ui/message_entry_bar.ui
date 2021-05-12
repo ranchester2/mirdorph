@@ -1,17 +1,77 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
-  <requires lib="gtk+" version="3.24"/>
-    <template class="MessageEntryBar" parent="GtkBox">
-      <child>
-        <object class="GtkEntry" id="message_entry">
-          <property name="visible">True</property>
-          <property name="hexpand">True</property>
-          <property name="halign">GTK_ALIGN_FILL</property>
-          <signal name="activate" handler="on_message_entry_activate"/>
-        </object>
-      </child>
-      <style>
-        <class name="inline-toolbar"/>
-      </style>
-    </template>
+  <requires lib="gtk+" version="3.24" />
+  <template class="MessageEntryBar" parent="GtkBox">
+    <child>
+      <object class="HdyClamp">
+        <property name="visible">True</property>
+        <property name="maximum-size">800</property>
+        <property name="tightening-threshold">600</property>
+        <child>
+          <object class="GtkBox">
+            <property name="visible">True</property>
+            <property name="name">message-entry-button-box</property>
+            <property name="spacing">5</property>
+            <property name="valign">GTK_ALIGN_CENTER</property>
+            <property name="orientation">horizontal</property>
+            <child>
+              <object class="GtkButton" id="_attachment_button">
+                <property name="visible">True</property>
+                <property name="image">_attachment_button_image</property>
+                <child>
+                  <object class="GtkImage" id="_attachment_button_image">
+                    <property name="visible">True</property>
+                    <property name="icon-name">mail-attachment-symbolic</property>
+                  </object>
+                </child>
+                <style>
+                  <class name="image-button" />
+                </style>
+              </object>
+            </child>
+            <child>
+              <object class="GtkEntry" id="_message_entry">
+                <property name="visible">True</property>
+                <property name="hexpand">True</property>
+                <signal name="activate" handler="_on_message_entry_activate"/>
+                <signal name="changed" handler="_on_message_entry_changed"/>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="_emoji_button">
+                <property name="visible">True</property>
+                <property name="image">_emoji_button_image</property>
+                <child>
+                  <object class="GtkImage" id="_emoji_button_image">
+                    <property name="visible">True</property>
+                    <property name="icon-name">smile-symbolic</property>
+                  </object>
+                </child>
+                <style>
+                  <class name="image-button" />
+                </style>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="_send_button">
+                <property name="visible">True</property>
+                <property name="image">_send_button_image</property>
+                <signal name="clicked" handler="_on_send_button_clicked"/>
+                  <child>
+                    <object class="GtkImage" id="_send_button_image">
+                      <property name="visible">True</property>
+                      <property name="icon-name">paper-plane-symbolic</property>
+                    </object>
+                  </child>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+  </template>
 </interface>

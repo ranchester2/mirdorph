@@ -8,9 +8,24 @@
   padding-top: 3px;
 }
 
+/*
+Both the message entry box and the message-history
+listbox are in a hdyclamp of equal size. So for them
+to align nicely the padding must be equal.
+
+However, I can't make it too small since I need there
+to be room from the message listbox to the border in mobile
+mode
+*/
+
 .message-history {
   background-color: @theme_base_color;
-  padding: 0 12px 5px;
+  padding: 0 8px 8px;
+}
+
+#message-entry-button-box {
+  margin-left: 8px;
+  margin-right: 8px;
 }
 
 .message-enforcement-box {

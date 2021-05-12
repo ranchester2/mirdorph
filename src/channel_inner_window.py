@@ -574,6 +574,9 @@ class MessageView(Gtk.ScrolledWindow, EventReceiver):
 class MessageEntryBar(Gtk.Box, EventReceiver):
     __gtype_name__ = "MessageEntryBar"
 
+    _message_entry = Gtk.Template.Child()
+    _send_button = Gtk.Template.Child()
+
     def __init__(self, context, *args, **kwargs):
         Gtk.Box.__init__(self, *args, **kwargs)
         EventReceiver.__init__(self)
@@ -583,9 +586,8 @@ class MessageEntryBar(Gtk.Box, EventReceiver):
         Gio.Application.get_default().bar_size_group.add_widget(self)
         self.app = Gio.Application.get_default()
 
-    @Gtk.Template.Callback()
-    def on_message_entry_activate(self, entry):
-        message = entry.get_text()
+    def _do_attempt_send(self):
+        message = self._message_entry.get_text()
         # Done here, not with a separate async wrapper with idle_add
         # because it doesn't help because if we do it from that
         # it executes in the wrong order.
@@ -599,5 +601,20 @@ class MessageEntryBar(Gtk.Box, EventReceiver):
             self.context.channel_disc.send(message),
             self.app.discord_loop
         )
-        entry.set_text('')
+        self._message_entry.set_text('')
+
+    @Gtk.Template.Callback()
+    def _on_send_button_clicked(self, entry):
+        self._do_attempt_send()
         
+    @Gtk.Template.Callback()
+    def _on_message_entry_activate(self, entry):
+        self._do_attempt_send()
+
+    @Gtk.Template.Callback()
+    def _on_message_entry_changed(self, entry):
+        if entry.get_text():
+            self._send_button.get_style_context().add_class("suggested-action")
+        else:
+            self._send_button.get_style_context().remove_class("suggested-action")
+
