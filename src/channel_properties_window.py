@@ -76,3 +76,8 @@ class ChannelPropertiesWindow(Handy.Window, EventReceiver):
     def _on_statistics_button_activate(self, button):
         raise NotImplementedError
 
+    @Gtk.Template.Callback()
+    def _on_back_button_clicked(self, button):
+        # for mobile the back button is basically
+        # a close button
+        self.destroy()
