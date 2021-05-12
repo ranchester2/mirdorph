@@ -421,7 +421,7 @@ class MessageView(Gtk.ScrolledWindow, EventReceiver):
         self._history_loading_row.add(self._history_loading_spinner)
         self._message_listbox.add(self._history_loading_row)
 
-        self._message_clamp = Handy.Clamp()
+        self._message_clamp = Handy.Clamp(maximum_size=800, tightening_threshold=600)
         self._message_clamp.show()
         self._message_clamp.add(self._message_listbox)
         self._message_column.add(self._message_clamp)
