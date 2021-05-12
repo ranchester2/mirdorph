@@ -203,6 +203,10 @@ class ChannelInnerWindow(Gtk.Box, EventReceiver):
         self.app.main_win.unconfigure_popout_window(self)
         self.is_poped = False
 
+    # If you are here because of all the random CRITICAL Gtk
+    # assertion warnings, I think you're in the wrong place.
+    # they started appearing after 1860e9aff877a5493b2c9dbd4db0456ed0d61466
+    # even though that changed NOTHING todo with popout
     def popout(self):
         """
         Popout the channel into a separate window
