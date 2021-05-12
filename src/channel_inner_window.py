@@ -21,6 +21,7 @@ import os
 import time
 import random
 import sys
+from enum import Enum
 from pathlib import Path
 from gi.repository import Gtk, Handy, Gio, GLib, GdkPixbuf, Pango
 from .event_receiver import EventReceiver
@@ -331,6 +332,104 @@ class UserMessageAvatar(Handy.Avatar):
             pixbuf = None
         return pixbuf
 
+class AttachmentType(Enum):
+    IMAGE = 0
+
+# Meant for subclassing
+class MirdorphAttachment(Gtk.Bin):
+    def __init__(self, attachment, *args, **kwargs):
+        Gtk.Bin.__init__(self, *args, **kwargs)
+        self._attachment_disc = attachment
+
+    def _do_template_render(self):
+        """
+        Do the initial rendering before fetching
+        discord data
+        """
+        pass
+
+    def _do_full_render_at(self):
+        """
+        Start doing the full render, expected to call
+        thread that fetches discord, etc
+        """
+        pass
+
+class ImageAttachment(MirdorphAttachment):
+    __gtype_name__ = "ImageAttachment"
+
+    _image_cache_dir_path = os.environ["XDG_CACHE_HOME"]
+
+    def __init__(self, *args, **kwargs):
+        MirdorphAttachment.__init__(self, *args, **kwargs)
+
+        self._do_template_render()
+        self._do_full_render_at()
+
+    def _get_image_path_from_id(self, image_id: int):
+        return Path(self._image_cache_dir_path / Path(
+            "attachment_image_" + str(image_id) + os.path.splitext(self._attachment_disc.filename)[1]))
+
+    def _do_template_render(self):
+        pixbuf = GdkPixbuf.Pixbuf.new_from_resource_at_scale(
+            '/org/gnome/gitlab/ranchester/Mirdorph/ui/image_loading_template.svg',
+            width=290,
+            # The dimensions of the placeholder must be the same as final result
+            # to prevent scroll jumping.
+            # Line taken from mathematics stackexchange
+            height=290*self._attachment_disc.height/self._attachment_disc.width,
+            preserve_aspect_ratio=False,
+        )
+        self._image = Gtk.Image.new_from_pixbuf(pixbuf)
+        self._image.set_halign(Gtk.Align.START)
+        self._image.show()
+        self.add(self._image)
+
+    def _do_full_render_at(self):
+        fetch_image_thread = threading.Thread(target=self._fetch_image_target)
+        fetch_image_thread.start()
+
+    async def _save_image(self):
+        await self._attachment_disc.save(str(self._get_image_path_from_id(self._attachment_disc.id)))
+
+    def _fetch_image_target(self):
+        asyncio.run_coroutine_threadsafe(
+            self._save_image(),
+            Gio.Application.get_default().discord_loop
+        ).result()
+
+        # So that they don't try to load all at the same time
+        time.sleep(random.uniform(0.25, 2.5)),
+
+        GLib.idle_add(self._load_image_gtk_target)
+
+    def _load_image_gtk_target(self):
+        if self._get_image_path_from_id(self._attachment_disc.id).is_file():
+            pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(
+                str(self._get_image_path_from_id(self._attachment_disc.id)),
+                # Should be a better solution than hardcoding the width, dynamic?
+                width=290,
+                height=-1,
+                preserve_aspect_ratio=True
+            )
+            self.remove(self._image)
+            self._image = Gtk.Image.new_from_pixbuf(pixbuf)
+            self._image.set_halign(Gtk.Align.START)
+            self._image.show()
+            self.add(self._image)
+
+def get_attachment_type(attachment: discord.Attachment) -> str:
+    """
+    Get the attachment type of the att
+
+    available_types = AttachmentType.IMAGE
+    """
+
+    data_format = os.path.splitext(attachment.filename)
+    if data_format[1][1:].lower() in ['jpg', 'jpeg', 'bmp', 'png', 'webp']:
+        return AttachmentType.IMAGE
+    else:
+        return None
 
 class MirdorphMessage(Gtk.ListBoxRow, EventReceiver):
     __gtype_name__ = "MirdorphMessage"
@@ -352,8 +451,11 @@ class MirdorphMessage(Gtk.ListBoxRow, EventReceiver):
         # Spacing bad idea for now, ideally css, however css would have to be somehow
         # for the children of the message
         main_hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=5)
+        main_hbox.show()
         avatar_vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        avatar_vbox.show()
         user_and_content_vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        user_and_content_vbox.show()
 
         # Cause we use xml markup, and some names can break that, and then
         # you have a broken label
@@ -372,6 +474,8 @@ class MirdorphMessage(Gtk.ListBoxRow, EventReceiver):
             label=f"<b>{safe_name}</b>",
             xalign=0.0
         )
+        self._username_label.show()
+
         self._message_label = Gtk.Label(
             label=safe_message,
             xalign=0.0,
@@ -379,16 +483,31 @@ class MirdorphMessage(Gtk.ListBoxRow, EventReceiver):
             selectable=True,
             wrap_mode=Pango.WrapMode.WORD_CHAR
         )
+        self._message_label.show()
 
         avatar = UserMessageAvatar(self._disc_message.author, margin_top=3)
+        avatar.show()
 
         user_and_content_vbox.pack_start(self._username_label, False, False, 0)
         user_and_content_vbox.pack_start(self._message_label, True, True, 0)
+        # Empty messages (like when sending images) look weird otherwise
+        if not self._message_label.get_label():
+            user_and_content_vbox.remove(self._message_label)
+
+        attachment_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
+        attachment_box.show()
+
+        for att in self._disc_message.attachments:
+            if get_attachment_type(att) == AttachmentType.IMAGE:
+                att_widg = ImageAttachment(att)
+                att_widg.show()
+                attachment_box.add(att_widg)
+
+        user_and_content_vbox.pack_start(attachment_box, False, False, 0)
+
         avatar_vbox.pack_start(avatar, False, False, 0)
         main_hbox.pack_start(avatar_vbox, False, False, 0)
         main_hbox.pack_start(user_and_content_vbox, False, False, 0)
-
-        main_hbox.show_all()
 
         self.add(main_hbox)
 

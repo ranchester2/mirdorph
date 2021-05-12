@@ -10,6 +10,7 @@
     <file>icons/view-sidebar-symbolic.svg</file>
     <file>icons/smile-symbolic.svg</file>
     <file>icons/paper-plane-symbolic.svg</file>
+    <file>ui/image_loading_template.svg</file>
     <file>ui/login_window.ui</file>
     <file>ui/gtk_style.css</file>
     <file>ui/main_window.ui</file>
