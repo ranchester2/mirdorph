@@ -21,6 +21,7 @@ import os
 import time
 import random
 import sys
+import subprocess
 from enum import Enum
 from pathlib import Path
 from gi.repository import Gtk, Gio, GLib, Gdk, GdkPixbuf, Pango, Handy
@@ -334,11 +335,11 @@ class UserMessageAvatar(Handy.Avatar):
 
 class AttachmentType(Enum):
     IMAGE = 0
+    GENERIC = 1
 
 # Meant for subclassing
-class MirdorphAttachment(Gtk.Bin):
-    def __init__(self, attachment, *args, **kwargs):
-        Gtk.Bin.__init__(self, *args, **kwargs)
+class MirdorphAttachment:
+    def __init__(self, attachment):
         self._attachment_disc: discord.Attachment = attachment
 
     def _do_template_render(self):
@@ -355,6 +356,73 @@ class MirdorphAttachment(Gtk.Bin):
         """
         pass
 
+@Gtk.Template(resource_path="/org/gnome/gitlab/ranchester/Mirdorph/ui/generic_attachment.ui")
+class GenericAttachment(Gtk.ListBox, MirdorphAttachment):
+    __gtype_name__ = "GenericAttachment"
+
+    _download_button: Gtk.Button = Gtk.Template.Child()
+    _filename_label: Gtk.Label = Gtk.Template.Child()
+    _download_progress_bar: Gtk.ProgressBar = Gtk.Template.Child()
+    _download_button_image: Gtk.Image = Gtk.Template.Child()
+
+    # Capture attachment to not pass it on to the widget
+    def __init__(self, attachment, *args, **kwargs):
+        MirdorphAttachment.__init__(self, attachment)
+        Gtk.ListBox.__init__(self, *args, **kwargs)
+
+        self._do_template_render()
+        self._do_full_render_at()
+        self._finished_download = False
+
+    def _do_template_render(self):
+        pass
+
+    def _do_full_render_at(self):
+        # We don't actually need a separate thread for this
+        self._filename_label.set_label(self._attachment_disc.filename)
+        self._download_button.set_sensitive(True)
+
+    @Gtk.Template.Callback()
+    def _on_listbox_row_activated(self, list_box, row):
+        # We only have one row, so this is the main row
+        if not self._finished_download:
+            self._download_button.clicked()
+
+    @Gtk.Template.Callback()
+    def _on_download_button_clicked(self, button):
+        logging.info(f"saving attachment {self._attachment_disc.url}")
+        self._download_button.set_sensitive(False)
+        self._download_progress_bar.pulse()
+        save_attachment_thread = threading.Thread(target=self._save_attachment_target)
+        save_attachment_thread.start()
+
+    def _pulse_target(self):
+        while not self._finished_download:
+            time.sleep(0.5)
+            GLib.idle_add(lambda _ : self._download_progress_bar.pulse(), None)
+        else:
+            GLib.idle_add(lambda _ : self._download_progress_bar.set_fraction(1.0), None)
+
+    async def _do_save(self, download_dir):
+        save_path = Path(download_dir + "/" + self._attachment_disc.filename)
+        await self._attachment_disc.save(str(save_path))
+
+    def _save_attachment_target(self):
+        # Magic string editing required because xdg-user-dir output isn't completely clean
+        download_dir = str(subprocess.check_output('xdg-user-dir DOWNLOAD', shell=True, text=True))[:-1]
+
+        pulse_thread = threading.Thread(target=self._pulse_target)
+        pulse_thread.start()
+
+        asyncio.run_coroutine_threadsafe(
+            self._do_save(download_dir),
+            Gio.Application.get_default().discord_loop
+        ).result()
+
+        self._finished_download = True
+
+        GLib.idle_add(lambda _ : self._download_button_image.set_from_icon_name("emblem-ok-symbolic", 4), None)
+
 class ImageAttachmentLoadingTemplate(Gtk.Bin):
     __gtype_name__ = "ImageAttachmentLoadingTemplate"
 
@@ -368,13 +436,15 @@ class ImageAttachmentLoadingTemplate(Gtk.Bin):
         self.add(self._spinner)
         self._spinner.start()
 
-class ImageAttachment(MirdorphAttachment):
+class ImageAttachment(MirdorphAttachment, Gtk.Bin):
     __gtype_name__ = "ImageAttachment"
 
     _image_cache_dir_path = os.environ["XDG_CACHE_HOME"]
 
-    def __init__(self, *args, **kwargs):
-        MirdorphAttachment.__init__(self, *args, **kwargs)
+    # Attachment argument captured to not pass it to widget gtk
+    def __init__(self, attachment, *args, **kwargs):
+        MirdorphAttachment.__init__(self, attachment)
+        Gtk.Bin.__init__(self, *args, **kwargs)
 
         self._image_stack = Gtk.Stack()
         self._image_stack.show()
@@ -456,7 +526,7 @@ def get_attachment_type(attachment: discord.Attachment) -> str:
     if data_format[1][1:].lower() in ['jpg', 'jpeg', 'bmp', 'png', 'webp']:
         return AttachmentType.IMAGE
     else:
-        return None
+        return AttachmentType.GENERIC
 
 @Gtk.Template(resource_path='/org/gnome/gitlab/ranchester/Mirdorph/ui/message.ui')
 class MirdorphMessage(Gtk.ListBoxRow):
@@ -506,6 +576,11 @@ class MirdorphMessage(Gtk.ListBoxRow):
         for att in self._disc_message.attachments:
             if get_attachment_type(att) == AttachmentType.IMAGE:
                 att_widg = ImageAttachment(att)
+                att_widg.set_halign(Gtk.Align.START)
+                att_widg.show()
+                self._attachment_box.pack_start(att_widg, True, True, 0)
+            elif get_attachment_type(att) == AttachmentType.GENERIC:
+                att_widg = GenericAttachment(att)
                 att_widg.set_halign(Gtk.Align.START)
                 att_widg.show()
                 self._attachment_box.pack_start(att_widg, True, True, 0)

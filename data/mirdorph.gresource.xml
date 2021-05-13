@@ -22,6 +22,7 @@
     <file>ui/message_view.ui</file>
     <file>ui/channel_properties_window.ui</file>
     <file>ui/message.ui</file>
+    <file>ui/generic_attachment.ui</file>
     <!-- Not in /ui due to cryptic meson error-->
     <file>about_dialog.ui</file>
   </gresource>
