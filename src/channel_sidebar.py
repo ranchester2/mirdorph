@@ -173,7 +173,7 @@ class MirdorphGuildEntry(Handy.ExpanderRow):
             Gio.Application.get_default().main_win.main_flap.set_reveal_flap(False)
 
 @Gtk.Template(resource_path='/org/gnome/gitlab/ranchester/Mirdorph/ui/channel_sidebar.ui')
-class MirdorphChannelSidebar(Gtk.Box, EventReceiver):
+class MirdorphChannelSidebar(Gtk.Box):
     __gtype_name__ = "MirdorphChannelSidebar"
 
     _view_switcher: Handy.ViewSwitcherBar = Gtk.Template.Child()
@@ -185,7 +185,6 @@ class MirdorphChannelSidebar(Gtk.Box, EventReceiver):
 
     def __init__(self, *args, **kwargs):
         Gtk.Box.__init__(self, *args, **kwargs)
-        EventReceiver.__init__(self)
 
         self._channel_guild_loading_stack.set_visible_child(self._channel_guild_loading_spinner_page)
         build_guilds_thread = threading.Thread(target=self._build_guilds_target)

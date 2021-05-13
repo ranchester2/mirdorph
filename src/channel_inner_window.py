@@ -30,7 +30,7 @@ from .atkpicture import AtkPicture
 
 
 @Gtk.Template(resource_path='/org/gnome/gitlab/ranchester/Mirdorph/ui/channel_inner_window.ui')
-class ChannelInnerWindow(Gtk.Box, EventReceiver):
+class ChannelInnerWindow(Gtk.Box):
     __gtype_name__ = "ChannelInnerWindow"
 
     _context_headerbar: Handy.HeaderBar = Gtk.Template.Child()
@@ -60,7 +60,6 @@ class ChannelInnerWindow(Gtk.Box, EventReceiver):
         """
         
         Gtk.Box.__init__(self, *args, **kwargs)
-        EventReceiver.__init__(self)
         self.app = Gio.Application.get_default()
         self.channel_id = channel
         self.empty = empty
@@ -460,7 +459,7 @@ def get_attachment_type(attachment: discord.Attachment) -> str:
         return None
 
 @Gtk.Template(resource_path='/org/gnome/gitlab/ranchester/Mirdorph/ui/message.ui')
-class MirdorphMessage(Gtk.ListBoxRow, EventReceiver):
+class MirdorphMessage(Gtk.ListBoxRow):
     __gtype_name__ = "MirdorphMessage"
 
     _avatar_box: Gtk.Box = Gtk.Template.Child()
@@ -472,7 +471,6 @@ class MirdorphMessage(Gtk.ListBoxRow, EventReceiver):
 
     def __init__(self, disc_message, *args, **kwargs):
         Gtk.ListBoxRow.__init__(self, *args, **kwargs)
-        EventReceiver.__init__(self)
         self._disc_message = disc_message
 
         # Overall unique identifier to tell duplicates apart
@@ -701,7 +699,7 @@ class MessageView(Gtk.ScrolledWindow, EventReceiver):
 
 
 @Gtk.Template(resource_path='/org/gnome/gitlab/ranchester/Mirdorph/ui/message_entry_bar.ui')
-class MessageEntryBar(Gtk.Box, EventReceiver):
+class MessageEntryBar(Gtk.Box):
     __gtype_name__ = "MessageEntryBar"
 
     _message_entry = Gtk.Template.Child()
@@ -712,7 +710,6 @@ class MessageEntryBar(Gtk.Box, EventReceiver):
         # hardcoded for now, it seems to be the size of the viewswitcher
         # breaks themes I guess
         Gtk.Box.__init__(self, height_request=46, *args, **kwargs)
-        EventReceiver.__init__(self)
 
         self.context = context
         self.app = Gio.Application.get_default()
