@@ -59,6 +59,7 @@
             <child>
               <object class="GtkButton" id="_send_button">
                 <property name="visible">True</property>
+                <property name="sensitive">False</property>
                 <property name="image">_send_button_image</property>
                 <signal name="clicked" handler="_on_send_button_clicked"/>
                   <child>

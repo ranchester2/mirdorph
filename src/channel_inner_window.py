@@ -625,7 +625,9 @@ class MessageEntryBar(Gtk.Box, EventReceiver):
     @Gtk.Template.Callback()
     def _on_message_entry_changed(self, entry):
         if entry.get_text():
+            self._send_button.set_sensitive(True)
             self._send_button.get_style_context().add_class("suggested-action")
         else:
+            self._send_button.set_sensitive(False)
             self._send_button.get_style_context().remove_class("suggested-action")
 
