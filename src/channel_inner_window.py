@@ -781,10 +781,7 @@ class MessageEntryBar(Gtk.Box):
     _send_button = Gtk.Template.Child()
 
     def __init__(self, context, *args, **kwargs):
-        # For initial alignment with the guild/people viewswitcher
-        # hardcoded for now, it seems to be the size of the viewswitcher
-        # breaks themes I guess
-        Gtk.Box.__init__(self, height_request=46, *args, **kwargs)
+        Gtk.Box.__init__(self, *args, **kwargs)
 
         self.context = context
         self.app = Gio.Application.get_default()
@@ -822,4 +819,3 @@ class MessageEntryBar(Gtk.Box):
         else:
             self._send_button.set_sensitive(False)
             self._send_button.get_style_context().remove_class("suggested-action")
-
