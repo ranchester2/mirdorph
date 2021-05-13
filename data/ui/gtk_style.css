@@ -5,7 +5,8 @@
 }
 
 .discord-message {
-  padding-top: 3px;
+  border-radius: 7px;
+  padding: 3px;
 }
 
 /*
@@ -24,8 +25,8 @@ mode
 }
 
 #message-entry-button-box {
-  margin-left: 8px;
-  margin-right: 8px;
+  margin-left: 11px;
+  margin-right: 11px;
 }
 
 .message-enforcement-box {
