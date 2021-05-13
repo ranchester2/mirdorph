@@ -23,9 +23,10 @@ import random
 import sys
 from enum import Enum
 from pathlib import Path
-from gi.repository import Gtk, Handy, Gio, GLib, GdkPixbuf, Pango
+from gi.repository import Gtk, Gio, GLib, Gdk, GdkPixbuf, Pango, Handy
 from .event_receiver import EventReceiver
 from .channel_properties_window import ChannelPropertiesWindow
+from .atkpicture import AtkPicture
 
 
 @Gtk.Template(resource_path='/org/gnome/gitlab/ranchester/Mirdorph/ui/channel_inner_window.ui')
@@ -339,7 +340,7 @@ class AttachmentType(Enum):
 class MirdorphAttachment(Gtk.Bin):
     def __init__(self, attachment, *args, **kwargs):
         Gtk.Bin.__init__(self, *args, **kwargs)
-        self._attachment_disc = attachment
+        self._attachment_disc: discord.Attachment = attachment
 
     def _do_template_render(self):
         """
@@ -355,6 +356,19 @@ class MirdorphAttachment(Gtk.Bin):
         """
         pass
 
+class ImageAttachmentLoadingTemplate(Gtk.Bin):
+    __gtype_name__ = "ImageAttachmentLoadingTemplate"
+
+    def __init__(self, width: int, height: int, *args, **kwargs):
+        Gtk.Bin.__init__(self, width_request=width, height_request=height, *args, **kwargs)
+
+        self.get_style_context().add_class("image-attachment-template")
+        self._spinner = Gtk.Spinner(halign=Gtk.Align.CENTER, valign=Gtk.Align.CENTER, 
+            width_request=48, height_request=48)
+        self._spinner.show()
+        self.add(self._spinner)
+        self._spinner.start()
+
 class ImageAttachment(MirdorphAttachment):
     __gtype_name__ = "ImageAttachment"
 
@@ -363,6 +377,10 @@ class ImageAttachment(MirdorphAttachment):
     def __init__(self, *args, **kwargs):
         MirdorphAttachment.__init__(self, *args, **kwargs)
 
+        self._image_stack = Gtk.Stack()
+        self._image_stack.show()
+        self.add(self._image_stack)
+
         self._do_template_render()
         self._do_full_render_at()
 
@@ -370,20 +388,32 @@ class ImageAttachment(MirdorphAttachment):
         return Path(self._image_cache_dir_path / Path(
             "attachment_image_" + str(image_id) + os.path.splitext(self._attachment_disc.filename)[1]))
 
-    def _do_template_render(self):
-        pixbuf = GdkPixbuf.Pixbuf.new_from_resource_at_scale(
-            '/org/gnome/gitlab/ranchester/Mirdorph/ui/image_loading_template.svg',
-            width=290,
-            # The dimensions of the placeholder must be the same as final result
-            # to prevent scroll jumping.
-            # Line taken from mathematics stackexchange
-            height=290*self._attachment_disc.height/self._attachment_disc.width,
-            preserve_aspect_ratio=False,
+    def _calculate_required_size(self) -> tuple:
+        """
+        Calculate the best size for the image,
+
+        returns: tuple(width, height)
+        """
+        DESIRED_WIDTH_STANDARD = 290
+
+        if self._attachment_disc.height > DESIRED_WIDTH_STANDARD:
+            DESIRED_WIDTH_STANDARD -= 30
+        
+        size_allocation = (
+            DESIRED_WIDTH_STANDARD,
+            (DESIRED_WIDTH_STANDARD*self._attachment_disc.height/self._attachment_disc.width)
         )
-        self._image = Gtk.Image.new_from_pixbuf(pixbuf)
-        self._image.set_halign(Gtk.Align.START)
-        self._image.show()
-        self.add(self._image)
+
+        return size_allocation
+
+    def _do_template_render(self):
+        self._template_image = ImageAttachmentLoadingTemplate(
+            self._calculate_required_size()[0],
+            self._calculate_required_size()[1]
+        )
+        self._template_image.show()
+        self._image_stack.add(self._template_image)
+        self._image_stack.set_visible_child(self._template_image)
 
     def _do_full_render_at(self):
         fetch_image_thread = threading.Thread(target=self._fetch_image_target)
@@ -399,24 +429,22 @@ class ImageAttachment(MirdorphAttachment):
         ).result()
 
         # So that they don't try to load all at the same time
-        time.sleep(random.uniform(0.25, 2.5)),
+        time.sleep(random.uniform(1.25, 3.5)),
 
         GLib.idle_add(self._load_image_gtk_target)
 
     def _load_image_gtk_target(self):
         if self._get_image_path_from_id(self._attachment_disc.id).is_file():
-            pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(
+            real_pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(
                 str(self._get_image_path_from_id(self._attachment_disc.id)),
-                # Should be a better solution than hardcoding the width, dynamic?
-                width=290,
-                height=-1,
+                self._calculate_required_size()[0],
+                self._calculate_required_size()[1],
                 preserve_aspect_ratio=True
             )
-            self.remove(self._image)
-            self._image = Gtk.Image.new_from_pixbuf(pixbuf)
-            self._image.set_halign(Gtk.Align.START)
-            self._image.show()
-            self.add(self._image)
+            self._real_image = Gtk.Image.new_from_pixbuf(real_pixbuf)
+            self._real_image.show()
+            self._image_stack.add(self._real_image)
+            self._image_stack.set_visible_child(self._real_image)
 
 def get_attachment_type(attachment: discord.Attachment) -> str:
     """
@@ -431,15 +459,21 @@ def get_attachment_type(attachment: discord.Attachment) -> str:
     else:
         return None
 
+@Gtk.Template(resource_path='/org/gnome/gitlab/ranchester/Mirdorph/ui/message.ui')
 class MirdorphMessage(Gtk.ListBoxRow, EventReceiver):
     __gtype_name__ = "MirdorphMessage"
+
+    _avatar_box: Gtk.Box = Gtk.Template.Child()
+
+    _username_label: Gtk.Label = Gtk.Template.Child()
+    _message_label: Gtk.Label = Gtk.Template.Child()
+
+    _attachment_box: Gtk.Box = Gtk.Template.Child()
 
     def __init__(self, disc_message, *args, **kwargs):
         Gtk.ListBoxRow.__init__(self, *args, **kwargs)
         EventReceiver.__init__(self)
         self._disc_message = disc_message
-
-        self.get_style_context().add_class("discord-message")
 
         # Overall unique identifier to tell duplicates apart
         # here it is a message id, however other ways are possible.
@@ -448,18 +482,10 @@ class MirdorphMessage(Gtk.ListBoxRow, EventReceiver):
         self.uniq_id = disc_message.id
         self.timestamp = disc_message.created_at.timestamp()
 
-        # Spacing bad idea for now, ideally css, however css would have to be somehow
-        # for the children of the message
-        main_hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=5)
-        main_hbox.show()
-        avatar_vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
-        avatar_vbox.show()
-        user_and_content_vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
-        user_and_content_vbox.show()
-
         # Cause we use xml markup, and some names can break that, and then
         # you have a broken label
         safe_name = self._disc_message.author.name.translate({ord(c): None for c in '"\'<>&'})
+        self._username_label.set_markup(f"<b>{safe_name}</b>")
 
         # Message that doesn't have any spaces for a very long time can break wrapping
         # NOTE: this is now seamy useless with the new wrap_mode
@@ -469,47 +495,22 @@ class MirdorphMessage(Gtk.ListBoxRow, EventReceiver):
         else:
             safe_message = self._disc_message.content
 
-        self._username_label = Gtk.Label(
-            use_markup=True,
-            label=f"<b>{safe_name}</b>",
-            xalign=0.0
-        )
-        self._username_label.show()
-
-        self._message_label = Gtk.Label(
-            label=safe_message,
-            xalign=0.0,
-            wrap=True,
-            selectable=True,
-            wrap_mode=Pango.WrapMode.WORD_CHAR
-        )
-        self._message_label.show()
+        self._message_label.set_label(safe_message)
 
         avatar = UserMessageAvatar(self._disc_message.author, margin_top=3)
         avatar.show()
+        self._avatar_box.pack_start(avatar, False, False, 0)
 
-        user_and_content_vbox.pack_start(self._username_label, False, False, 0)
-        user_and_content_vbox.pack_start(self._message_label, True, True, 0)
         # Empty messages (like when sending images) look weird otherwise
         if not self._message_label.get_label():
-            user_and_content_vbox.remove(self._message_label)
-
-        attachment_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
-        attachment_box.show()
+            self._message_label.get_parent().remove(self._message_label)
 
         for att in self._disc_message.attachments:
             if get_attachment_type(att) == AttachmentType.IMAGE:
                 att_widg = ImageAttachment(att)
+                att_widg.set_halign(Gtk.Align.START)
                 att_widg.show()
-                attachment_box.add(att_widg)
-
-        user_and_content_vbox.pack_start(attachment_box, False, False, 0)
-
-        avatar_vbox.pack_start(avatar, False, False, 0)
-        main_hbox.pack_start(avatar_vbox, False, False, 0)
-        main_hbox.pack_start(user_and_content_vbox, False, False, 0)
-
-        self.add(main_hbox)
+                self._attachment_box.pack_start(att_widg, True, True, 0)
 
 @Gtk.Template(resource_path='/org/gnome/gitlab/ranchester/Mirdorph/ui/message_view.ui')
 class MessageView(Gtk.ScrolledWindow, EventReceiver):
