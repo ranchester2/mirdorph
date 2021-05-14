@@ -589,19 +589,24 @@ class MirdorphMessage(Gtk.ListBoxRow):
         label_color_fetch_thread.start()
 
     def _fetch_label_color_target(self):
-        # To make rate limit less frequent, we don't cache this for whatever reason,
-        # get_member always fails
-        time.sleep(random.uniform(0.1, 3.25))
-        try:
-            member = asyncio.run_coroutine_threadsafe(
-                self._disc_message.guild.fetch_member(
-                    self._disc_message.author.id
-                ),
-                Gio.Application.get_default().discord_loop
-            ).result()
-        except discord.errors.NotFound:
-            logging.warning(f"could not get member info of {self._disc_message.author}, 404?")
-            return
+        member = self._disc_message.guild.get_member(self._disc_message.author.id)
+        if member is None:
+            # To make rate limit less frequent, we don't cache this for whatever reason,
+            # get_member always fails
+            time.sleep(random.uniform(0.1, 3.25))
+
+            try:
+                member = asyncio.run_coroutine_threadsafe(
+                    self._disc_message.guild.fetch_member(
+                        self._disc_message.author.id
+                    ),
+                    Gio.Application.get_default().discord_loop
+                ).result()
+            except discord.errors.NotFound:
+                logging.warning(f"could not get member info of {self._disc_message.author}, 404?")
+                return
+        else:
+            print(member)
 
         top_role = member.roles[-1]
         color_formatted = '#%02x%02x%02x' % top_role.color.to_rgb()
