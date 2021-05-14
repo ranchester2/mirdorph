@@ -439,7 +439,7 @@ class ImageAttachmentLoadingTemplate(Gtk.Bin):
 class ImageAttachment(MirdorphAttachment, Gtk.Bin):
     __gtype_name__ = "ImageAttachment"
 
-    _image_cache_dir_path = os.environ["XDG_CACHE_HOME"]
+    _image_cache_dir_path = Path(os.environ["XDG_CACHE_HOME"]) / Path("mirdorph")
 
     # Attachment argument captured to not pass it to widget gtk
     def __init__(self, attachment, *args, **kwargs):
