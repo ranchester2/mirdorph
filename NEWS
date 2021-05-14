@@ -1,3 +1,21 @@
+v0.0.4:
+
+Standard improvements:
+	* You can now select message text
+	* Better sizing for message view (clamp)
+	* Message entry completely Redesigned
+	* Channels now have a basic properties window (transient only on Wayland)
+	* The cache is now in a single mirdorph specific directory
+	* cache is now cleared at startup to prevent massive file buildup (with attach)
+	* Better default sizes and width limits for channels
+	* Messages now look a bit nicer
+	* Images support 
+	* Support for all other types of attachments (downloadable nice file)
+	* You can now send attachments
+	* Usernames now have colors if they have roles (can take long to load)
+	* Appstream metadata now actually works
+	* Updated screenshots
+
 v0.0.3:
 
 More basic very early improvements:
