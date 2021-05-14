@@ -84,7 +84,7 @@
           </object>
         </child>
         <style>
-          <class name="entry-bar-toolbar"/>
+          <class name="entry-bar-toolbar" />
         </style>
       </object>
     </child>
@@ -92,13 +92,36 @@
       <object class="GtkRevealer" id="_attachment_area_revealer">
         <property name="visible">True</property>
         <property name="transition-type">4</property>
-        <property name="reveal-child"
-                  bind-source="_attachment_togglebutton"
-                  bind-property="active"
-                  bind-flags="default"/>
+        <property name="reveal-child" bind-source="_attachment_togglebutton" bind-property="active" bind-flags="default" />
+        <signal name="notify::child-revealed" handler="_on_revealer_child_revealed" />
         <child>
-          <object class="GtkButton">
+          <object class="GtkBox">
             <property name="visible">True</property>
+            <property name="orientation">vertical</property>
+            <child>
+              <object class="GtkSeparator">
+                <property name="visible">True</property>
+                <style>
+                  <class name="horizontal" />
+                </style>
+              </object>
+            </child>
+            <child>
+              <object class="GtkScrolledWindow">
+                <property name="visible">True</property>
+                <property name="vscrollbar-policy">2</property>
+                <child>
+                  <object class="GtkBox" id="_attachment_container">
+                    <property name="visible">True</property>
+                    <property name="orientation">horizontal</property>
+                    <property name="spacing">16</property>
+                    <style>
+                      <class name="message-entry-bar-attachment-container"/>
+                    </style>
+                  </object>
+                </child>
+              </object>
+            </child>
           </object>
         </child>
       </object>

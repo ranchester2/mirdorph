@@ -182,7 +182,7 @@ class ChannelInnerWindow(Gtk.Box):
         # We can't check for it exactly, because if you scroll
         # for some reason it isn't the true bottom. So we use an "almost"
         difference = abs(adj.get_value() - adj.get_upper())
-        return difference < 1000
+        return difference < 600
 
     def popin(self):
         """
@@ -773,6 +773,61 @@ class MessageView(Gtk.ScrolledWindow, EventReceiver):
         message_loading_thread.start()
 
 
+@Gtk.Template(resource_path='/org/gnome/gitlab/ranchester/Mirdorph/ui/message_entry_bar_attachment.ui')
+# Should be Gtk.bin but then padding and margin don't work?
+class MessageEntryBarAttachment(Gtk.Button):
+    __gtype_name__ = "MessageEntryBarAttachment"
+
+    _mode_stack: Gtk.Stack = Gtk.Template.Child()
+    _mode_content_box: Gtk.Box = Gtk.Template.Child()
+    _mode_add_image: Gtk.Image = Gtk.Template.Child()
+    _filename_label: Gtk.Label = Gtk.Template.Child()
+
+    # Ugly passing this when adding this because we need to be able to signify when
+    # we added a new attachment to update send button
+    # Gtk Box doesn't emit add signal
+    def __init__(self, parent_for_sign=None, add_mode=True, filename=None, *args, **kwargs):
+        Gtk.Button.__init__(self, *args, **kwargs)
+        self.add_mode = add_mode
+        self.full_filename = filename
+        self._parent_for_sign = parent_for_sign
+        if self.full_filename:
+            self.add_mode = False
+            self.set_sensitive(False)
+            self._mode_stack.set_visible_child(self._mode_content_box)
+            load_details_thread = threading.Thread(target=self._load_details_target)
+            load_details_thread.start()
+
+    def _load_details_target(self):
+        # Not really useful to have separate thread with only name
+        file_object_call = Path(self.full_filename).name
+        GLib.idle_add(self._load_details_gtk_target, file_object_call)
+
+    def _load_details_gtk_target(self, file_object_call: str):
+        self._filename_label.set_label(file_object_call)
+
+    @Gtk.Template.Callback()
+    def _on_add_clicked(self, button):
+        if self.add_mode:
+            native_dialog = Gtk.FileChooserNative.new(
+                "Select File to Upload",
+                Gio.Application.get_default().main_win,
+                Gtk.FileChooserAction.OPEN,
+                None,
+                None
+            )
+            response = native_dialog.run()
+            if response == Gtk.ResponseType.ACCEPT:
+                self.get_parent().pack_start(
+                    MessageEntryBarAttachment(visible=True, add_mode=False, filename=native_dialog.get_filename()),
+                    False,
+                    False,
+                    0
+                )
+                # Ugly hack since gtk box doesn't emit add
+                assert self._parent_for_sign is not None
+                self._parent_for_sign.emulate_attachment_container_change()
+
 @Gtk.Template(resource_path='/org/gnome/gitlab/ranchester/Mirdorph/ui/message_entry_bar.ui')
 class MessageEntryBar(Gtk.Box):
     __gtype_name__ = "MessageEntryBar"
@@ -780,11 +835,20 @@ class MessageEntryBar(Gtk.Box):
     _message_entry = Gtk.Template.Child()
     _send_button = Gtk.Template.Child()
 
+    _attachment_togglebutton = Gtk.Template.Child()
+    _attachment_area_revealer = Gtk.Template.Child()
+    _attachment_container = Gtk.Template.Child()
+
     def __init__(self, context, *args, **kwargs):
         Gtk.Box.__init__(self, *args, **kwargs)
 
         self.context = context
         self.app = Gio.Application.get_default()
+
+        # Read comment there about why parent_for_sign
+        self._add_extra_attachment_button = MessageEntryBarAttachment(parent_for_sign=self, add_mode=True)
+        self._add_extra_attachment_button.show()
+        self._attachment_container.pack_start(self._add_extra_attachment_button, False, False, 0)
 
     def _do_attempt_send(self):
         message = self._message_entry.get_text()
@@ -797,10 +861,32 @@ class MessageEntryBar(Gtk.Box):
 
         # Unsetting happens in on_message due to similar reasons
         self.context.prepare_scroll_for_msg_send()
+
+        atts_to_send = []
+        for att_widg in self._attachment_container.get_children():
+            if att_widg.add_mode:
+                continue
+
+            # Discord 10 maximum
+            if len(atts_to_send) >= 10:
+                break
+
+            atts_to_send.append(
+                discord.File(
+                    att_widg.full_filename,
+                    filename=Path(att_widg.full_filename).name
+                )
+            )
+
         asyncio.run_coroutine_threadsafe(
-            self.context.channel_disc.send(message),
+            self.context.channel_disc.send(message, files=atts_to_send),
             self.app.discord_loop
         )
+
+        for child in self._attachment_container.get_children():
+            if not child.add_mode:
+                child.destroy()
+        self._attachment_togglebutton.set_active(False)
         self._message_entry.set_text('')
 
     @Gtk.Template.Callback()
@@ -816,6 +902,19 @@ class MessageEntryBar(Gtk.Box):
         if entry.get_text():
             self._send_button.set_sensitive(True)
             self._send_button.get_style_context().add_class("suggested-action")
-        else:
+        elif len(self._attachment_container.get_children()) < 2:
             self._send_button.set_sensitive(False)
             self._send_button.get_style_context().remove_class("suggested-action")
+
+    @Gtk.Template.Callback()
+    def _on_revealer_child_revealed(self, revealer, param):
+        # Looks a bit weird, maybe better to listen to when the position of the message view changes
+        # and constanly update scroll to bottom? TODO
+        if self._attachment_area_revealer.get_child_revealed() and self.context.is_scroll_at_bottom:
+            self.context.scroll_messages_to_bottom()
+
+    # Gtk Box does not support this, so we will do it manually when we add
+    def emulate_attachment_container_change(self):
+        if len(self._attachment_container.get_children()) > 1:
+            self._send_button.set_sensitive(True)
+            self._send_button.get_style_context().add_class("suggested-action")
