@@ -16,11 +16,13 @@
 import sys
 import gi
 import logging
+import os
+import shutil
 
 gi.require_version('Gtk', '3.0')
 
 from gi.repository import Gtk, Gdk, Gio, Handy
-
+from pathlib import Path
 from .login_window import MirdorphLoginWindow
 from .main_window import MirdorphMainWindow
 from .event_manager import EventManager
@@ -79,6 +81,13 @@ class Application(Gtk.Application):
             provider,
             Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
         )
+
+        logging.info("clearing cache")
+        cache_dir_path = Path(os.environ["XDG_CACHE_HOME"] / Path("mirdorph"))
+        # For first launch
+        cache_dir_path.mkdir(exist_ok=True)
+        shutil.rmtree(cache_dir_path)
+        cache_dir_path.mkdir(parents=True, exist_ok=True)
 
         if self.keyring_exists:
             logging.info("launching with token")

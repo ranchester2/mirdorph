@@ -277,7 +277,7 @@ class ChannelInnerWindow(Gtk.Box, EventReceiver):
 class UserMessageAvatar(Handy.Avatar):
     __gtype_name__ = "UserMessageAvatar"
 
-    _avatar_icon_dir_path = Path(os.environ["XDG_CACHE_HOME"])
+    _avatar_icon_dir_path = Path(os.environ["XDG_CACHE_HOME"] / Path("mirdorph"))
 
     def __init__(self, user: discord.User, *args, **kwargs):
         Handy.Avatar.__init__(self, size=32, text=user.name, show_initials=True, *args, **kwargs)

@@ -36,7 +36,7 @@ class MirdorphChannelListEntry(Gtk.ListBoxRow):
 class MirdorphGuildEntry(Handy.ExpanderRow):
     __gtype_name__ = "MirdorphGuildEntry"
 
-    _guild_icon_dir_path = Path(os.environ["XDG_CACHE_HOME"])
+    _guild_icon_dir_path = Path(os.environ["XDG_CACHE_HOME"] / Path("mirdorph"))
 
     def __init__(self, guild_id, *args, **kwargs):
         Gtk.ListBoxRow.__init__(self, *args, **kwargs)
