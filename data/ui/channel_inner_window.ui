@@ -10,6 +10,7 @@
     <template class="ChannelInnerWindow" parent="GtkBox">
       <property name="visible">True</property>
       <property name="orientation">vertical</property>
+      <property name="width-request">355</property>
       <child>
         <object class="HdyHeaderBar" id="_context_headerbar">
           <property name="visible">True</property>

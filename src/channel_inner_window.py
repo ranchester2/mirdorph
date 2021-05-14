@@ -217,8 +217,8 @@ class ChannelInnerWindow(Gtk.Box, EventReceiver):
         self.app.main_win.reconfigure_for_popout_window()
 
         self._popout_window = Handy.Window(
-            default_width=600,
-            default_height=400
+            default_width=650,
+            default_height=470
         )
         self._popout_window.add(self)
         self._popout_window.present()
