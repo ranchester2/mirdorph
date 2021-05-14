@@ -588,6 +588,17 @@ class MirdorphMessage(Gtk.ListBoxRow):
         label_color_fetch_thread = threading.Thread(target=self._fetch_label_color_target)
         label_color_fetch_thread.start()
 
+    # NOTE: only call this from the non blocking thread
+    def _helper_get_member(self):
+        member = asyncio.run_coroutine_threadsafe(
+            self._disc_message.guild.fetch_member(
+                self._disc_message.author.id
+            ),
+            Gio.Application.get_default().discord_loop
+        ).result()
+
+        return member
+
     def _fetch_label_color_target(self):
         member = self._disc_message.guild.get_member(self._disc_message.author.id)
         if member is None:
@@ -596,17 +607,16 @@ class MirdorphMessage(Gtk.ListBoxRow):
             time.sleep(random.uniform(0.1, 3.25))
 
             try:
-                member = asyncio.run_coroutine_threadsafe(
-                    self._disc_message.guild.fetch_member(
-                        self._disc_message.author.id
-                    ),
-                    Gio.Application.get_default().discord_loop
-                ).result()
+                member = self._helper_get_member()
             except discord.errors.NotFound:
-                logging.warning(f"could not get member info of {self._disc_message.author}, 404?")
-                return
-        else:
-            print(member)
+                logging.warning(f"could not get member info of {self._disc_message.author}, 404? Will retry")
+                time.sleep(random.uniform(5.0, 10.0))
+                logging.warning(f"retrieing for member info {self._disc_message.author}")
+                try:
+                    member = self._helper_get_member()
+                except discord.errors.NotFound:
+                    logging.warning(f"could not get even after retry, cancelling")
+                    return
 
         top_role = member.roles[-1]
         color_formatted = '#%02x%02x%02x' % top_role.color.to_rgb()
