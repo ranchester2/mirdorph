@@ -931,6 +931,11 @@ class MessageEntryBar(Gtk.Box):
         self._attachment_togglebutton.set_active(False)
         self._message_entry.set_text('')
 
+        # This doesn't really work with when attachments are sent too,
+        # so we do this again manually here
+        self._send_button.set_sensitive(False)
+        self._send_button.get_style_context().remove_class("suggested-action")
+
     @Gtk.Template.Callback()
     def _on_send_button_clicked(self, entry):
         self._do_attempt_send()
