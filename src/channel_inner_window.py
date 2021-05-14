@@ -585,6 +585,33 @@ class MirdorphMessage(Gtk.ListBoxRow):
                 att_widg.show()
                 self._attachment_box.pack_start(att_widg, True, True, 0)
 
+        label_color_fetch_thread = threading.Thread(target=self._fetch_label_color_target)
+        label_color_fetch_thread.start()
+
+    def _fetch_label_color_target(self):
+        # To make rate limit less frequent, we don't cache this for whatever reason,
+        # get_member always fails
+        time.sleep(random.uniform(0.1, 3.25))
+        try:
+            member = asyncio.run_coroutine_threadsafe(
+                self._disc_message.guild.fetch_member(
+                    self._disc_message.author.id
+                ),
+                Gio.Application.get_default().discord_loop
+            ).result()
+        except discord.errors.NotFound:
+            logging.warning(f"could not get member info of {self._disc_message.author}, 404?")
+            return
+
+        top_role = member.roles[-1]
+        color_formatted = '#%x%x%x' % top_role.color.to_rgb()
+        GLib.idle_add(self._label_color_gtk_target, color_formatted)
+
+    def _label_color_gtk_target(self, color: str):
+        self._username_label.set_markup(
+            f"<span foreground='{color}'>{self._username_label.get_label()}</span>"
+        )
+
 @Gtk.Template(resource_path='/org/gnome/gitlab/ranchester/Mirdorph/ui/message_view.ui')
 class MessageView(Gtk.ScrolledWindow, EventReceiver):
     __gtype_name__ = "MessageView"
