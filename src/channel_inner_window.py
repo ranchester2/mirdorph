@@ -21,14 +21,17 @@ import os
 import time
 import random
 import sys
+import subprocess
+from enum import Enum
 from pathlib import Path
-from gi.repository import Gtk, Handy, Gio, GLib, GdkPixbuf, Pango
+from gi.repository import Gtk, Gio, GLib, Gdk, GdkPixbuf, Pango, Handy
 from .event_receiver import EventReceiver
 from .channel_properties_window import ChannelPropertiesWindow
+from .atkpicture import AtkPicture
 
 
 @Gtk.Template(resource_path='/org/gnome/gitlab/ranchester/Mirdorph/ui/channel_inner_window.ui')
-class ChannelInnerWindow(Gtk.Box, EventReceiver):
+class ChannelInnerWindow(Gtk.Box):
     __gtype_name__ = "ChannelInnerWindow"
 
     _context_headerbar: Handy.HeaderBar = Gtk.Template.Child()
@@ -58,7 +61,6 @@ class ChannelInnerWindow(Gtk.Box, EventReceiver):
         """
         
         Gtk.Box.__init__(self, *args, **kwargs)
-        EventReceiver.__init__(self)
         self.app = Gio.Application.get_default()
         self.channel_id = channel
         self.empty = empty
@@ -180,7 +182,7 @@ class ChannelInnerWindow(Gtk.Box, EventReceiver):
         # We can't check for it exactly, because if you scroll
         # for some reason it isn't the true bottom. So we use an "almost"
         difference = abs(adj.get_value() - adj.get_upper())
-        return difference < 1000
+        return difference < 600
 
     def popin(self):
         """
@@ -331,16 +333,215 @@ class UserMessageAvatar(Handy.Avatar):
             pixbuf = None
         return pixbuf
 
+class AttachmentType(Enum):
+    IMAGE = 0
+    GENERIC = 1
 
-class MirdorphMessage(Gtk.ListBoxRow, EventReceiver):
+# Meant for subclassing
+class MirdorphAttachment:
+    def __init__(self, attachment):
+        self._attachment_disc: discord.Attachment = attachment
+
+    def _do_template_render(self):
+        """
+        Do the initial rendering before fetching
+        discord data
+        """
+        pass
+
+    def _do_full_render_at(self):
+        """
+        Start doing the full render, expected to call
+        thread that fetches discord, etc
+        """
+        pass
+
+@Gtk.Template(resource_path="/org/gnome/gitlab/ranchester/Mirdorph/ui/generic_attachment.ui")
+class GenericAttachment(Gtk.ListBox, MirdorphAttachment):
+    __gtype_name__ = "GenericAttachment"
+
+    _download_button: Gtk.Button = Gtk.Template.Child()
+    _filename_label: Gtk.Label = Gtk.Template.Child()
+    _download_progress_bar: Gtk.ProgressBar = Gtk.Template.Child()
+    _download_button_image: Gtk.Image = Gtk.Template.Child()
+
+    # Capture attachment to not pass it on to the widget
+    def __init__(self, attachment, *args, **kwargs):
+        MirdorphAttachment.__init__(self, attachment)
+        Gtk.ListBox.__init__(self, *args, **kwargs)
+
+        self._do_template_render()
+        self._do_full_render_at()
+        self._finished_download = False
+
+    def _do_template_render(self):
+        pass
+
+    def _do_full_render_at(self):
+        # We don't actually need a separate thread for this
+        self._filename_label.set_label(self._attachment_disc.filename)
+        self._download_button.set_sensitive(True)
+
+    @Gtk.Template.Callback()
+    def _on_listbox_row_activated(self, list_box, row):
+        # We only have one row, so this is the main row
+        if not self._finished_download:
+            self._download_button.clicked()
+
+    @Gtk.Template.Callback()
+    def _on_download_button_clicked(self, button):
+        logging.info(f"saving attachment {self._attachment_disc.url}")
+        self._download_button.set_sensitive(False)
+        self._download_progress_bar.pulse()
+        save_attachment_thread = threading.Thread(target=self._save_attachment_target)
+        save_attachment_thread.start()
+
+    def _pulse_target(self):
+        while not self._finished_download:
+            time.sleep(0.5)
+            GLib.idle_add(lambda _ : self._download_progress_bar.pulse(), None)
+        else:
+            GLib.idle_add(lambda _ : self._download_progress_bar.set_fraction(1.0), None)
+
+    async def _do_save(self, download_dir):
+        save_path = Path(download_dir + "/" + self._attachment_disc.filename)
+        await self._attachment_disc.save(str(save_path))
+
+    def _save_attachment_target(self):
+        # Magic string editing required because xdg-user-dir output isn't completely clean
+        download_dir = str(subprocess.check_output('xdg-user-dir DOWNLOAD', shell=True, text=True))[:-1]
+
+        pulse_thread = threading.Thread(target=self._pulse_target)
+        pulse_thread.start()
+
+        asyncio.run_coroutine_threadsafe(
+            self._do_save(download_dir),
+            Gio.Application.get_default().discord_loop
+        ).result()
+
+        self._finished_download = True
+
+        GLib.idle_add(lambda _ : self._download_button_image.set_from_icon_name("emblem-ok-symbolic", 4), None)
+
+class ImageAttachmentLoadingTemplate(Gtk.Bin):
+    __gtype_name__ = "ImageAttachmentLoadingTemplate"
+
+    def __init__(self, width: int, height: int, *args, **kwargs):
+        Gtk.Bin.__init__(self, width_request=width, height_request=height, *args, **kwargs)
+
+        self.get_style_context().add_class("image-attachment-template")
+        self._spinner = Gtk.Spinner(halign=Gtk.Align.CENTER, valign=Gtk.Align.CENTER, 
+            width_request=48, height_request=48)
+        self._spinner.show()
+        self.add(self._spinner)
+        self._spinner.start()
+
+class ImageAttachment(MirdorphAttachment, Gtk.Bin):
+    __gtype_name__ = "ImageAttachment"
+
+    _image_cache_dir_path = Path(os.environ["XDG_CACHE_HOME"]) / Path("mirdorph")
+
+    # Attachment argument captured to not pass it to widget gtk
+    def __init__(self, attachment, *args, **kwargs):
+        MirdorphAttachment.__init__(self, attachment)
+        Gtk.Bin.__init__(self, *args, **kwargs)
+
+        self._image_stack = Gtk.Stack()
+        self._image_stack.show()
+        self.add(self._image_stack)
+
+        self._do_template_render()
+        self._do_full_render_at()
+
+    def _get_image_path_from_id(self, image_id: int):
+        return Path(self._image_cache_dir_path / Path(
+            "attachment_image_" + str(image_id) + os.path.splitext(self._attachment_disc.filename)[1]))
+
+    def _calculate_required_size(self) -> tuple:
+        """
+        Calculate the best size for the image,
+
+        returns: tuple(width, height)
+        """
+        DESIRED_WIDTH_STANDARD = 290
+
+        if self._attachment_disc.height > DESIRED_WIDTH_STANDARD:
+            DESIRED_WIDTH_STANDARD -= 30
+        
+        size_allocation = (
+            DESIRED_WIDTH_STANDARD,
+            (DESIRED_WIDTH_STANDARD*self._attachment_disc.height/self._attachment_disc.width)
+        )
+
+        return size_allocation
+
+    def _do_template_render(self):
+        self._template_image = ImageAttachmentLoadingTemplate(
+            self._calculate_required_size()[0],
+            self._calculate_required_size()[1]
+        )
+        self._template_image.show()
+        self._image_stack.add(self._template_image)
+        self._image_stack.set_visible_child(self._template_image)
+
+    def _do_full_render_at(self):
+        fetch_image_thread = threading.Thread(target=self._fetch_image_target)
+        fetch_image_thread.start()
+
+    async def _save_image(self):
+        await self._attachment_disc.save(str(self._get_image_path_from_id(self._attachment_disc.id)))
+
+    def _fetch_image_target(self):
+        asyncio.run_coroutine_threadsafe(
+            self._save_image(),
+            Gio.Application.get_default().discord_loop
+        ).result()
+
+        # So that they don't try to load all at the same time
+        time.sleep(random.uniform(1.25, 3.5)),
+
+        GLib.idle_add(self._load_image_gtk_target)
+
+    def _load_image_gtk_target(self):
+        if self._get_image_path_from_id(self._attachment_disc.id).is_file():
+            real_pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(
+                str(self._get_image_path_from_id(self._attachment_disc.id)),
+                self._calculate_required_size()[0],
+                self._calculate_required_size()[1],
+                preserve_aspect_ratio=True
+            )
+            self._real_image = Gtk.Image.new_from_pixbuf(real_pixbuf)
+            self._real_image.show()
+            self._image_stack.add(self._real_image)
+            self._image_stack.set_visible_child(self._real_image)
+
+def get_attachment_type(attachment: discord.Attachment) -> str:
+    """
+    Get the attachment type of the att
+
+    available_types = AttachmentType.IMAGE
+    """
+
+    data_format = os.path.splitext(attachment.filename)
+    if data_format[1][1:].lower() in ['jpg', 'jpeg', 'bmp', 'png', 'webp']:
+        return AttachmentType.IMAGE
+    else:
+        return AttachmentType.GENERIC
+
+@Gtk.Template(resource_path='/org/gnome/gitlab/ranchester/Mirdorph/ui/message.ui')
+class MirdorphMessage(Gtk.ListBoxRow):
     __gtype_name__ = "MirdorphMessage"
+
+    _avatar_box: Gtk.Box = Gtk.Template.Child()
+
+    _username_label: Gtk.Label = Gtk.Template.Child()
+    _message_label: Gtk.Label = Gtk.Template.Child()
+
+    _attachment_box: Gtk.Box = Gtk.Template.Child()
 
     def __init__(self, disc_message, *args, **kwargs):
         Gtk.ListBoxRow.__init__(self, *args, **kwargs)
-        EventReceiver.__init__(self)
         self._disc_message = disc_message
-
-        self.get_style_context().add_class("discord-message")
 
         # Overall unique identifier to tell duplicates apart
         # here it is a message id, however other ways are possible.
@@ -349,15 +550,10 @@ class MirdorphMessage(Gtk.ListBoxRow, EventReceiver):
         self.uniq_id = disc_message.id
         self.timestamp = disc_message.created_at.timestamp()
 
-        # Spacing bad idea for now, ideally css, however css would have to be somehow
-        # for the children of the message
-        main_hbox = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=5)
-        avatar_vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
-        user_and_content_vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
-
         # Cause we use xml markup, and some names can break that, and then
         # you have a broken label
         safe_name = self._disc_message.author.name.translate({ord(c): None for c in '"\'<>&'})
+        self._username_label.set_markup(f"<b>{safe_name}</b>")
 
         # Message that doesn't have any spaces for a very long time can break wrapping
         # NOTE: this is now seamy useless with the new wrap_mode
@@ -367,30 +563,27 @@ class MirdorphMessage(Gtk.ListBoxRow, EventReceiver):
         else:
             safe_message = self._disc_message.content
 
-        self._username_label = Gtk.Label(
-            use_markup=True,
-            label=f"<b>{safe_name}</b>",
-            xalign=0.0
-        )
-        self._message_label = Gtk.Label(
-            label=safe_message,
-            xalign=0.0,
-            wrap=True,
-            selectable=True,
-            wrap_mode=Pango.WrapMode.WORD_CHAR
-        )
+        self._message_label.set_label(safe_message)
 
         avatar = UserMessageAvatar(self._disc_message.author, margin_top=3)
+        avatar.show()
+        self._avatar_box.pack_start(avatar, False, False, 0)
 
-        user_and_content_vbox.pack_start(self._username_label, False, False, 0)
-        user_and_content_vbox.pack_start(self._message_label, True, True, 0)
-        avatar_vbox.pack_start(avatar, False, False, 0)
-        main_hbox.pack_start(avatar_vbox, False, False, 0)
-        main_hbox.pack_start(user_and_content_vbox, False, False, 0)
+        # Empty messages (like when sending images) look weird otherwise
+        if not self._message_label.get_label():
+            self._message_label.get_parent().remove(self._message_label)
 
-        main_hbox.show_all()
-
-        self.add(main_hbox)
+        for att in self._disc_message.attachments:
+            if get_attachment_type(att) == AttachmentType.IMAGE:
+                att_widg = ImageAttachment(att)
+                att_widg.set_halign(Gtk.Align.START)
+                att_widg.show()
+                self._attachment_box.pack_start(att_widg, True, True, 0)
+            elif get_attachment_type(att) == AttachmentType.GENERIC:
+                att_widg = GenericAttachment(att)
+                att_widg.set_halign(Gtk.Align.START)
+                att_widg.show()
+                self._attachment_box.pack_start(att_widg, True, True, 0)
 
 @Gtk.Template(resource_path='/org/gnome/gitlab/ranchester/Mirdorph/ui/message_view.ui')
 class MessageView(Gtk.ScrolledWindow, EventReceiver):
@@ -580,22 +773,82 @@ class MessageView(Gtk.ScrolledWindow, EventReceiver):
         message_loading_thread.start()
 
 
+@Gtk.Template(resource_path='/org/gnome/gitlab/ranchester/Mirdorph/ui/message_entry_bar_attachment.ui')
+# Should be Gtk.bin but then padding and margin don't work?
+class MessageEntryBarAttachment(Gtk.Button):
+    __gtype_name__ = "MessageEntryBarAttachment"
+
+    _mode_stack: Gtk.Stack = Gtk.Template.Child()
+    _mode_content_box: Gtk.Box = Gtk.Template.Child()
+    _mode_add_image: Gtk.Image = Gtk.Template.Child()
+    _filename_label: Gtk.Label = Gtk.Template.Child()
+
+    # Ugly passing this when adding this because we need to be able to signify when
+    # we added a new attachment to update send button
+    # Gtk Box doesn't emit add signal
+    def __init__(self, parent_for_sign=None, add_mode=True, filename=None, *args, **kwargs):
+        Gtk.Button.__init__(self, *args, **kwargs)
+        self.add_mode = add_mode
+        self.full_filename = filename
+        self._parent_for_sign = parent_for_sign
+        if self.full_filename:
+            self.add_mode = False
+            self.set_sensitive(False)
+            self._mode_stack.set_visible_child(self._mode_content_box)
+            load_details_thread = threading.Thread(target=self._load_details_target)
+            load_details_thread.start()
+
+    def _load_details_target(self):
+        # Not really useful to have separate thread with only name
+        file_object_call = Path(self.full_filename).name
+        GLib.idle_add(self._load_details_gtk_target, file_object_call)
+
+    def _load_details_gtk_target(self, file_object_call: str):
+        self._filename_label.set_label(file_object_call)
+
+    @Gtk.Template.Callback()
+    def _on_add_clicked(self, button):
+        if self.add_mode:
+            native_dialog = Gtk.FileChooserNative.new(
+                "Select File to Upload",
+                Gio.Application.get_default().main_win,
+                Gtk.FileChooserAction.OPEN,
+                None,
+                None
+            )
+            response = native_dialog.run()
+            if response == Gtk.ResponseType.ACCEPT:
+                self.get_parent().pack_start(
+                    MessageEntryBarAttachment(visible=True, add_mode=False, filename=native_dialog.get_filename()),
+                    False,
+                    False,
+                    0
+                )
+                # Ugly hack since gtk box doesn't emit add
+                assert self._parent_for_sign is not None
+                self._parent_for_sign.emulate_attachment_container_change()
+
 @Gtk.Template(resource_path='/org/gnome/gitlab/ranchester/Mirdorph/ui/message_entry_bar.ui')
-class MessageEntryBar(Gtk.Box, EventReceiver):
+class MessageEntryBar(Gtk.Box):
     __gtype_name__ = "MessageEntryBar"
 
     _message_entry = Gtk.Template.Child()
     _send_button = Gtk.Template.Child()
 
+    _attachment_togglebutton = Gtk.Template.Child()
+    _attachment_area_revealer = Gtk.Template.Child()
+    _attachment_container = Gtk.Template.Child()
+
     def __init__(self, context, *args, **kwargs):
-        # For initial alignment with the guild/people viewswitcher
-        # hardcoded for now, it seems to be the size of the viewswitcher
-        # breaks themes I guess
-        Gtk.Box.__init__(self, height_request=46, *args, **kwargs)
-        EventReceiver.__init__(self)
+        Gtk.Box.__init__(self, *args, **kwargs)
 
         self.context = context
         self.app = Gio.Application.get_default()
+
+        # Read comment there about why parent_for_sign
+        self._add_extra_attachment_button = MessageEntryBarAttachment(parent_for_sign=self, add_mode=True)
+        self._add_extra_attachment_button.show()
+        self._attachment_container.pack_start(self._add_extra_attachment_button, False, False, 0)
 
     def _do_attempt_send(self):
         message = self._message_entry.get_text()
@@ -608,10 +861,32 @@ class MessageEntryBar(Gtk.Box, EventReceiver):
 
         # Unsetting happens in on_message due to similar reasons
         self.context.prepare_scroll_for_msg_send()
+
+        atts_to_send = []
+        for att_widg in self._attachment_container.get_children():
+            if att_widg.add_mode:
+                continue
+
+            # Discord 10 maximum
+            if len(atts_to_send) >= 10:
+                break
+
+            atts_to_send.append(
+                discord.File(
+                    att_widg.full_filename,
+                    filename=Path(att_widg.full_filename).name
+                )
+            )
+
         asyncio.run_coroutine_threadsafe(
-            self.context.channel_disc.send(message),
+            self.context.channel_disc.send(message, files=atts_to_send),
             self.app.discord_loop
         )
+
+        for child in self._attachment_container.get_children():
+            if not child.add_mode:
+                child.destroy()
+        self._attachment_togglebutton.set_active(False)
         self._message_entry.set_text('')
 
     @Gtk.Template.Callback()
@@ -627,7 +902,19 @@ class MessageEntryBar(Gtk.Box, EventReceiver):
         if entry.get_text():
             self._send_button.set_sensitive(True)
             self._send_button.get_style_context().add_class("suggested-action")
-        else:
+        elif len(self._attachment_container.get_children()) < 2:
             self._send_button.set_sensitive(False)
             self._send_button.get_style_context().remove_class("suggested-action")
 
+    @Gtk.Template.Callback()
+    def _on_revealer_child_revealed(self, revealer, param):
+        # Looks a bit weird, maybe better to listen to when the position of the message view changes
+        # and constanly update scroll to bottom? TODO
+        if self._attachment_area_revealer.get_child_revealed() and self.context.is_scroll_at_bottom:
+            self.context.scroll_messages_to_bottom()
+
+    # Gtk Box does not support this, so we will do it manually when we add
+    def emulate_attachment_container_change(self):
+        if len(self._attachment_container.get_children()) > 1:
+            self._send_button.set_sensitive(True)
+            self._send_button.get_style_context().add_class("suggested-action")

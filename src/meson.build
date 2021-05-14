@@ -27,7 +27,8 @@ mirdorph_sources = [
   'channel_inner_window.py',
   'channel_sidebar.py',
   'confman.py',
-  'channel_properties_window.py'
+  'channel_properties_window.py',
+  'atkpicture.py'
 ]
 
 install_data(mirdorph_sources, install_dir: moduledir)

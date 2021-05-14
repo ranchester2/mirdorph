@@ -34,7 +34,9 @@ class ConfManager:
         # Example and for testing
         'example': 0,
         'added_channels': [
-        ]
+        ],
+        # For atkpicture, not relevant yet
+        'max_image_content_width': 550
     }
 
     def __init__(self, path: Path = None):

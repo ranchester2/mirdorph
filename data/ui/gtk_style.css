@@ -5,7 +5,8 @@
 }
 
 .discord-message {
-  padding-top: 3px;
+  border-radius: 7px;
+  padding: 3px;
 }
 
 /*
@@ -24,8 +25,8 @@ mode
 }
 
 #message-entry-button-box {
-  margin-left: 8px;
-  margin-right: 8px;
+  margin-left: 11px;
+  margin-right: 11px;
 }
 
 .message-enforcement-box {
@@ -43,6 +44,24 @@ mode
 
 .dialog-content-container {
   padding: 10px;
+}
+
+.image-attachment-template {
+  background-color: @theme_base_color;
+  padding: 5px;
+}
+
+.entry-bar-toolbar {
+}
+
+.message-entry-bar-attachment {
+  border-radius: 5px;
+  box-shadow: rgba(0, 0, 0, 0.16) 0px 3px 6px, rgba(0, 0, 0, 0.23) 0px 3px 6px;
+}
+
+.message-entry-bar-attachment-container {
+  padding: 10px;
+  background-color: @theme_bg_color;
 }
 
 /*
