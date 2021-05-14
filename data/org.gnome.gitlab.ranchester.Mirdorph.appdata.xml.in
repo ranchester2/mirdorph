@@ -1,8 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<component type="desktop">
-	<id>org.gnome.gitlab.ranchester.Mirdorph.desktop</id>
-	<metadata_license>CC0-1.0</metadata_license>
-	<project_license>GPL-3.0-or-later</project_license>
-	<description>
-	</description>
+<component type="desktop-application">
+  <id>org.gnome.gitab.ranchester.Mirdorph</id>
+  <metadata_license>FSFAP</metadata_license>
+  <project_license>GPL-3.0-or-later</project_license>
+  <name>Mirdorph</name>
+  <summary>Human interaction system for Discord</summary>
+
+  <description>
+    <p>
+      Mirdorph is an advanced human interaction system for Discord.
+
+      With it users can use the APPLICATION to establish a connection with Discord
+      and use it to do various activities, usually including communication between
+      groups of humans
+      Power Statistics is a program used to view historical and current battery
+      information and will show programs running on your computer using power.
+    </p>
+  </description>
+
+  <content_rating type="oars-1.1">
+    <content_attribute id="social-chat">intense</content_attribute>
+    <content_attribute id="social-audio">intense</content_attribute>
+  </content_rating>
+
+  <!-- Disabled for now since otherwise it doesn't find the icon -->
+  <launchable type="desktop-id">org.gnome.gitlab.ranchester.Mirdorph.desktop</launchable>
+
+
+  <screenshots>
+    <screenshot type="default">
+      <image>https://gitlab.gnome.org/ranchester/mirdorph/-/raw/master/doc/asset/mirdorph-with-channel.png</image>
+    </screenshot>
+  </screenshots>
+
+  <releases>
+    <release version="0.0.x" date="2021-05-14">
+      <description>
+        <p>This version series does not explain changes in metadata, only repo</p>
+      </description>
+    </release>
+  </releases>
 </component>
