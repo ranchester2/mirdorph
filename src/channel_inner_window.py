@@ -604,7 +604,7 @@ class MirdorphMessage(Gtk.ListBoxRow):
             return
 
         top_role = member.roles[-1]
-        color_formatted = '#%x%x%x' % top_role.color.to_rgb()
+        color_formatted = '#%02x%02x%02x' % top_role.color.to_rgb()
         GLib.idle_add(self._label_color_gtk_target, color_formatted)
 
     def _label_color_gtk_target(self, color: str):
