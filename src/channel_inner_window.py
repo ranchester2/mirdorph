@@ -181,6 +181,10 @@ class ChannelInnerWindow(Gtk.Box):
         adj = self._message_view.get_vadjustment()
         # We can't check for it exactly, because if you scroll
         # for some reason it isn't the true bottom. So we use an "almost"
+        # Also, we currently use this when showing the attachment bar
+
+        # NOTE: for when attachment bar reveals, this for some reason doesn't
+        # work with taller windows. However if I increase it it doesn't work at all!
         difference = abs(adj.get_value() - adj.get_upper())
         return difference < 600
 
