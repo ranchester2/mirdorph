@@ -105,7 +105,7 @@
 				},
 				{
 					"type": "patch",
-					"path": "./patches/0001-add-workaround-for-on_message-on-self-bots.patch"
+					"path": "./patches/0001-fix-broken-.content-and-.embeds-and-more-in-self-bot.patch"
 				}
 			]
 		},

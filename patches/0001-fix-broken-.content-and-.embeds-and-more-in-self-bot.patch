@@ -1,0 +1,164 @@
+From 476382f788fdab9dc3e6a3723f753a03e2de10bf Mon Sep 17 00:00:00 2001
+From: Raidro Manchester <raibo.quadrofus@gmail.com>
+Date: Sat, 15 May 2021 16:02:51 +0300
+Subject: [PATCH] fix broken .content and .embeds and more in self bots
+
+To fix broken .content and .embeds, the main thing you need to do is to
+drop all intents before sending identify, and to substitute relasonship
+and recipient data when it randomly breaks. Then everything (as far as I
+can see) works again
+
+We do not need to change user agent or the identify packet more as the
+work that this patch is based on does. It is unncessary.
+
+We also warn when substituting the data with "LazyUser".
+---
+ discord/channel.py      | 12 +++++++++++-
+ discord/gateway.py      |  4 +++-
+ discord/relationship.py |  9 ++++++++-
+ discord/state.py        | 17 ++++++++++++++++-
+ discord/user.py         | 14 ++++++++++++++
+ 5 files changed, 52 insertions(+), 4 deletions(-)
+
+diff --git a/discord/channel.py b/discord/channel.py
+index bd4a39dc..b5322a2b 100644
+--- a/discord/channel.py
++++ b/discord/channel.py
+@@ -26,6 +26,7 @@ DEALINGS IN THE SOFTWARE.
+ 
+ import time
+ import asyncio
++import logging
+ 
+ import discord.abc
+ from .permissions import Permissions
+@@ -35,6 +36,8 @@ from . import utils
+ from .asset import Asset
+ from .errors import ClientException, NoMoreItems, InvalidArgument
+ 
++log = logging.getLogger(__name__)
++
+ __all__ = (
+     'TextChannel',
+     'VoiceChannel',
+@@ -1211,7 +1214,14 @@ class DMChannel(discord.abc.Messageable, Hashable):
+ 
+     def __init__(self, *, me, state, data):
+         self._state = state
+-        self.recipient = state.store_user(data['recipients'][0])
++        # Why? For some reason it complains about it not existing,
++        # so we workaround that by using lazy users
++        if 'recipients' in data:
++            self.recipient = state.store_user(data['recipients'][0])
++        else:
++            log.warning('recipients data not available in payload, doing lazy')
++            self.recipient = state.store_lazy_user(data['recipient_ids'][0])
++
+         self.me = me
+         self.id = int(data['id'])
+ 
+diff --git a/discord/gateway.py b/discord/gateway.py
+index 210a8822..7647b591 100644
+--- a/discord/gateway.py
++++ b/discord/gateway.py
+@@ -396,7 +396,9 @@ class DiscordWebSocket:
+             }
+ 
+         if state._intents is not None:
+-            payload['d']['intents'] = state._intents.value
++            # If intents are sent as self bot, various message stuff
++            # breaks completely
++            pass
+ 
+         await self.call_hooks('before_identify', self.shard_id, initial=self._initial_identify)
+         await self.send_as_json(payload)
+diff --git a/discord/relationship.py b/discord/relationship.py
+index 0a9fffda..b309f134 100644
+--- a/discord/relationship.py
++++ b/discord/relationship.py
+@@ -24,9 +24,12 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ DEALINGS IN THE SOFTWARE.
+ """
+ 
++import logging
+ from .enums import RelationshipType, try_enum
+ from . import utils
+ 
++log = logging.getLogger(__name__)
++
+ class Relationship:
+     """Represents a relationship in Discord.
+ 
+@@ -48,7 +51,11 @@ class Relationship:
+     def __init__(self, *, state, data):
+         self._state = state
+         self.type = try_enum(RelationshipType, data['type'])
+-        self.user = state.store_user(data['user'])
++        if 'user' in data:
++            self.user = state.store_user(data['user'])
++        else:
++            log.warning('relasionship data for user %s not available in payload, doing lazy' % data['user_id'])
++            self.user = state.store_lazy_user(data['user_id'])
+ 
+     def __repr__(self):
+         return '<Relationship user={0.user!r} type={0.type!r}>'.format(self)
+diff --git a/discord/state.py b/discord/state.py
+index da1212c1..5978f132 100644
+--- a/discord/state.py
++++ b/discord/state.py
+@@ -39,7 +39,7 @@ import os
+ 
+ from .guild import Guild
+ from .activity import BaseActivity
+-from .user import User, ClientUser
++from .user import User, ClientUser, LazyUser
+ from .emoji import Emoji
+ from .mentions import AllowedMentions
+ from .partial_emoji import PartialEmoji
+@@ -280,6 +280,21 @@ class ConnectionState:
+                 self._users[user_id] = user
+             return user
+ 
++    # Self bots in certain places may randomly not get the
++    # required data in the payload. In that case,
++    # we substitute it with this and give them a warning.
++    # Doesn't seem to break anything
++    def store_lazy_user(self, user_id):
++        # significantly (300%) faster than setdefault
++        user_id = int(user_id)
++        try:
++            return self._users[user_id]
++        except KeyError:
++            user = LazyUser(state=self, user_id=user_id)
++            if user.discriminator != '0000':
++                self._users[user_id] = user
++            return user
++
+     def store_user_no_intents(self, data):
+         return User(state=self, data=data)
+ 
+diff --git a/discord/user.py b/discord/user.py
+index 8b2d3a1c..9426c5bf 100644
+--- a/discord/user.py
++++ b/discord/user.py
+@@ -957,3 +957,17 @@ class User(BaseUser, discord.abc.Messageable):
+                        mutual_guilds=mutual_guilds,
+                        user=self,
+                        connected_accounts=data['connected_accounts'])
++
++# Private lazy user for self bots with substitute data,
++# for when receiving real users in recipients and relationships
++# throws random errors
++class LazyUser(BaseUser):
++    def __init__(self, state, user_id):
++        fake_data = {
++            'username': None,
++            'id': user_id,
++            'discriminator': 'BUMBA',
++            'avatar': None,
++        }
++
++        super().__init__(state=state, data=fake_data)
+-- 
+2.30.2
+
