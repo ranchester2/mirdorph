@@ -624,12 +624,17 @@ class MirdorphMessage(Gtk.ListBoxRow):
 
         top_role = member.roles[-1]
         color_formatted = '#%02x%02x%02x' % top_role.color.to_rgb()
-        GLib.idle_add(self._label_color_gtk_target, color_formatted)
 
-    def _label_color_gtk_target(self, color: str):
-        self._username_label.set_markup(
-            f"<span foreground='{color}'>{self._username_label.get_label()}</span>"
-        )
+        # @everyone is completely black, we should fix that
+        color_is_indrove = (color_formatted == "#000000")
+
+        GLib.idle_add(self._label_color_gtk_target, color_formatted, color_is_indrove)
+
+    def _label_color_gtk_target(self, color: str, color_is_indrove: bool):
+        if not color_is_indrove:
+            self._username_label.set_markup(
+                f"<span foreground='{color}'>{self._username_label.get_label()}</span>"
+            )
 
 @Gtk.Template(resource_path='/org/gnome/gitlab/ranchester/Mirdorph/ui/message_view.ui')
 class MessageView(Gtk.ScrolledWindow, EventReceiver):
