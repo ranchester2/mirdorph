@@ -136,7 +136,7 @@ advanced 'Manual Token' method instead."""
             GLib.idle_add(self._token_generic_retrieval_gtk_target, r.json()["token"])
         else:
             logging.fatal("Token not find in Discord Password login response, login failed")
-            self._relaunch()
+            self.props.application.relaunch()
 
     def _token_web_retrieval_target(self):
         token = subprocess.check_output('discordlogin', shell=True, text=True)
@@ -145,22 +145,16 @@ advanced 'Manual Token' method instead."""
     def _token_generic_retrieval_gtk_target(self, token):
         if token:
             self._save_token(token)
-        self._relaunch()
+        self.props.application.relaunch()
 
     @Gtk.Template.Callback()
     def _on_login_token_entry_inserted(self, *args):
         token = self._login_token_entry.get_text()
         self._login_token_entry.set_text("")
         self._save_token(token)
-        self._relaunch()
+        self.props.application.relaunch()
 
     def _save_token(self, token: str):
         logging.info("setting token in keyring")
         keyring.set_password("mirdorph", "token", token)
         logging.info("token set in keyring")
-
-    def _relaunch(self):
-        logging.info("launching program duplicate instance")
-        os.execv(sys.argv[0], sys.argv)
-        logging.info("exiting initial program")
-        os._exit(1)

@@ -18,6 +18,7 @@ import gi
 import logging
 import os
 import shutil
+import keyring
 
 gi.require_version('Gtk', '3.0')
 
@@ -57,6 +58,10 @@ class Application(Gtk.Application):
             {
                 'name': 'about',
                 'func': self.show_about_dialog
+            },
+            {
+                'name': 'logout',
+                'func': self.log_out
             }
         ]
 
@@ -118,6 +123,10 @@ class Application(Gtk.Application):
         dialog.set_transient_for(self.main_win)
         dialog.present()
 
+    def log_out(self, *args):
+        keyring.delete_password("mirdorph", "token")
+        self.relaunch()
+
     def create_inner_window_context(self, channel: int, flap: Handy.Flap):
         context = ChannelInnerWindow(empty=False, channel=channel)
 
@@ -154,6 +163,12 @@ class Application(Gtk.Application):
             error_body: More advanced text of the error
         """
         self.main_win.display_err_priv(error_title, error_body)
+
+    def relaunch(self):
+        logging.info("launching program duplicate instance")
+        os.execv(sys.argv[0], sys.argv)
+        logging.info("exiting initial program")
+        os._exit(1)
 
 def main(version, discord_loop, discord_client, keyring_exists):
     app = Application(discord_loop, discord_client, keyring_exists)
