@@ -35,8 +35,10 @@ def check_if_wayland() -> bool:
 class MirdorphLoginWindow(Handy.ApplicationWindow):
     __gtype_name__ = 'MirdorphLoginWindow'
 
-    _login_page_deck = Gtk.Template.Child()
+    _toplevel_deck = Gtk.Template.Child()
     _login_welcome_page = Gtk.Template.Child()
+
+    _second_stage_stack = Gtk.Template.Child()
     _login_token_page = Gtk.Template.Child()
 
     _login_token_entry = Gtk.Template.Child()
@@ -47,7 +49,12 @@ class MirdorphLoginWindow(Handy.ApplicationWindow):
 
     @Gtk.Template.Callback()
     def _on_token_button_clicked(self, button):
-        self._login_page_deck.set_visible_child(self._login_token_page)
+        self._toplevel_deck.set_visible_child(self._second_stage_stack)
+        self._second_stage_stack.set_visible_child(self._login_token_page)
+
+    @Gtk.Template.Callback()
+    def _on_second_stage_back_buttons_clicked(self, button):
+        self._toplevel_deck.set_visible_child(self._login_welcome_page)
 
     @Gtk.Template.Callback()
     def _on_main_cancel_button_clicked(self, button):
