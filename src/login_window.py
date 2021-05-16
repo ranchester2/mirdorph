@@ -39,10 +39,15 @@ class MirdorphLoginWindow(Handy.ApplicationWindow):
     _login_welcome_page = Gtk.Template.Child()
 
     _second_stage_stack = Gtk.Template.Child()
-    _login_token_page = Gtk.Template.Child()
 
+    _login_token_page = Gtk.Template.Child()
     _login_token_entry = Gtk.Template.Child()
     _login_token_entry_button = Gtk.Template.Child()
+
+    _login_password_page = Gtk.Template.Child()
+    _email_entry = Gtk.Template.Child()
+    _password_entry = Gtk.Template.Child()
+    _finish_password_login_button = Gtk.Template.Child()
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -53,12 +58,30 @@ class MirdorphLoginWindow(Handy.ApplicationWindow):
         self._second_stage_stack.set_visible_child(self._login_token_page)
 
     @Gtk.Template.Callback()
+    def _on_password_button_clicked(self, button):
+        self._toplevel_deck.set_visible_child(self._second_stage_stack)
+        self._second_stage_stack.set_visible_child(self._login_password_page)
+
+    @Gtk.Template.Callback()
     def _on_second_stage_back_buttons_clicked(self, button):
         self._toplevel_deck.set_visible_child(self._login_welcome_page)
 
     @Gtk.Template.Callback()
     def _on_main_cancel_button_clicked(self, button):
         os._exit(1)
+
+    @Gtk.Template.Callback()
+    def _on_password_warning_bar_response(self, bar, response_id: int):
+        if response_id == Gtk.ResponseType.CLOSE:
+            bar.hide()
+
+    @Gtk.Template.Callback()
+    def _on_password_entries_changed(self, entry):
+        self._finish_password_login_button.set_sensitive(self._email_entry.get_text() and self._password_entry.get_text())
+
+    @Gtk.Template.Callback()
+    def _on_finish_password_login_button_clicked(self, button):
+        self.set_sensitive(False)
 
     @Gtk.Template.Callback()
     def _on_login_token_entry_changed(self, entry):
