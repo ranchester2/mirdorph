@@ -5,7 +5,7 @@ variables:
 
 flatpak:
     image: 'registry.gitlab.gnome.org/gnome/gnome-runtime-images/gnome:40'
-    script: 'flatpak install --system flathub org.freedesktop.Sdk.Extension.golang//20.08'
+    script: 'flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo; flatpak install --system flathub org.freedesktop.Sdk.Extension.golang//20.08'
     variables:
         MANIFEST_PATH: "org.gnome.gitlab.ranchester.Mirdorph.json"
         FLATPAK_MODULE: "mirdorph"
