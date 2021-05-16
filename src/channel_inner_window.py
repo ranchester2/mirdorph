@@ -188,6 +188,18 @@ class ChannelInnerWindow(Gtk.Box):
         difference = abs(adj.get_value() - adj.get_upper())
         return difference < 600
 
+    # Currently not used, initially intended for the revealer animation scrolling,
+    # to disable it while scrolling. However that isn't needed
+    @property
+    def precise_is_scroll_at_bottom(self):
+        """
+        Is the scroll currently at the bottom (accurate mode)
+        """
+        adj = self._message_view.get_vadjustment()
+        bottom = adj.get_upper() - adj.get_page_size()
+        return (abs(adj.get_value() - bottom) < sys.float_info.epsilon)
+
+
     def popin(self):
         """
         Popin back to the main window
@@ -243,6 +255,20 @@ class ChannelInnerWindow(Gtk.Box):
         screen to scroll
         """
         self._msg_sending_scrl_mode_en = False
+
+    def start_attachment_reveal_scroll_mode(self):
+        """
+        Start the scroll mode for while the attachment tray is revealing,
+        This is for smooth animation on all window sizes
+        """
+        self._message_view._attachment_tray_scroll_revealment_mode = True
+
+    def end_attachment_reveal_scroll_mode(self):
+        """
+        End the scroll mode for while the attachment tray is revealing,
+        This is for smooth animation on all window sizes
+        """
+        self._message_view._attachment_tray_scroll_revealment_mode = False
 
     @property
     def is_scroll_for_msg_send(self):
@@ -684,6 +710,10 @@ class MessageView(Gtk.ScrolledWindow, EventReceiver):
         self._orig_upper = self._adj.get_upper()
         self._balance = None
         self._autoscroll = False
+        # When the attachment tray is revealed we want a smooth animation,
+        # this basically signifies if that animation is active and we should
+        # always auto scroll
+        self._attachment_tray_scroll_revealment_mode = False
 
         self.context = context
 
@@ -696,6 +726,9 @@ class MessageView(Gtk.ScrolledWindow, EventReceiver):
         new_upper = self._adj.get_upper()
         diff = new_upper - self._orig_upper
 
+        if self._attachment_tray_scroll_revealment_mode:
+            self._adj.set_value(self._adj.get_upper())
+
         # Don't do anything if upper didn't change
         if diff != 0.0:
             self._orig_upper = new_upper
@@ -707,8 +740,8 @@ class MessageView(Gtk.ScrolledWindow, EventReceiver):
                 self.set_kinetic_scrolling(True)
 
     def _handle_value_adj_changed(self, adj):
-        bottom = adj.get_upper() - adj.get_page_size()
-        self._autoscroll = (abs(adj.get_value() - bottom) < sys.float_info.epsilon)
+        self._autoscroll = self.context.precise_is_scroll_at_bottom
+
         if adj.get_value() < adj.get_page_size() * 1.5:
             self.load_history(additional=15)
 
@@ -963,11 +996,16 @@ class MessageEntryBar(Gtk.Box):
             self._send_button.get_style_context().remove_class("suggested-action")
 
     @Gtk.Template.Callback()
+    def _on_revealer_reveal_child(self, revealer, param):
+        if not self._attachment_area_revealer.get_child_revealed() and self.context.precise_is_scroll_at_bottom:
+           self.context.start_attachment_reveal_scroll_mode()
+        else:
+           self.context.end_attachment_reveal_scroll_mode()
+
+    @Gtk.Template.Callback()
     def _on_revealer_child_revealed(self, revealer, param):
-        # Looks a bit weird, maybe better to listen to when the position of the message view changes
-        # and constanly update scroll to bottom? TODO
-        if self._attachment_area_revealer.get_child_revealed() and self.context.is_scroll_at_bottom:
-            self.context.scroll_messages_to_bottom()
+        if self._attachment_area_revealer.get_child_revealed():
+            self.context.end_attachment_reveal_scroll_mode()
 
     # Gtk Box does not support this, so we will do it manually when we add
     def emulate_attachment_container_change(self):

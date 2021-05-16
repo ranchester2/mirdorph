@@ -93,6 +93,7 @@
         <property name="visible">True</property>
         <property name="transition-type">4</property>
         <property name="reveal-child" bind-source="_attachment_togglebutton" bind-property="active" bind-flags="default" />
+        <signal name="notify::reveal-child" handler="_on_revealer_reveal_child" />
         <signal name="notify::child-revealed" handler="_on_revealer_child_revealed" />
         <child>
           <object class="GtkBox">
