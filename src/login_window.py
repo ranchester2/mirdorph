@@ -19,6 +19,7 @@ import keyring
 import logging
 import subprocess
 import threading
+import requests
 from gi.repository import Gtk, Gdk, GLib, Handy
 
 # Needs to be custom because GDK_IS_WAYLAND_DISPLAY seems to only exist
@@ -82,6 +83,7 @@ class MirdorphLoginWindow(Handy.ApplicationWindow):
     @Gtk.Template.Callback()
     def _on_finish_password_login_button_clicked(self, button):
         self.set_sensitive(False)
+        threading.Thread(target=self._token_password_retrieval_target).start()
 
     @Gtk.Template.Callback()
     def _on_login_token_entry_changed(self, entry):
@@ -107,11 +109,25 @@ advanced 'Manual Token' method instead."""
             token_web_retrieval_thread = threading.Thread(target=self._token_web_retrieval_target)
             token_web_retrieval_thread.start()
 
+    def _token_password_retrieval_target(self):
+        email = self._email_entry.get_text()
+        password = self._password_entry.get_text()
+        payload = {
+            "login": email,
+            "password": password
+        }
+        r = requests.post("https://discord.com/api/v9/auth/login", json=payload)
+        if "token" in r.json():
+            GLib.idle_add(self._token_generic_retrieval_gtk_target, r.json()["token"])
+        else:
+            logging.fatal("Token not find in Discord Password login response, login failed")
+            self._relaunch()
+
     def _token_web_retrieval_target(self):
         token = subprocess.check_output('discordlogin', shell=True, text=True)
-        GLib.idle_add(self._token_web_retrieval_gtk_target, token)
+        GLib.idle_add(self._token_generic_retrieval_gtk_target, token)
 
-    def _token_web_retrieval_gtk_target(self, token):
+    def _token_generic_retrieval_gtk_target(self, token):
         if token:
             self._save_token(token)
         self._relaunch()
