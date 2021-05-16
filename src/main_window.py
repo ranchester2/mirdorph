@@ -71,8 +71,21 @@ class MirdorphMainWindow(Handy.ApplicationWindow):
         self.channel_sidebar.show()
         self._flap_box.pack_end(self.channel_sidebar, True, True, 0)
 
+    def _setting_switching_focus_gtk_target(self, context):
+        try:
+            context.do_first_see()
+        except AttributeError:
+            logging.warning("impossible to set default focus of empty status context")
+
     @Gtk.Template.Callback()
     def _on_context_stack_focus_change(self, stack, strpar):
+        # I have been trying to set the default focus when swithing to a child to be the entry bar
+        # However, in most places it just DOESN'T WORK (the function is called though.
+        # It seems that it only works if you wait for GTK to finish whatever its doing. Like
+        # to finish loading channel history. Here, it must be in a GLib.idle_add for whatever
+        # reaso
+        GLib.idle_add(self._setting_switching_focus_gtk_target, stack.get_visible_child())
+
         try:
             stack.get_visible_child().load_history()
         except AttributeError:
@@ -159,7 +172,10 @@ class MirdorphMainWindow(Handy.ApplicationWindow):
             # Temp hack to get it to work when switching channels in mobile
             # mode
             context.handle_flap_folding(self.main_flap, None)
+
             self.context_stack.set_visible_child(context)
+            # For making the entry the default focus
+            context.do_first_see()
             
         if self._is_channel_selected_first_time(channel_id):
             self._previously_selected_channels.append(channel_id)

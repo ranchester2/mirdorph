@@ -239,9 +239,21 @@ class ChannelInnerWindow(Gtk.Box):
             default_height=470
         )
         self._popout_window.add(self)
+        # For getting the focus
+        self._message_entry_bar.handle_first_see()
         self._popout_window.present()
         self._popout_button_stack.set_visible_child(self._popin_button)
         self.is_poped = True
+
+    def do_first_see(self):
+        """
+        Do actions when first selected for.
+
+        This is similar to handle_first_see of the entry bar,
+        currently the main functionality is making the user immediatly
+        able to type in the message entry
+        """
+        self._message_entry_bar.handle_first_see()
 
     def prepare_scroll_for_msg_send(self):
         """
@@ -940,6 +952,14 @@ class MessageEntryBar(Gtk.Box):
 
         check_if_can_send_thread = threading.Thread(target=self._check_if_can_send_target)
         check_if_can_send_thread.start()
+
+    def handle_first_see(self):
+        """
+        To act as if being seen again for the first time.
+
+        This is for example if the context has just bene opened, or if just popped out.
+        """
+        self._message_entry.grab_focus()
 
     def _check_if_can_send_target(self):
         can_send = asyncio.run_coroutine_threadsafe(

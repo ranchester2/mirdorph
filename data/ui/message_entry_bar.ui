@@ -42,6 +42,9 @@
                   <object class="GtkEntry" id="_message_entry">
                     <property name="visible">True</property>
                     <property name="hexpand">True</property>
+                    <!-- Don't seem to actually do anything -->
+                    <property name="can-default">True</property>
+                    <property name="receives-default">True</property>
                     <signal name="activate" handler="_on_message_entry_activate" />
                     <signal name="changed" handler="_on_message_entry_changed" />
                   </object>
