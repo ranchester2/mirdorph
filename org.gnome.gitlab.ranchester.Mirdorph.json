@@ -4,7 +4,6 @@
 	"runtime-version": "40",
 	"sdk": "org.gnome.Sdk",
 	"command": "mirdorph",
-	"appstream-compose": false,
 	"finish-args": [
 		"--share=network",
 		"--share=ipc",
