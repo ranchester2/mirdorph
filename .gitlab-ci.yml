@@ -1,0 +1,14 @@
+include: 'https://gitlab.gnome.org/GNOME/citemplates/raw/master/flatpak/flatpak_ci_initiative.yml'
+
+variables:
+    BUNDLE: "mirdorph.flatpak"
+
+flatpak:
+    image: 'registry.gitlab.gnome.org/gnome/gnome-runtime-images/gnome:40'
+    variables:
+        MANIFEST_PATH: "org.gnome.gitlab.ranchester.Mirdorph.json"
+        FLATPAK_MODULE: "mirdorph"
+        RUNTIME_REPO: "https://flathub.org/repo/flathub.flatpakrepo"
+        APP_ID: "org.gnome.gitlab.ranchester.Mirdorph"
+    extends: .flatpak
+
