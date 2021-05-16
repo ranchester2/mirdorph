@@ -19,6 +19,7 @@ import keyring
 import logging
 import subprocess
 import threading
+import requests
 from gi.repository import Gtk, Gdk, GLib, Handy
 
 # Needs to be custom because GDK_IS_WAYLAND_DISPLAY seems to only exist
@@ -35,23 +36,69 @@ def check_if_wayland() -> bool:
 class MirdorphLoginWindow(Handy.ApplicationWindow):
     __gtype_name__ = 'MirdorphLoginWindow'
 
-    _login_page_deck = Gtk.Template.Child()
+    _toplevel_deck = Gtk.Template.Child()
     _login_welcome_page = Gtk.Template.Child()
-    _login_token_page = Gtk.Template.Child()
 
+    _second_stage_stack = Gtk.Template.Child()
+
+    _login_token_page = Gtk.Template.Child()
     _login_token_entry = Gtk.Template.Child()
     _login_token_entry_button = Gtk.Template.Child()
+
+    _login_password_page = Gtk.Template.Child()
+    _email_entry = Gtk.Template.Child()
+    _password_entry = Gtk.Template.Child()
+    _finish_password_login_button = Gtk.Template.Child()
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
     @Gtk.Template.Callback()
     def _on_token_button_clicked(self, button):
-        self._login_page_deck.set_visible_child(self._login_token_page)
+        self._toplevel_deck.set_visible_child(self._second_stage_stack)
+        self._second_stage_stack.set_visible_child(self._login_token_page)
+
+    @Gtk.Template.Callback()
+    def _on_password_button_clicked(self, button):
+        self._toplevel_deck.set_visible_child(self._second_stage_stack)
+        self._second_stage_stack.set_visible_child(self._login_password_page)
+
+    @Gtk.Template.Callback()
+    def _on_second_stage_back_buttons_clicked(self, button):
+        self._toplevel_deck.set_visible_child(self._login_welcome_page)
 
     @Gtk.Template.Callback()
     def _on_main_cancel_button_clicked(self, button):
         os._exit(1)
+
+    @Gtk.Template.Callback()
+    def _on_password_warning_bar_response(self, bar, response_id: int):
+        if response_id == Gtk.ResponseType.CLOSE:
+            bar.hide()
+
+    @Gtk.Template.Callback()
+    def _on_password_entries_changed(self, entry):
+        self._finish_password_login_button.set_sensitive(
+            self._email_entry.get_text() and self._password_entry.get_text()
+        )
+
+    def _do_init_password_login(self):
+        self.set_sensitive(False)
+        threading.Thread(target=self._token_password_retrieval_target).start()
+
+    @Gtk.Template.Callback()
+    def _on_email_entry_activate(self, entry):
+        if self._email_entry.get_text():
+            self._password_entry.grab_focus()
+
+    @Gtk.Template.Callback()
+    def _on_password_entry_activate(self, entry):
+        if self._email_entry.get_text() and self._password_entry.get_text():
+            self._do_init_password_login()
+
+    @Gtk.Template.Callback()
+    def _on_finish_password_login_button_clicked(self, button):
+        self._do_init_password_login()
 
     @Gtk.Template.Callback()
     def _on_login_token_entry_changed(self, entry):
@@ -77,11 +124,25 @@ advanced 'Manual Token' method instead."""
             token_web_retrieval_thread = threading.Thread(target=self._token_web_retrieval_target)
             token_web_retrieval_thread.start()
 
+    def _token_password_retrieval_target(self):
+        email = self._email_entry.get_text()
+        password = self._password_entry.get_text()
+        payload = {
+            "login": email,
+            "password": password
+        }
+        r = requests.post("https://discord.com/api/v9/auth/login", json=payload)
+        if "token" in r.json():
+            GLib.idle_add(self._token_generic_retrieval_gtk_target, r.json()["token"])
+        else:
+            logging.fatal("Token not find in Discord Password login response, login failed")
+            self._relaunch()
+
     def _token_web_retrieval_target(self):
         token = subprocess.check_output('discordlogin', shell=True, text=True)
-        GLib.idle_add(self._token_web_retrieval_gtk_target, token)
+        GLib.idle_add(self._token_generic_retrieval_gtk_target, token)
 
-    def _token_web_retrieval_gtk_target(self, token):
+    def _token_generic_retrieval_gtk_target(self, token):
         if token:
             self._save_token(token)
         self._relaunch()

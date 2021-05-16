@@ -4,6 +4,10 @@
   border-radius: 9999px
 }
 
+.password-entry-row {
+  padding: 10px;
+}
+
 .discord-message {
   border-radius: 7px;
   padding: 3px;
