@@ -247,7 +247,7 @@
                         <property name="visible">True</property>
                         <property name="sensitive">False</property>
                         <property name="label">Submit</property>
-                        <signal name="clicked" handler="_on_finish_password_login_button_clicked"/>
+                        <signal name="clicked" handler="_on_finish_password_login_button_clicked" />
                         <style>
                           <class name="suggested-action" />
                         </style>
@@ -268,7 +268,7 @@
                         <property name="halign">GTK_ALIGN_CENTER</property>
                         <property name="message-type">warning</property>
                         <property name="show-close-button">True</property>
-                        <signal name="response" handler="_on_password_warning_bar_response"/>
+                        <signal name="response" handler="_on_password_warning_bar_response" />
                         <child internal-child="content_area">
                           <object class="GtkBox">
                             <property name="can-focus">False</property>
@@ -346,7 +346,8 @@
                                       <object class="GtkEntry" id="_email_entry">
                                         <property name="visible">True</property>
                                         <property name="placeholder-text">Email Adress</property>
-                                        <signal name="changed" handler="_on_password_entries_changed"/>
+                                        <signal name="changed" handler="_on_password_entries_changed" />
+                                        <signal name="activate" handler="_on_email_entry_activate" />
                                       </object>
                                     </child>
                                     <style>
@@ -362,7 +363,8 @@
                                         <property name="visible">True</property>
                                         <property name="placeholder-text">Password</property>
                                         <property name="visibility">False</property>
-                                        <signal name="changed" handler="_on_password_entries_changed"/>
+                                        <signal name="changed" handler="_on_password_entries_changed" />
+                                        <signal name="activate" handler="_on_password_entry_activate" />
                                       </object>
                                     </child>
                                     <style>

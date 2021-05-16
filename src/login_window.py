@@ -78,12 +78,27 @@ class MirdorphLoginWindow(Handy.ApplicationWindow):
 
     @Gtk.Template.Callback()
     def _on_password_entries_changed(self, entry):
-        self._finish_password_login_button.set_sensitive(self._email_entry.get_text() and self._password_entry.get_text())
+        self._finish_password_login_button.set_sensitive(
+            self._email_entry.get_text() and self._password_entry.get_text()
+        )
+
+    def _do_init_password_login(self):
+        self.set_sensitive(False)
+        threading.Thread(target=self._token_password_retrieval_target).start()
+
+    @Gtk.Template.Callback()
+    def _on_email_entry_activate(self, entry):
+        if self._email_entry.get_text():
+            self._password_entry.grab_focus()
+
+    @Gtk.Template.Callback()
+    def _on_password_entry_activate(self, entry):
+        if self._email_entry.get_text() and self._password_entry.get_text():
+            self._do_init_password_login()
 
     @Gtk.Template.Callback()
     def _on_finish_password_login_button_clicked(self, button):
-        self.set_sensitive(False)
-        threading.Thread(target=self._token_password_retrieval_target).start()
+        self._do_init_password_login()
 
     @Gtk.Template.Callback()
     def _on_login_token_entry_changed(self, entry):
