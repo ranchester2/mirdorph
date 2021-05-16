@@ -145,6 +145,15 @@ class Application(Gtk.Application):
 
         return self._inner_window_contexts[channel]
 
+    def do_error(self, error_title: str, error_body: str):
+        """
+        Display an error (Discord) in the application.
+
+        param:
+            error_title: The abstract title of the type of the widget
+            error_body: More advanced text of the error
+        """
+        self.main_win.display_err_priv(error_title, error_body)
 
 def main(version, discord_loop, discord_client, keyring_exists):
     app = Application(discord_loop, discord_client, keyring_exists)
