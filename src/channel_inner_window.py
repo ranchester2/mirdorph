@@ -934,6 +934,27 @@ class MessageEntryBar(Gtk.Box):
         self._add_extra_attachment_button.show()
         self._attachment_container.pack_start(self._add_extra_attachment_button, False, False, 0)
 
+        check_if_can_send_thread = threading.Thread(target=self._check_if_can_send_target)
+        check_if_can_send_thread.start()
+
+    def _check_if_can_send_target(self):
+        can_send = asyncio.run_coroutine_threadsafe(
+            self._channel_is_sendable_to_you(self.context.channel_disc),
+            self.app.discord_loop
+        ).result()
+        GLib.idle_add(self._check_if_can_send_gtk_target, can_send)
+
+    def _check_if_can_send_gtk_target(self, can_send: bool):
+        if not can_send:
+            self.set_sensitive(can_send)
+            self._message_entry.set_placeholder_text("Insufficient permissions")
+
+    async def _channel_is_sendable_to_you(self, channel: discord.abc.GuildChannel) -> bool:
+        our_permissions = channel.permissions_for(
+            await channel.guild.fetch_member(self.app.discord_client.user.id)
+        )
+        return our_permissions.send_messages
+
     async def _message_send_wrapper(self, message: str, files: list):
         try:
             await self.context.channel_disc.send(message, files=files)
