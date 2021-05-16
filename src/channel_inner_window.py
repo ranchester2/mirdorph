@@ -934,6 +934,12 @@ class MessageEntryBar(Gtk.Box):
         self._add_extra_attachment_button.show()
         self._attachment_container.pack_start(self._add_extra_attachment_button, False, False, 0)
 
+    async def _message_send_wrapper(self, message: str, files: list):
+        try:
+            await self.context.channel_disc.send(message, files=files)
+        except Exception as e:
+            GLib.idle_add(lambda msg_error : self.app.do_error("Failure sending message", str(msg_error)), e)
+
     def _do_attempt_send(self):
         message = self._message_entry.get_text()
         # Done here, not with a separate async wrapper with idle_add
@@ -963,7 +969,7 @@ class MessageEntryBar(Gtk.Box):
             )
 
         asyncio.run_coroutine_threadsafe(
-            self.context.channel_disc.send(message, files=atts_to_send),
+            self._message_send_wrapper(message, files=atts_to_send),
             self.app.discord_loop
         )
 
