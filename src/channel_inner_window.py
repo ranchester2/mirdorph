@@ -630,6 +630,10 @@ class MirdorphMessage(Gtk.ListBoxRow):
         return member
 
     def _fetch_label_color_target(self):
+        # Those with 0000 are generally "fake" members that are invalid
+        if self._disc_message.author.discriminator == "0000":
+            return
+
         member = self._disc_message.guild.get_member(self._disc_message.author.id)
         if member is None:
             # To make rate limit less frequent, we don't cache this for whatever reason,
