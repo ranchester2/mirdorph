@@ -16,6 +16,7 @@
 import os
 import gi
 import logging
+import random
 gi.require_version("WebKit2", "4.0")
 from gi.repository import Gtk, GObject, WebKit2
 
@@ -30,22 +31,31 @@ class DiscordGrabber(WebKit2.WebView):
 
     To use, create the widget and listen for the "login-complete"
     signal, it has the token as an str argument.
+
+    The "login-failed" signal is emitted if it fails.
     """
     __gtype_name__ =  "DiscordGrabber"
 
     __gsignals__ = {
         'login_complete': (GObject.SIGNAL_RUN_FIRST, None,
+                      (str,)),
+        'login_failed': (GObject.SIGNAL_RUN_FIRST, None,
                       (str,))
     }
 
+    LOGIN_TROUBLESHOOT = "Retry until you get a non-colorful background and make sure the window isn't narrow."
+
     def __init__(self, *args, **kwargs):
         WebKit2.WebView.__init__(self, is_ephemeral=True, *args, **kwargs)
+        # To not complain about registering twice
+        self.SCHEME_ID = random.randrange(1, 100000)
+
         self._inital_exec = False
-        self.get_context().register_uri_scheme("token", self._token_uri_callback)
+        self.get_context().register_uri_scheme(f"token{str(self.SCHEME_ID)}", self._token_uri_callback)
         self.connect("load-changed", self._on_load_changed)
         self.connect("resource-load-started", self._on_resource_load_started)
         with open(os.path.join(os.path.dirname(__file__), "get_token.js"), 'r') as f:
-            self._grabber_injection = f.read()
+            self._grabber_injection = f"var scheme_id = {str(self.SCHEME_ID)}\n{f.read()}"
 
         self.load_uri("https://discord.com/login")
 
@@ -57,13 +67,16 @@ class DiscordGrabber(WebKit2.WebView):
     def do_login_complete(self, token: str):
         pass
 
+    def do_login_failed(self, help: str):
+        pass
+
     def _token_uri_callback(self, request):
-        self.emit("login_complete", request.get_uri()[len("token://"):])
+        self.emit("login_complete", request.get_uri()[len(f"token{str(self.SCHEME_ID)}://"):])
         # We don't want discord to be continued being displayed instead
         self.load_uri("http://www.blankwebsite.com")
 
     def _on_resource_load_started(self, webview, resource, request):
         if request.get_uri() == "https://discord.com/app":
             # When we fail to get the token, we go on to load /app.
-            logging.fatal("FATAL: RETRIEVING TOKEN FAILED. XLLHTTP BYPASS COMPLETE")
-            raise Exception("Token not captured, this could be because either the window is too narrow or the background is colorful.")
+            self.emit("login_failed", self.LOGIN_TROUBLESHOOT)
+

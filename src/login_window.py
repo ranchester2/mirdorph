@@ -46,9 +46,18 @@ class MirdorphLoginWindow(Handy.ApplicationWindow):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self._build_token_grabber()
 
+    def _build_token_grabber(self):
+        try:
+            self._token_grabber
+        except AttributeError:
+            pass
+        else:
+            self._token_grabber.destroy()
         self._token_grabber = DiscordGrabber()
         self._token_grabber.connect("login_complete", self._on_web_login_complete)
+        self._token_grabber.connect("login_failed", self._on_web_login_failed)
         self._token_grabber.show()
         self._login_graphical_page_webview_container.pack_start(self._token_grabber, True, True, 0)
 
@@ -110,6 +119,10 @@ class MirdorphLoginWindow(Handy.ApplicationWindow):
 
     def _on_web_login_complete(self, grabber, token: str):
         self._token_generic_retrieval_gtk_target(token)
+
+    def _on_web_login_failed(self, grabber, help: str):
+        print(help)
+        self._build_token_grabber()
 
     def _token_password_retrieval_target(self):
         email = self._email_entry.get_text()
