@@ -23,16 +23,6 @@ import requests
 from gi.repository import Gtk, Gdk, GLib, Handy
 from .discord_web_grabber import DiscordGrabber
 
-# Needs to be custom because GDK_IS_WAYLAND_DISPLAY seems to only exist
-# in C and isn't really documented, just appears once in a random blog post
-def check_if_wayland() -> bool:
-    display = Gdk.Display.get_default()
-    if "wayland" in display.get_name().lower():
-        return True
-    else:
-        if "XDG_SESSION_TYPE" in os.environ:
-            return os.environ["XDG_SESSION_TYPE"] == "wayland"
-
 @Gtk.Template(resource_path='/org/gnome/gitlab/ranchester/Mirdorph/ui/login_window.ui')
 class MirdorphLoginWindow(Handy.ApplicationWindow):
     __gtype_name__ = 'MirdorphLoginWindow'
