@@ -20,8 +20,10 @@ import logging
 import subprocess
 import threading
 import requests
+import time
 from gi.repository import Gtk, Gdk, GLib, Handy
 from .discord_web_grabber import DiscordGrabber
+
 
 @Gtk.Template(resource_path='/org/gnome/gitlab/ranchester/Mirdorph/ui/login_window.ui')
 class MirdorphLoginWindow(Handy.ApplicationWindow):
@@ -43,6 +45,10 @@ class MirdorphLoginWindow(Handy.ApplicationWindow):
 
     _login_graphical_page = Gtk.Template.Child()
     _login_graphical_page_webview_container = Gtk.Template.Child()
+
+    _notification_revealer = Gtk.Template.Child()
+    _notification_title_label = Gtk.Template.Child()
+    _notification_label = Gtk.Template.Child()
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -121,8 +127,22 @@ class MirdorphLoginWindow(Handy.ApplicationWindow):
         self._token_generic_retrieval_gtk_target(token)
 
     def _on_web_login_failed(self, grabber, help: str):
-        print(help)
         self._build_token_grabber()
+        # Currently notification code is copy pasted from main window
+        # But is there a better way?
+        self._notification_label.set_label(help)
+        self._notification_title_label.set_label("Error")
+        self._notification_revealer.set_reveal_child(True)
+
+        # For automatically closing the notification
+        threading.Thread(target=self._notification_waiting_target).start()
+
+    def _notification_waiting_target(self):
+        time.sleep(5)
+        GLib.idle_add(self._notification_waiting_gtk_target)
+
+    def _notification_waiting_gtk_target(self):
+        self._notification_revealer.set_reveal_child(False)
 
     def _token_password_retrieval_target(self):
         email = self._email_entry.get_text()
@@ -153,6 +173,10 @@ class MirdorphLoginWindow(Handy.ApplicationWindow):
         self._login_token_entry.set_text("")
         self._save_token(token)
         self.props.application.relaunch()
+
+    @Gtk.Template.Callback()
+    def _on_notification_button_clicked(self, button):
+        self._notification_revealer.set_reveal_child(False)
 
     def _save_token(self, token: str):
         logging.info("setting token in keyring")
