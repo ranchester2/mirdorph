@@ -390,6 +390,44 @@
                 </child>
               </object>
             </child>
+            <child>
+              <object class="GtkBox" id="_login_graphical_page">
+                <property name="visible">True</property>
+                <property name="orientation">vertical</property>
+                <child>
+                  <object class="HdyHeaderBar">
+                    <property name="visible">True</property>
+                    <property name="title">Enter Credentials</property>
+                    <child>
+                      <object class="GtkButton">
+                        <property name="visible">True</property>
+                        <signal name="clicked" handler="_on_second_stage_back_buttons_clicked" />
+                        <child>
+                          <object class="GtkImage">
+                            <property name="visible">True</property>
+                            <property name="icon-name">go-previous-symbolic</property>
+                          </object>
+                        </child>
+                        <style>
+                          <class name="image-button" />
+                        </style>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <!-- Not Bin because then weird cryptic error -->
+                  <object class="GtkBox" id="_login_graphical_page_webview_container">
+                    <property name="visible">True</property>
+                  </object>
+                  <packing>
+                    <property name="pack-type">end</property>
+                    <property name="fill">True</property>
+                    <property name="expand">True</property>
+                  </packing>
+                </child>
+              </object>
+            </child>
           </object>
         </child>
       </object>
