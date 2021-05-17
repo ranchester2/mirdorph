@@ -20,17 +20,10 @@ import logging
 import subprocess
 import threading
 import requests
+import time
 from gi.repository import Gtk, Gdk, GLib, Handy
+from .discord_web_grabber import DiscordGrabber
 
-# Needs to be custom because GDK_IS_WAYLAND_DISPLAY seems to only exist
-# in C and isn't really documented, just appears once in a random blog post
-def check_if_wayland() -> bool:
-    display = Gdk.Display.get_default()
-    if "wayland" in display.get_name().lower():
-        return True
-    else:
-        if "XDG_SESSION_TYPE" in os.environ:
-            return os.environ["XDG_SESSION_TYPE"] == "wayland"
 
 @Gtk.Template(resource_path='/org/gnome/gitlab/ranchester/Mirdorph/ui/login_window.ui')
 class MirdorphLoginWindow(Handy.ApplicationWindow):
@@ -50,8 +43,29 @@ class MirdorphLoginWindow(Handy.ApplicationWindow):
     _password_entry = Gtk.Template.Child()
     _finish_password_login_button = Gtk.Template.Child()
 
+    _login_graphical_page = Gtk.Template.Child()
+    _login_graphical_page_webview_container = Gtk.Template.Child()
+
+    _notification_revealer = Gtk.Template.Child()
+    _notification_title_label = Gtk.Template.Child()
+    _notification_label = Gtk.Template.Child()
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self._build_token_grabber()
+
+    def _build_token_grabber(self):
+        try:
+            self._token_grabber
+        except AttributeError:
+            pass
+        else:
+            self._token_grabber.destroy()
+        self._token_grabber = DiscordGrabber()
+        self._token_grabber.connect("login_complete", self._on_web_login_complete)
+        self._token_grabber.connect("login_failed", self._on_web_login_failed)
+        self._token_grabber.show()
+        self._login_graphical_page_webview_container.pack_start(self._token_grabber, True, True, 0)
 
     @Gtk.Template.Callback()
     def _on_token_button_clicked(self, button):
@@ -106,23 +120,29 @@ class MirdorphLoginWindow(Handy.ApplicationWindow):
 
     @Gtk.Template.Callback()
     def _on_main_login_button_clicked(self, button):
-        # Discordlogin doesn't work properly on X11 for some reason
-        if not check_if_wayland():
-            wayland_only_dialog = Gtk.MessageDialog(
-                message_type=Gtk.MessageType.INFO,
-                buttons=Gtk.ButtonsType.CLOSE,
-                text="Graphical login is not supported on the X11 windowing system",
-                secondary_text="""\
-Graphical login is only supported on Wayland, if you cannot use Wayland, use the \
-advanced 'Manual Token' method instead."""
-            )
-            wayland_only_dialog.set_transient_for(self)
-            wayland_only_dialog.run()
-            wayland_only_dialog.destroy()
-        else:
-            self.set_sensitive(False)
-            token_web_retrieval_thread = threading.Thread(target=self._token_web_retrieval_target)
-            token_web_retrieval_thread.start()
+        self._toplevel_deck.set_visible_child(self._second_stage_stack)
+        self._second_stage_stack.set_visible_child(self._login_graphical_page)
+
+    def _on_web_login_complete(self, grabber, token: str):
+        self._token_generic_retrieval_gtk_target(token)
+
+    def _on_web_login_failed(self, grabber, help: str):
+        self._build_token_grabber()
+        # Currently notification code is copy pasted from main window
+        # But is there a better way?
+        self._notification_label.set_label(help)
+        self._notification_title_label.set_label("Error")
+        self._notification_revealer.set_reveal_child(True)
+
+        # For automatically closing the notification
+        threading.Thread(target=self._notification_waiting_target).start()
+
+    def _notification_waiting_target(self):
+        time.sleep(5)
+        GLib.idle_add(self._notification_waiting_gtk_target)
+
+    def _notification_waiting_gtk_target(self):
+        self._notification_revealer.set_reveal_child(False)
 
     def _token_password_retrieval_target(self):
         email = self._email_entry.get_text()
@@ -153,6 +173,10 @@ advanced 'Manual Token' method instead."""
         self._login_token_entry.set_text("")
         self._save_token(token)
         self.props.application.relaunch()
+
+    @Gtk.Template.Callback()
+    def _on_notification_button_clicked(self, button):
+        self._notification_revealer.set_reveal_child(False)
 
     def _save_token(self, token: str):
         logging.info("setting token in keyring")

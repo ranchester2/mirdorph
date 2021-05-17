@@ -28,7 +28,9 @@ mirdorph_sources = [
   'channel_sidebar.py',
   'confman.py',
   'channel_properties_window.py',
-  'atkpicture.py'
+  'atkpicture.py',
+  'discord_web_grabber.py',
+  'get_token.js'
 ]
 
 install_data(mirdorph_sources, install_dir: moduledir)
