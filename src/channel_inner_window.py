@@ -166,7 +166,7 @@ class ChannelInnerWindow(Gtk.Box):
         if you wish to go to the real bottom
         """
 
-        adj = self._message_view.get_vadjustment()
+        adj = self._message_view.scroller.get_vadjustment()
         adj.set_value(adj.get_upper())
 
     @property
@@ -175,7 +175,7 @@ class ChannelInnerWindow(Gtk.Box):
         Is the user currently scrolled to the very bottom of the
         view
         """
-        adj = self._message_view.get_vadjustment()
+        adj = self._message_view.scroller.get_vadjustment()
         # We can't check for it exactly, because if you scroll
         # for some reason it isn't the true bottom. So we use an "almost"
         # Also, we currently use this when showing the attachment bar
@@ -192,7 +192,7 @@ class ChannelInnerWindow(Gtk.Box):
         """
         Is the scroll currently at the bottom (accurate mode)
         """
-        adj = self._message_view.get_vadjustment()
+        adj = self._message_view.scroller.get_vadjustment()
         bottom = adj.get_upper() - adj.get_page_size()
         return (abs(adj.get_value() - bottom) < sys.float_info.epsilon)
 

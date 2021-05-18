@@ -1,4 +1,3 @@
-
 # Copyright 2021 Raidro Manchester
 #
 # This program is free software: you can redistribute it and/or modify
@@ -25,21 +24,29 @@ from .message import MirdorphMessage
 
 
 @Gtk.Template(resource_path='/org/gnome/gitlab/ranchester/Mirdorph/ui/message_view.ui')
-class MessageView(Gtk.ScrolledWindow, EventReceiver):
+class MessageView(Gtk.Overlay, EventReceiver):
     __gtype_name__ = "MessageView"
 
     _STANDARD_HISTORY_LOADING = 40
 
     _message_column: Gtk.Box = Gtk.Template.Child()
+    # Originally code was designed with message_view inheriting from
+    # Gtk.ScrolledWindow, however since now that isn't the case, and people
+    # expect to access this instead, we use it by making it public
+    scroller: Gtk.ScrolledWindow = Gtk.Template.Child()
+
+    _scroll_btn_revealer: Gtk.Revealer = Gtk.Template.Child()
 
     def __init__(self, context, *args, **kwargs):
-        Gtk.ScrolledWindow.__init__(self, *args, **kwargs)
+        Gtk.Overlay.__init__(self, *args, **kwargs)
         EventReceiver.__init__(self)
 
         self._message_listbox = Gtk.ListBox(hexpand=True, selection_mode=Gtk.SelectionMode.NONE)
         # When nearly empty channel, messages should not pile up on top
         self._message_listbox.set_valign(Gtk.Align.END)
         self._message_listbox.get_style_context().add_class("message-history")
+
+        self._scroll_btn_revealer.set_reveal_child(True)
 
         # Due to events, the messages might often become out of order
         # this ensures that the messages that were created earlier
@@ -68,7 +75,7 @@ class MessageView(Gtk.ScrolledWindow, EventReceiver):
         self._message_clamp.add(self._message_listbox)
         self._message_column.add(self._message_clamp)
 
-        self._adj = self.get_vadjustment()
+        self._adj = self.scroller.get_vadjustment()
         self._orig_upper = self._adj.get_upper()
         self._balance = None
         self._autoscroll = False
@@ -81,7 +88,7 @@ class MessageView(Gtk.ScrolledWindow, EventReceiver):
 
     def set_balance_top(self):
         # DONTFIXME: Workaround: https://gitlab.gnome.org/GNOME/gtk/merge_requests/395
-        self.set_kinetic_scrolling(False)
+        self.scroller.set_kinetic_scrolling(False)
         self._balance = Gtk.PositionType.TOP
 
     def _handle_upper_adj_notify(self, upper, adjparam):
@@ -99,7 +106,7 @@ class MessageView(Gtk.ScrolledWindow, EventReceiver):
             elif self._balance == Gtk.PositionType.TOP:
                 self._balance = False
                 self._adj.set_value(self._adj.get_value() + diff)
-                self.set_kinetic_scrolling(True)
+                self.scroller.set_kinetic_scrolling(True)
 
     def _handle_value_adj_changed(self, adj):
         self._autoscroll = self.context.precise_is_scroll_at_bottom
@@ -110,7 +117,6 @@ class MessageView(Gtk.ScrolledWindow, EventReceiver):
     def build_scroll(self):
         self._adj.connect("notify::upper", self._handle_upper_adj_notify)
         self._adj.connect("value-changed", self._handle_value_adj_changed)
-
 
     def _on_msg_send_mode_scl_send_wrap(self):
         self.context.scroll_messages_to_bottom()
