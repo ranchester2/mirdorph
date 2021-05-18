@@ -10,6 +10,7 @@
   <template class="MirdorphMainWindow" parent="HdyApplicationWindow">
     <property name="default-width">1010</property>
     <property name="default-height">585</property>
+    <property name="title">Mirdorph</property>
     <property name="icon-name">org.gnome.gitlab.ranchester.Mirdorph</property>
     <signal name="destroy" handler="_on_window_destroy" />
     <child>

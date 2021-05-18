@@ -237,7 +237,8 @@ class ChannelInnerWindow(Gtk.Box):
         self._popout_window = Handy.Window(
             default_width=650,
             default_height=470,
-            icon_name="org.gnome.gitlab.ranchester.Mirdorph"
+            icon_name="org.gnome.gitlab.ranchester.Mirdorph",
+            title=f"Mirdorph - #{self.channel_disc.name}"
         )
         self._popout_window.add(self)
         # For getting the focus
