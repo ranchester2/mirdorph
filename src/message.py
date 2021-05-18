@@ -171,7 +171,8 @@ class MirdorphMessage(Gtk.ListBoxRow):
         top_role = member.roles[-1]
         color_formatted = '#%02x%02x%02x' % top_role.color.to_rgb()
 
-        # @everyone is completely black, we should fix that
+        # @everyone is completely black, we should fix that, to be the default
+        # theme color instead
         color_is_indrove = (color_formatted == "#000000")
 
         GLib.idle_add(self._label_color_gtk_target, color_formatted, color_is_indrove)
