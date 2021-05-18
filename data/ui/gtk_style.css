@@ -48,6 +48,10 @@ mode
   background-color: @theme_fg_color;
 }
 
+.scroll-button {
+  border-radius: 99999px;
+}
+
 .reverse-text {
   color: @theme_bg_color;
 }
