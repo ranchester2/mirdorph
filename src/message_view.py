@@ -17,10 +17,18 @@ import asyncio
 import logging
 import threading
 import discord
+import sys
 from pathlib import Path
 from gi.repository import Gtk, Gio, GLib, Handy
 from .event_receiver import EventReceiver
 from .message import MirdorphMessage
+
+
+# From clutter-easing.c, based on Robert Penner's
+# infamous easing equations, MIT license.
+def ease_out_cubic(t: float) -> float:
+    p = t - float(1);
+    return (p * p * p + float(1))
 
 
 @Gtk.Template(resource_path='/org/gnome/gitlab/ranchester/Mirdorph/ui/message_view.ui')
@@ -45,8 +53,6 @@ class MessageView(Gtk.Overlay, EventReceiver):
         # When nearly empty channel, messages should not pile up on top
         self._message_listbox.set_valign(Gtk.Align.END)
         self._message_listbox.get_style_context().add_class("message-history")
-
-        self._scroll_btn_revealer.set_reveal_child(True)
 
         # Due to events, the messages might often become out of order
         # this ensures that the messages that were created earlier
@@ -110,9 +116,38 @@ class MessageView(Gtk.Overlay, EventReceiver):
 
     def _handle_value_adj_changed(self, adj):
         self._autoscroll = self.context.precise_is_scroll_at_bottom
+        self._scroll_btn_revealer.set_reveal_child(not self.context.precise_is_scroll_at_bottom)
 
         if adj.get_value() < adj.get_page_size() * 1.5:
             self.load_history(additional=15)
+
+
+    ### Smooth Scrolling code taken from Fractal, but converted from rust to Python ###
+    ### I don't know how it works, its magic. And I don't even know Rust, but it seems to work ###
+    def _scroll_down_tick_callback(self, scroller, clock, start_time, end_time, start):
+        now = clock.get_frame_time()
+        end = self._adj.get_upper() - self._adj.get_page_size()
+        if now < end_time and abs((round(self._adj.get_value()) - round(end))) > sys.float_info.epsilon:
+            t = float(now - start_time) / float(end_time - start_time)
+            t = ease_out_cubic(t)
+            self._adj.set_value(start + t * (end - start))
+            return GLib.SOURCE_CONTINUE
+        else:
+            self._adj.set_value(end)
+            return GLib.SOURCE_REMOVE
+
+    def _scroll_down_animated(self):
+        clock = self.scroller.get_frame_clock()
+        duration = 200
+        start = self._adj.get_value()
+        start_time = clock.get_frame_time()
+        end_time = start_time + 1000 * duration
+        self.scroller.add_tick_callback(
+            self._scroll_down_tick_callback,
+            start_time,
+            end_time,
+            start
+        )
 
     def build_scroll(self):
         self._adj.connect("notify::upper", self._handle_upper_adj_notify)
@@ -223,3 +258,9 @@ class MessageView(Gtk.Overlay, EventReceiver):
         self._history_loading_spinner.start()
         message_loading_thread = threading.Thread(target=self._history_loading_target, args=(additional,))
         message_loading_thread.start()
+
+    @Gtk.Template.Callback()
+    def _on_scroll_btn_clicked(self, button):
+        self._scroll_btn_revealer.set_reveal_child(False)
+        self._scroll_down_animated()
+

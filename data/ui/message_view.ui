@@ -49,6 +49,7 @@
               <object class="GtkButton" id="_scroll_btn">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
+                <signal name="clicked" handler="_on_scroll_btn_clicked"/>
                 <child>
                   <object class="GtkImage">
                     <property name="visible">True</property>
