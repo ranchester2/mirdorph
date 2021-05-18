@@ -109,15 +109,7 @@ class MirdorphMessage(Gtk.ListBoxRow):
         safe_name = self._disc_message.author.name.translate({ord(c): None for c in '"\'<>&'})
         self._username_label.set_markup(f"<b>{safe_name}</b>")
 
-        # Message that doesn't have any spaces for a very long time can break wrapping
-        # NOTE: this is now seamy useless with the new wrap_mode
-        if len(self._disc_message.content) > 60 and ' ' not in self._disc_message.content:
-            safe_message = "UNSAFE CONTENT: CENSORING"
-            logging.warning("censoring unsafe message")
-        else:
-            safe_message = self._disc_message.content
-
-        self._message_label.set_label(safe_message)
+        self._message_label.set_label(self._disc_message.content)
 
         avatar = UserMessageAvatar(self._disc_message.author, margin_top=3)
         avatar.show()
