@@ -4,6 +4,7 @@
   <template class="MirdorphLoginWindow" parent="HdyApplicationWindow">
     <property name="default-width">750</property>
     <property name="default-height">616</property>
+    <property name="icon-name">org.gnome.gitlab.ranchester.Mirdorph</property>
     <child>
       <object class="HdyDeck" id="_toplevel_deck">
         <property name="visible">True</property>
