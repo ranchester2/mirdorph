@@ -1,0 +1,7 @@
+As you may have noticed, focusing/defocusing the window is visibly
+slow/laggy. Especially if you have a lot of messages.
+
+Fractal has this *exact* same issue, and we basically use very similar
+code for the message history too.
+
+You can find out more at the fractal issue https://gitlab.gnome.org/GNOME/fractal/-/issues/525.
