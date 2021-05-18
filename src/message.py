@@ -104,10 +104,7 @@ class MirdorphMessage(Gtk.ListBoxRow):
         self.uniq_id = disc_message.id
         self.timestamp = disc_message.created_at.timestamp()
 
-        # Cause we use xml markup, and some names can break that, and then
-        # you have a broken label
-        safe_name = self._disc_message.author.name.translate({ord(c): None for c in '"\'<>&'})
-        self._username_label.set_markup(f"<b>{safe_name}</b>")
+        self._username_label.set_label(self._disc_message.author.name)
 
         self._message_label.set_label(self._disc_message.content)
 
@@ -179,6 +176,8 @@ class MirdorphMessage(Gtk.ListBoxRow):
 
     def _label_color_gtk_target(self, color: str, color_is_indrove: bool):
         if not color_is_indrove:
+            # For XML markup
+            safe_name = self._disc_message.author.name.translate({ord(c): None for c in '"\'<>&'})
             self._username_label.set_markup(
-                f"<span foreground='{color}'>{self._username_label.get_label()}</span>"
+                f"<span foreground='{color}'>{safe_name}</span>"
             )
