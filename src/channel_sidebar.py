@@ -41,7 +41,6 @@ class MirdorphGuildEntry(Handy.ExpanderRow):
     def __init__(self, guild_id, *args, **kwargs):
         Gtk.ListBoxRow.__init__(self, *args, **kwargs)
 
-        # Initially its just a spinner until we load everything
         self._loading_state_spinner = Gtk.Spinner()
         self._loading_state_spinner.show()
         self.add_prefix(self._loading_state_spinner)
@@ -109,8 +108,6 @@ class MirdorphGuildEntry(Handy.ExpanderRow):
             ).result()
             if is_private:
                 self._private_guild_channel_ids.append(channel.id)
-
-        # We also need to put guild icons in a temp dir
 
         # They are saved in the cache path /
         # icon+guild_id+.png
