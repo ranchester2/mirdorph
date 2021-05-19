@@ -96,6 +96,12 @@ class Application(Gtk.Application):
 
         if self.keyring_exists:
             logging.info("launching with token")
+            # A lot of things break with multiple windows,
+            # while this still creats multiple discord clients,
+            # it prevents further damage.
+            if self.props.active_window:
+                logging.fatal("Multiple Window formation error")
+                os._exit(1)
             self.main_win = MirdorphMainWindow(application=self)
 
             self.main_win.present()
