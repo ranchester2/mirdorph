@@ -49,6 +49,14 @@ class MirdorphGuildEntry(Handy.ExpanderRow):
         # For whatever reason it is needed
         self.set_hexpand(False)
 
+        # Public because keeping track of which listbox is the current one is the job of the channel
+        # sidebar, not the entry.
+        self.channel_listbox = Gtk.ListBox()
+        self.channel_listbox.show()
+        self.channel_listbox.connect("row-activated", self._on_channel_list_entry_activated)
+
+        self.add(self.channel_listbox)
+
         fetching_guild_thread = threading.Thread(
             target=self._fetching_guild_threaded_target,
             args=(guild_id,)
@@ -144,12 +152,6 @@ class MirdorphGuildEntry(Handy.ExpanderRow):
             guild_image.show()
             self.add_prefix(guild_image)
 
-        self._channel_listbox = Gtk.ListBox()
-        self._channel_listbox.show()
-        self._channel_listbox.connect("row-activated", self._on_channel_list_entry_activated)
-
-        self.add(self._channel_listbox)
-
         for channel in self._guild_disc.channels:
             if isinstance(channel, (discord.VoiceChannel, discord.StageChannel, discord.CategoryChannel)):
                 continue
@@ -159,7 +161,7 @@ class MirdorphGuildEntry(Handy.ExpanderRow):
 
             channel_entry = MirdorphChannelListEntry(channel)
             channel_entry.show()
-            self._channel_listbox.add(channel_entry)
+            self.channel_listbox.add(channel_entry)
 
         self.remove(self._loading_state_spinner)
 
@@ -213,7 +215,28 @@ class MirdorphChannelSidebar(Gtk.Box):
     def _build_guilds_gtk_target(self, guild_ids):
         for guild_id in guild_ids:
             guild_entry = MirdorphGuildEntry(guild_id)
+            # Why? Because it is hard to access the listox manager from the event
+            # in the guild_entry itself
+            guild_entry.channel_listbox.connect("row-activated", self._on_guild_entry_channel_list_activate)
             guild_entry.show()
             self._channel_guild_list.add(guild_entry)
         self._channel_guild_loading_stack.set_visible_child(self._channel_guild_list_scrolled_win)
+
+    def _on_guild_entry_channel_list_activate(self, listbox, row):
+        self.set_listbox_active(listbox)
+
+    def set_listbox_active(self, active_listbox: Gtk.ListBox):
+        """
+        Set which listbox is the currently selected one, to unselect
+        all other remaining listboxes.
+
+        param:
+            active_listbox, the one that should be the only one, usually self
+        """
+        for listbox in [x.channel_listbox for x in self._channel_guild_list.get_children()]:
+            if listbox == active_listbox:
+                continue
+            else:
+                listbox.set_selection_mode(Gtk.SelectionMode.NONE)
+                listbox.set_selection_mode(Gtk.SelectionMode.SINGLE)
 
