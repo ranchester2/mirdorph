@@ -45,6 +45,10 @@
                               <class name="image-button" />
                             </style>
                           </object>
+                          <packing>
+                            <property name="pack-type">end</property>
+                            <property name="position">1</property>
+                          </packing>
                         </child>
                         <child>
                           <object class="GtkMenuButton" id="_main_menu_button">
@@ -61,6 +65,7 @@
                           </object>
                           <packing>
                             <property name="pack-type">end</property>
+                            <property name="position">0</property>
                           </packing>
                         </child>
                       </object>
