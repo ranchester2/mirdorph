@@ -16,6 +16,7 @@
 import asyncio
 import logging
 import threading
+import subprocess
 import discord
 import os
 import time
