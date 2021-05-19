@@ -12,16 +12,42 @@
           <object class="GtkStack" id="_channel_guild_loading_stack">
             <property name="visible">True</property>
             <child>
-              <object class="GtkScrolledWindow" id="_channel_guild_list_scrolled_win">
+              <object class="GtkBox" id="_channel_guild_list_container">
                 <property name="visible">True</property>
-                <property name="hscrollbar-policy">2</property>
+                <property name="orientation">vertical</property>
                 <child>
-                  <object class="GtkListBox" id="_channel_guild_list">
+                  <object class="GtkRevealer" id="_search_bar_revealer">
                     <property name="visible">True</property>
-                    <style>
-                      <class name="guild-list"/>
-                    </style>
+                    <property name="transition-type">slide-down</property>
+                    <child>
+                      <object class="HdySearchBar" id="_guild_list_search_bar">
+                        <property name="visible">True</property>
+                        <property name="hexpand">False</property>
+                        <child>
+                          <object class="GtkSearchEntry" id="_guild_list_search_entry">
+                            <property name="visible">True</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
                   </object>
+                </child>
+                <child>
+                  <object class="GtkScrolledWindow">
+                    <property name="visible">True</property>
+                    <property name="hscrollbar-policy">2</property>
+                    <child>
+                      <object class="GtkListBox" id="_channel_guild_list">
+                        <property name="visible">True</property>
+                        <style>
+                          <class name="guild-list"/>
+                        </style>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">True</property>
+                  </packing>
                 </child>
               </object>
             </child>

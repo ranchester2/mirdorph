@@ -41,6 +41,8 @@ class MirdorphMainWindow(Handy.ApplicationWindow):
     _notification_label: Gtk.Label = Gtk.Template.Child()
     _notification_title_label: Gtk.Label = Gtk.Template.Child()
 
+    _channel_search_button: Gtk.ToggleButton = Gtk.Template.Child()
+
     def __init__(self, *args, **kwargs):
         Handy.ApplicationWindow.__init__(self, *args, **kwargs)
 
@@ -67,7 +69,7 @@ class MirdorphMainWindow(Handy.ApplicationWindow):
         # and add channel functions.
         # Would be better if instead of working on the channel sidebar correctly
         # we had a channel manager object
-        self.channel_sidebar = MirdorphChannelSidebar()
+        self.channel_sidebar = MirdorphChannelSidebar(channel_search_button=self._channel_search_button)
         self.channel_sidebar.show()
         self._flap_box.pack_end(self.channel_sidebar, True, True, 0)
 

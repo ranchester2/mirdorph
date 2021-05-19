@@ -19,7 +19,7 @@ import logging
 import discord
 import os
 from pathlib import Path
-from gi.repository import Gtk, Handy, Gio, GLib, Pango, GdkPixbuf
+from gi.repository import Gtk, Handy, Gio, GObject, GLib, Pango, GdkPixbuf
 from .event_receiver import EventReceiver
 
 @Gtk.Template(resource_path='/org/gnome/gitlab/ranchester/Mirdorph/ui/channel_list_entry.ui')
@@ -176,16 +176,32 @@ class MirdorphChannelSidebar(Gtk.Box):
     __gtype_name__ = "MirdorphChannelSidebar"
 
     _view_switcher: Handy.ViewSwitcherBar = Gtk.Template.Child()
+    _search_bar_revealer: Gtk.Revealer = Gtk.Template.Child()
+    _guild_list_search_entry: Gtk.SearchEntry = Gtk.Template.Child()
+    _guild_list_search_bar: Handy.SearchBar = Gtk.Template.Child()
     _channel_guild_list: Gtk.ListBox = Gtk.Template.Child()
 
     _channel_guild_loading_stack: Gtk.Stack = Gtk.Template.Child()
-    _channel_guild_list_scrolled_win: Gtk.ScrolledWindow = Gtk.Template.Child()
+    _channel_guild_list_container: Gtk.Box = Gtk.Template.Child()
     _channel_guild_loading_spinner_page: Gtk.Spinner = Gtk.Template.Child()
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, channel_search_button: Gtk.ToggleButton, *args, **kwargs):
         Gtk.Box.__init__(self, *args, **kwargs)
-
         self._channel_guild_loading_stack.set_visible_child(self._channel_guild_loading_spinner_page)
+
+        # I could not get property binding to work for mysteriuos reasons, so using signals instead here
+        channel_search_button.connect(
+            "toggled",
+            lambda *_ : self._guild_list_search_bar.get_child().set_reveal_child(channel_search_button.get_active())
+        )
+        # FIXME for some reason the search bar has an integrated revealer and I DON'T KNOW WHY, IT ISN'T IN THE DOCS, this is a workaround
+        channel_search_button.connect(
+            "toggled",
+            lambda *_ : self._search_bar_revealer.set_reveal_child(channel_search_button.get_active())
+        )
+        self._guild_list_search_bar.connect_entry(self._guild_list_search_entry)
+
+
         build_guilds_thread = threading.Thread(target=self._build_guilds_target)
         build_guilds_thread.start()
 
@@ -220,7 +236,7 @@ class MirdorphChannelSidebar(Gtk.Box):
             guild_entry.channel_listbox.connect("row-activated", self._on_guild_entry_channel_list_activate)
             guild_entry.show()
             self._channel_guild_list.add(guild_entry)
-        self._channel_guild_loading_stack.set_visible_child(self._channel_guild_list_scrolled_win)
+        self._channel_guild_loading_stack.set_visible_child(self._channel_guild_list_container)
 
     def _on_guild_entry_channel_list_activate(self, listbox, row):
         self.set_listbox_active(listbox)
