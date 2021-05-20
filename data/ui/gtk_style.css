@@ -13,6 +13,14 @@
   padding: 3px;
 }
 
+.message-textview {
+  background-color: transparent;
+}
+
+.message-textview text {
+  background-color: transparent;
+}
+
 .discord-message .username {
   color: @theme_selected_bg_color;
   font-weight: bold;

@@ -24,6 +24,36 @@ from pathlib import Path
 from gi.repository import Gtk, Gio, GLib, Gdk, GdkPixbuf, Handy
 from .attachment import GenericAttachment, ImageAttachment, AttachmentType, get_attachment_type
 
+class MessageComponentTextView(Gtk.TextView):
+    def __init__(self, component_content: str, *args, **kwargs):
+        Gtk.TextView.__init__(
+            self,
+            wrap_mode=Gtk.WrapMode.WORD_CHAR,
+            editable=False,
+            *args,
+            **kwargs
+        )
+        self.get_style_context().add_class("message-textview")
+        self._buffer = Gtk.TextBuffer()
+        self._buffer.set_text(component_content, -1)
+
+        self.set_buffer(self._buffer)
+
+
+class MessageContent(Gtk.Box):
+    def __init__(self, message_content: str, *args, **kwargs):
+        Gtk.Box.__init__(self, orientation=Gtk.Orientation.VERTICAL, *args, **kwargs)
+        self._message_content = message_content
+
+        for textview in self._do_parse_construct():
+            self.pack_start(textview, True, True, 0)
+            textview.show()
+
+    def _do_parse_construct(self) -> list:
+        # Temp
+        return [MessageComponentTextView(self._message_content)]
+
+
 class UserMessageAvatar(Handy.Avatar):
     __gtype_name__ = "UserMessageAvatar"
 
@@ -89,7 +119,7 @@ class MirdorphMessage(Gtk.ListBoxRow):
     _avatar_box: Gtk.Box = Gtk.Template.Child()
 
     _username_label: Gtk.Label = Gtk.Template.Child()
-    _message_label: Gtk.Label = Gtk.Template.Child()
+    _message_content_container: Gtk.Bin = Gtk.Template.Child()
 
     _attachment_box: Gtk.Box = Gtk.Template.Child()
 
@@ -106,15 +136,17 @@ class MirdorphMessage(Gtk.ListBoxRow):
 
         self._username_label.set_label(self._disc_message.author.name)
 
-        self._message_label.set_label(self._disc_message.content)
+        self._message_content_wid = MessageContent(self._disc_message.content)
+        self._message_content_wid.show()
+        self._message_content_container.pack_start(self._message_content_wid, True, True, 0)
 
         avatar = UserMessageAvatar(self._disc_message.author, margin_top=3)
         avatar.show()
         self._avatar_box.pack_start(avatar, False, False, 0)
 
-        # Empty messages (like when sending images) look weird otherwise
-        if not self._message_label.get_label():
-            self._message_label.get_parent().remove(self._message_label)
+        ## Empty messages (like when sending images) look weird otherwise
+        #if not self._message_label.get_label():
+        #    self._message_label.get_parent().remove(self._message_label)
 
         for att in self._disc_message.attachments:
             if get_attachment_type(att) == AttachmentType.IMAGE:
