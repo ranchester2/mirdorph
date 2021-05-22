@@ -13,12 +13,10 @@
   padding: 3px;
 }
 
-.message-textview {
-  background-color: transparent;
-}
-
-.message-textview text {
-  background-color: transparent;
+.quote {
+    border-left: 2px solid @theme_selected_bg_color;
+    color: #888A85;
+    padding-left: 6px;
 }
 
 .discord-message .username {

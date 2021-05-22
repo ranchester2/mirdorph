@@ -76,15 +76,20 @@ def calculate_msg_parts(original_content: str) -> list:
 
 
 class MessageComponent(Gtk.Bin):
-    def __init__(self, message_content: str, component_type: ComponentType, *args, **kwargs):
+    def __init__(self, component_content: str, component_type: ComponentType, *args, **kwargs):
         Gtk.Bin.__init__(self, *args, **kwargs)
-        if component_type == ComponentType.STANDARD:
+        self.component_type = component_type
+        if self.component_type in [ComponentType.STANDARD, ComponentType.QUOTE]:
             self._text_label = Gtk.Label(
                 wrap=True,
                 wrap_mode=2,
                 selectable=True,
                 xalign=0.0
             )
-            self._text_label.set_label(message_content)
+            self._text_label.set_label(component_content)
             self._text_label.show()
+
+            if self.component_type == ComponentType.QUOTE:
+                self._text_label.get_style_context().add_class("quote")
+
             self.add(self._text_label)

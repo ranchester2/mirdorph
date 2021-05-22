@@ -25,7 +25,7 @@ from pathlib import Path
 from enum import Enum
 from gi.repository import Gtk, Gio, GLib, Gdk, GdkPixbuf, Handy
 from .attachment import GenericAttachment, ImageAttachment, AttachmentType, get_attachment_type
-from .message_parsing import MessageComponent, ComponentType
+from .message_parsing import MessageComponent, ComponentType, calculate_msg_parts
 
 class MessageContent(Gtk.Box):
     def __init__(self, message_content: str, *args, **kwargs):
@@ -37,10 +37,10 @@ class MessageContent(Gtk.Box):
             self.pack_start(component, False, False, 0)
 
     def _do_parse_construct(self) -> list:
-        # Currently, this is simply for separating quotes from the rest of the message content
-        # And that currently isn't implemented
-        return [MessageComponent(self._message_content, component_type=ComponentType.STANDARD)]
-
+        return [
+            MessageComponent(comp[1], component_type=comp[0])
+            for comp in calculate_msg_parts(self._message_content)
+        ]
 
 class UserMessageAvatar(Handy.Avatar):
     __gtype_name__ = "UserMessageAvatar"
