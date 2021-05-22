@@ -13,9 +13,8 @@ Hello, this is a test message
 > Almost forever
 Until it suddenly stops and you don't
 know what to do.
-However he said that:
-> No this doesn't make any sense.
-> You're wrong!"""
+However the bot said that:
+>>> No this doesn't make any sense."""
 
     correct_components = [
         (
@@ -28,11 +27,11 @@ However he said that:
         ),
         (
             ComponentType.STANDARD,
-            "Until it suddenly stops and you don't\nknow what to do.\nHowever he said that:"
+            "Until it suddenly stops and you don't\nknow what to do.\nHowever the bot said that:"
         ),
         (
             ComponentType.QUOTE,
-            "No this doesn't make any sense.\nYou're wrong!"
+            "No this doesn't make any sense."
         )
     ]
 

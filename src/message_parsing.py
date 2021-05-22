@@ -63,15 +63,19 @@ def calculate_msg_parts(original_content: str) -> list:
     current_component_text = ""
     current_component_type = ComponentType.STANDARD
     for line in original_content.splitlines(keepends=True):
-        if line.startswith("> "):
+        if line.startswith("> ") or line.startswith(">>> "):
             if reset_last_component(current_component_type, current_component_text, ComponentType.QUOTE, components):
                 current_component_text = ""
                 current_component_type = None
 
             current_component_type = ComponentType.QUOTE
+
             # We don't put the > into the output, because
             # it is expected to handle that manually after the fact
-            current_component_text += line[2:]
+            amount = 2
+            if line.startswith(">>>"):
+                amount += 2
+            current_component_text += line[amount:]
         else:
             if reset_last_component(current_component_type, current_component_text, ComponentType.STANDARD, components):
                 current_component_text = ""
