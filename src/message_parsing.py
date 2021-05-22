@@ -42,6 +42,10 @@ def calculate_msg_parts(original_content: str) -> list:
     for line in original_content.splitlines(keepends=True):
         if line.startswith("> "):
             if current_component_text and current_component_type != ComponentType.QUOTE:
+                # Without this, before other parts we have a stupid blank line, (for example quotes)
+                if current_component_type == ComponentType.STANDARD:
+                    if current_component_text.endswith("\n"):
+                        current_component_text = current_component_text[:-1]
                 components.append(
                     (
                         copy.deepcopy(current_component_type),
@@ -54,6 +58,11 @@ def calculate_msg_parts(original_content: str) -> list:
             current_component_text += line[2:]
         else:
             if current_component_text and current_component_type != ComponentType.STANDARD:
+                # Without this, quotes will stupidly end with a blank line always
+                if current_component_type == ComponentType.QUOTE:
+                    if current_component_text.endswith("\n"):
+                        current_component_text = current_component_text[:-1]
+
                 components.append(
                     (
                         copy.deepcopy(current_component_type),

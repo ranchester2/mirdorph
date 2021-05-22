@@ -20,15 +20,15 @@ However he said that:
     correct_components = [
         (
             ComponentType.STANDARD,
-            "Hello, this is a test message\n"
+            "Hello, this is a test message"
         ),
         (
             ComponentType.QUOTE,
-            "That has a quote\nAnd it continues\nAlmost forever\n"
+            "That has a quote\nAnd it continues\nAlmost forever"
         ),
         (
             ComponentType.STANDARD,
-            "Until it suddenly stops and you don't\nknow what to do.\nHowever he said that:\n"
+            "Until it suddenly stops and you don't\nknow what to do.\nHowever he said that:"
         ),
         (
             ComponentType.QUOTE,
