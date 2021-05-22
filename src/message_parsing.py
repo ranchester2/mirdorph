@@ -23,9 +23,11 @@ from enum import Enum
 # Because I want to test the parsing, but I can't really get pytest
 # to import a python file with Gresource magic, so this must be generic.
 
+
 class ComponentType(Enum):
     STANDARD = 0
     QUOTE = 1
+
 
 def calculate_msg_parts(original_content: str) -> list:
     """
@@ -37,42 +39,47 @@ def calculate_msg_parts(original_content: str) -> list:
 
     components = []
 
+    def rem_end_line_for_quote_start(text: str) -> str:
+        if text.endswith("\n"):
+            return text[:-1]
+
+    # Maybe a bit bad to pass the mutable components list to this, with side affects...
+    def reset_last_component(current_component_type: ComponentType, current_component_text: str,
+                             new_component_type: ComponentType, components: list) -> bool:
+        if current_component_text and current_component_type != new_component_type:
+            # Without this, before other parts we have a stupid blank line, (for example quotes)
+            # For now for all types, and probably for all future ones we also will need this
+            current_component_text = rem_end_line_for_quote_start(current_component_text)
+            components.append(
+                (
+                    copy.deepcopy(current_component_type),
+                    copy.deepcopy(current_component_text)
+                )
+            )
+        # Is this really a new component and we should reset the counter?
+            return True
+        return False
+
     current_component_text = ""
     current_component_type = ComponentType.STANDARD
     for line in original_content.splitlines(keepends=True):
         if line.startswith("> "):
-            if current_component_text and current_component_type != ComponentType.QUOTE:
-                # Without this, before other parts we have a stupid blank line, (for example quotes)
-                if current_component_type == ComponentType.STANDARD:
-                    if current_component_text.endswith("\n"):
-                        current_component_text = current_component_text[:-1]
-                components.append(
-                    (
-                        copy.deepcopy(current_component_type),
-                        copy.deepcopy(current_component_text)
-                    )
-                )
+            if reset_last_component(current_component_type, current_component_text, ComponentType.QUOTE, components):
                 current_component_text = ""
                 current_component_type = None
+
             current_component_type = ComponentType.QUOTE
+            # We don't put the > into the output, because
+            # it is expected to handle that manually after the fact
             current_component_text += line[2:]
         else:
-            if current_component_text and current_component_type != ComponentType.STANDARD:
-                # Without this, quotes will stupidly end with a blank line always
-                if current_component_type == ComponentType.QUOTE:
-                    if current_component_text.endswith("\n"):
-                        current_component_text = current_component_text[:-1]
-
-                components.append(
-                    (
-                        copy.deepcopy(current_component_type),
-                        copy.deepcopy(current_component_text)
-                    )
-                )
+            if reset_last_component(current_component_type, current_component_text, ComponentType.STANDARD, components):
                 current_component_text = ""
                 current_component_type = None
             current_component_type = ComponentType.STANDARD
             current_component_text += line
+
+    # When the loop ends, we also need to add the last one
     if current_component_text:
         components.append(
             (
