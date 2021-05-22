@@ -2,7 +2,6 @@ import sys
 import pytest
 # Workaround from stackoverflow to allow importing from src
 sys.path.append("..")
-
 from src.message_parsing import calculate_msg_parts, ComponentType
 
 def test_calculate_basic():
