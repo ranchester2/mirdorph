@@ -13,6 +13,12 @@
   padding: 3px;
 }
 
+.quote {
+    border-left: 2px solid @theme_selected_bg_color;
+    color: #888A85;
+    padding-left: 6px;
+}
+
 .discord-message .username {
   color: @theme_selected_bg_color;
   font-weight: bold;

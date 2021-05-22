@@ -17,12 +17,30 @@ import asyncio
 import logging
 import threading
 import discord
+import copy
 import os
 import random
 import time
 from pathlib import Path
+from enum import Enum
 from gi.repository import Gtk, Gio, GLib, Gdk, GdkPixbuf, Handy
 from .attachment import GenericAttachment, ImageAttachment, AttachmentType, get_attachment_type
+from .message_parsing import MessageComponent, ComponentType, calculate_msg_parts
+
+class MessageContent(Gtk.Box):
+    def __init__(self, message_content: str, *args, **kwargs):
+        Gtk.Box.__init__(self, orientation=Gtk.Orientation.VERTICAL, *args, **kwargs)
+        self._message_content = message_content
+
+        for component in self._do_parse_construct():
+            component.show()
+            self.pack_start(component, False, False, 0)
+
+    def _do_parse_construct(self) -> list:
+        return [
+            MessageComponent(comp[1], component_type=comp[0])
+            for comp in calculate_msg_parts(self._message_content)
+        ]
 
 class UserMessageAvatar(Handy.Avatar):
     __gtype_name__ = "UserMessageAvatar"
@@ -89,7 +107,7 @@ class MirdorphMessage(Gtk.ListBoxRow):
     _avatar_box: Gtk.Box = Gtk.Template.Child()
 
     _username_label: Gtk.Label = Gtk.Template.Child()
-    _message_label: Gtk.Label = Gtk.Template.Child()
+    _message_content_container: Gtk.Bin = Gtk.Template.Child()
 
     _attachment_box: Gtk.Box = Gtk.Template.Child()
 
@@ -106,15 +124,13 @@ class MirdorphMessage(Gtk.ListBoxRow):
 
         self._username_label.set_label(self._disc_message.author.name)
 
-        self._message_label.set_label(self._disc_message.content)
+        self._message_content_wid = MessageContent(self._disc_message.content)
+        self._message_content_wid.show()
+        self._message_content_container.pack_start(self._message_content_wid, True, True, 0)
 
         avatar = UserMessageAvatar(self._disc_message.author, margin_top=3)
         avatar.show()
         self._avatar_box.pack_start(avatar, False, False, 0)
-
-        # Empty messages (like when sending images) look weird otherwise
-        if not self._message_label.get_label():
-            self._message_label.get_parent().remove(self._message_label)
 
         for att in self._disc_message.attachments:
             if get_attachment_type(att) == AttachmentType.IMAGE:
