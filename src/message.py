@@ -21,23 +21,28 @@ import os
 import random
 import time
 from pathlib import Path
+from enum import Enum
 from gi.repository import Gtk, Gio, GLib, Gdk, GdkPixbuf, Handy
 from .attachment import GenericAttachment, ImageAttachment, AttachmentType, get_attachment_type
 
-class MessageComponentTextView(Gtk.TextView):
-    def __init__(self, component_content: str, *args, **kwargs):
-        Gtk.TextView.__init__(
-            self,
-            wrap_mode=Gtk.WrapMode.WORD_CHAR,
-            editable=False,
-            *args,
-            **kwargs
-        )
-        self.get_style_context().add_class("message-textview")
-        self._buffer = Gtk.TextBuffer()
-        self._buffer.set_text(component_content, -1)
+class ComponentType(Enum):
+    STANDARD = 0
+    QUOTE = 1
 
-        self.set_buffer(self._buffer)
+
+class MessageComponent(Gtk.Bin):
+    def __init__(self, message_content: str, component_type: ComponentType, *args, **kwargs):
+        Gtk.Bin.__init__(self, *args, **kwargs)
+        if component_type == ComponentType.STANDARD:
+            self._text_label = Gtk.Label(
+                wrap=True,
+                wrap_mode=2,
+                selectable=True,
+                xalign=0.0
+            )
+            self._text_label.set_label(message_content)
+            self._text_label.show()
+            self.add(self._text_label)
 
 
 class MessageContent(Gtk.Box):
@@ -45,13 +50,14 @@ class MessageContent(Gtk.Box):
         Gtk.Box.__init__(self, orientation=Gtk.Orientation.VERTICAL, *args, **kwargs)
         self._message_content = message_content
 
-        for textview in self._do_parse_construct():
-            self.pack_start(textview, True, True, 0)
-            textview.show()
+        for component in self._do_parse_construct():
+            component.show()
+            self.pack_start(component, False, False, 0)
 
     def _do_parse_construct(self) -> list:
-        # Temp
-        return [MessageComponentTextView(self._message_content)]
+        # Currently, this is simply for separating quotes from the rest of the message content
+        # And that currently isn't implemented
+        return [MessageComponent(self._message_content, component_type=ComponentType.STANDARD)]
 
 
 class UserMessageAvatar(Handy.Avatar):
