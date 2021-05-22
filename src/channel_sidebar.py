@@ -131,6 +131,8 @@ class MirdorphGuildEntry(Handy.ExpanderRow):
 
     def _build_guild_gtk_target(self):
         self.set_title(self._guild_disc.name)
+        # For filtering by search
+        self.guild_name = self._guild_disc.name
 
         guild_image_path = self._get_icon_path_from_guild_id(self._guild_disc.id)
         if guild_image_path.is_file():
@@ -176,7 +178,6 @@ class MirdorphChannelSidebar(Gtk.Box):
     __gtype_name__ = "MirdorphChannelSidebar"
 
     _view_switcher: Handy.ViewSwitcherBar = Gtk.Template.Child()
-    _search_bar_revealer: Gtk.Revealer = Gtk.Template.Child()
     _guild_list_search_entry: Gtk.SearchEntry = Gtk.Template.Child()
     _guild_list_search_bar: Handy.SearchBar = Gtk.Template.Child()
     _channel_guild_list: Gtk.ListBox = Gtk.Template.Child()
@@ -188,22 +189,39 @@ class MirdorphChannelSidebar(Gtk.Box):
     def __init__(self, channel_search_button: Gtk.ToggleButton, *args, **kwargs):
         Gtk.Box.__init__(self, *args, **kwargs)
         self._channel_guild_loading_stack.set_visible_child(self._channel_guild_loading_spinner_page)
+        self._channel_search_button = channel_search_button
 
-        # I could not get property binding to work for mysteriuos reasons, so using signals instead here
-        channel_search_button.connect(
-            "toggled",
-            lambda *_ : self._guild_list_search_bar.get_child().set_reveal_child(channel_search_button.get_active())
-        )
-        # FIXME for some reason the search bar has an integrated revealer and I DON'T KNOW WHY, IT ISN'T IN THE DOCS, this is a workaround
-        channel_search_button.connect(
-            "toggled",
-            lambda *_ : self._search_bar_revealer.set_reveal_child(channel_search_button.get_active())
-        )
         self._guild_list_search_bar.connect_entry(self._guild_list_search_entry)
-
+        self._channel_search_button.connect("notify::active", self._on_channel_search_button_toggled)
 
         build_guilds_thread = threading.Thread(target=self._build_guilds_target)
         build_guilds_thread.start()
+
+    def _on_channel_search_button_toggled(self, button, param):
+        self._guild_list_search_bar.set_search_mode(self._channel_search_button.get_active())
+
+    @Gtk.Template.Callback()
+    def _on_search_bar_search_enabled(self, search_bar, param):
+        self._channel_search_button.set_active(self._guild_list_search_bar.get_search_mode())
+
+    @Gtk.Template.Callback()
+    def _on_guild_list_search_entry_changed(self, entry: Gtk.SearchEntry):
+        def is_row_in_search_results(row: MirdorphGuildEntry, search_text: str) -> bool:
+            try:
+                row.guild_name
+            except AttributeError:
+                return True
+            else:
+                return search_text.lower() in row.guild_name.lower()
+
+        highlighted_row = None
+        for guild_row in self._channel_guild_list.get_children():
+            guild_row.set_visible(is_row_in_search_results(guild_row, self._guild_list_search_entry.get_text()))
+            if highlighted_row is None and is_row_in_search_results(guild_row, self._guild_list_search_entry.get_text()):
+                for row in self._channel_guild_list.get_children():
+                    row.set_expanded(False)
+                active_for_search_row = guild_row
+                guild_row.set_expanded(True)
 
     async def _get_guild_ids_list(self, client):
         # Why the waiting?

@@ -16,18 +16,14 @@
                 <property name="visible">True</property>
                 <property name="orientation">vertical</property>
                 <child>
-                  <object class="GtkRevealer" id="_search_bar_revealer">
+                  <object class="HdySearchBar" id="_guild_list_search_bar">
                     <property name="visible">True</property>
-                    <property name="transition-type">slide-down</property>
+                    <property name="hexpand">False</property>
+                    <signal name="notify::search-mode-enabled" handler="_on_search_bar_search_enabled"/>
                     <child>
-                      <object class="HdySearchBar" id="_guild_list_search_bar">
+                      <object class="GtkSearchEntry" id="_guild_list_search_entry">
                         <property name="visible">True</property>
-                        <property name="hexpand">False</property>
-                        <child>
-                          <object class="GtkSearchEntry" id="_guild_list_search_entry">
-                            <property name="visible">True</property>
-                          </object>
-                        </child>
+                        <signal name="changed" handler="_on_guild_list_search_entry_changed"/>
                       </object>
                     </child>
                   </object>
