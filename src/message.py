@@ -132,10 +132,6 @@ class MirdorphMessage(Gtk.ListBoxRow):
         avatar.show()
         self._avatar_box.pack_start(avatar, False, False, 0)
 
-        ## Empty messages (like when sending images) look weird otherwise
-        #if not self._message_label.get_label():
-        #    self._message_label.get_parent().remove(self._message_label)
-
         for att in self._disc_message.attachments:
             if get_attachment_type(att) == AttachmentType.IMAGE:
                 att_widg = ImageAttachment(att)
