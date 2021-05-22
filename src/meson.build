@@ -27,6 +27,7 @@ mirdorph_sources = [
   'channel_inner_window.py',
   'message_view.py',
   'message.py',
+  'message_parsing.py',
   'message_entry_bar.py',
   'attachment.py',
   'channel_sidebar.py',

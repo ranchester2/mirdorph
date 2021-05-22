@@ -17,6 +17,7 @@ import asyncio
 import logging
 import threading
 import discord
+import copy
 import os
 import random
 import time
@@ -24,26 +25,7 @@ from pathlib import Path
 from enum import Enum
 from gi.repository import Gtk, Gio, GLib, Gdk, GdkPixbuf, Handy
 from .attachment import GenericAttachment, ImageAttachment, AttachmentType, get_attachment_type
-
-class ComponentType(Enum):
-    STANDARD = 0
-    QUOTE = 1
-
-
-class MessageComponent(Gtk.Bin):
-    def __init__(self, message_content: str, component_type: ComponentType, *args, **kwargs):
-        Gtk.Bin.__init__(self, *args, **kwargs)
-        if component_type == ComponentType.STANDARD:
-            self._text_label = Gtk.Label(
-                wrap=True,
-                wrap_mode=2,
-                selectable=True,
-                xalign=0.0
-            )
-            self._text_label.set_label(message_content)
-            self._text_label.show()
-            self.add(self._text_label)
-
+from .message_parsing import MessageComponent, ComponentType
 
 class MessageContent(Gtk.Box):
     def __init__(self, message_content: str, *args, **kwargs):
