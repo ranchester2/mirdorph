@@ -119,3 +119,9 @@ list.guild-list > row:last-child, list.guild-list > row.checked-expander-row-pre
 list.guild-list > row:last-child, list.guild-list > row.checked-expander-row-previous-sibling, list.guild-list > row.expander:checked, list.guild-list > row.expander:not(:checked):last-child row.header, list.guild-list > row.expander.checked-expander-row-previous-sibling:not(:checked) row.header, list.guild-list > row.expander.empty:checked row.header, list.guild-list > row.expander list.nested > row:last-child { border-bottom-left-radius: 0px; -gtk-outline-bottom-left-radius: 0px; border-bottom-right-radius: 0px; -gtk-outline-bottom-right-radius: 0px; }
 
 list.guild-list > row.expander:checked:not(:first-child), list.guild-list > row.expander:checked + row { margin-top: 6px; }
+
+/* Remove stupid padding around the channel list */
+
+.guild-list row .nested row {
+	padding: 0px;
+}
