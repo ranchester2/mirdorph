@@ -75,7 +75,17 @@ class MirdorphGuildEntry(Handy.ExpanderRow):
         )
         fetching_guild_thread.start()
 
-    def do_search_display(self, search_string: str):
+    def do_search_display(self, search_string: str) -> MirdorphChannelListEntry:
+        """
+        Do search in the guild's itself's list of channels based on the search string
+
+        param:
+            search_string: `str` of what is being searched for
+        returns:
+            `MirdorphChannelListEntry` of the first match if a search was found at all,
+            `None` if no viable row was found
+        """
+
         row_match = None
         for channel_row in self.channel_listbox:
             if search_string.lower() in channel_row.name.lower():
@@ -87,6 +97,7 @@ class MirdorphGuildEntry(Handy.ExpanderRow):
                 if row_match is not None:
                     channel_row.get_style_context().add_class("anti-channel-search-result")
                 channel_row.get_style_context().remove_class("channel-search-result")
+        return row_match
 
     def has_channel_search_result(self) -> bool:
         for channel_row in self.channel_listbox:
@@ -225,6 +236,10 @@ class MirdorphChannelSidebar(Gtk.Box):
         self._guild_list_search_bar.connect_entry(self._guild_list_search_entry)
         self._channel_search_button.connect("notify::active", self._on_channel_search_button_toggled)
 
+        # For search, the channel that with the sum of indicators is the one that is
+        # the most likely search result.
+        self._most_wanted_search_channel = None
+
         build_guilds_thread = threading.Thread(target=self._build_guilds_target)
         build_guilds_thread.start()
 
@@ -237,6 +252,18 @@ class MirdorphChannelSidebar(Gtk.Box):
 
     @Gtk.Template.Callback()
     def _on_guild_list_search_entry_changed(self, entry: Gtk.SearchEntry):
+        self._most_wanted_search_channel = None
+
+        # Clean Up when search is closed
+        if not self._guild_list_search_entry.get_text():
+            for guild_row in self._channel_guild_list.get_children():
+                guild_row.set_visible(True)
+            for channel_listbox in [guild_row.channel_listbox for guild_row in self._channel_guild_list.get_children()]:
+                for channel_row in channel_listbox.get_children():
+                    channel_row.get_style_context().remove_class("channel-search-result")
+                    channel_row.get_style_context().remove_class("anti-channel-search-result")
+            return
+
         def is_row_in_search_results(row: MirdorphGuildEntry, search_text: str) -> bool:
             try:
                 row.guild_name
@@ -248,7 +275,12 @@ class MirdorphChannelSidebar(Gtk.Box):
         search_string = self._guild_list_search_entry.get_text()
         focused_row = None
 
-        [guild_row.do_search_display(search_string) for guild_row in self._channel_guild_list.get_children()]
+        already_selected_most_wanted_find_attempt = False
+        for guild_row in self._channel_guild_list.get_children():
+            find_attempt = guild_row.do_search_display(search_string)
+            if find_attempt is not None and not already_selected_most_wanted_find_attempt:
+                already_selected_most_wanted_find_attempt = True
+                self._most_wanted_search_channel = find_attempt
 
         for guild_row in self._channel_guild_list.get_children():
             if is_row_in_search_results(guild_row, search_string):
@@ -261,6 +293,12 @@ class MirdorphChannelSidebar(Gtk.Box):
                     row.set_expanded(False)
                 focused_row = guild_row
                 guild_row.set_expanded(True)
+
+    @Gtk.Template.Callback()
+    def _on_guild_list_search_entry_activate(self, entry: Gtk.SearchEntry):
+        if self._most_wanted_search_channel:
+            self._most_wanted_search_channel.emit("activate")
+            self._guild_list_search_bar.set_search_mode(False)
 
     async def _get_guild_ids_list(self, client):
         # Why the waiting?
@@ -308,7 +346,10 @@ class MirdorphChannelSidebar(Gtk.Box):
         """
         for listbox in [x.channel_listbox for x in self._channel_guild_list.get_children()]:
             if listbox == active_listbox:
-                continue
+                # By search we might select a listbox which isn't currently expanded
+                for guild_row in self._channel_guild_list:
+                    if guild_row.channel_listbox == active_listbox:
+                        guild_row.set_expanded(True)
             else:
                 listbox.set_selection_mode(Gtk.SelectionMode.NONE)
                 listbox.set_selection_mode(Gtk.SelectionMode.SINGLE)

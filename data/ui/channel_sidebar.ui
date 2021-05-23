@@ -24,6 +24,7 @@
                       <object class="GtkSearchEntry" id="_guild_list_search_entry">
                         <property name="visible">True</property>
                         <signal name="search-changed" handler="_on_guild_list_search_entry_changed"/>
+                        <signal name="activate" handler="_on_guild_list_search_entry_activate"/>
                       </object>
                     </child>
                   </object>
