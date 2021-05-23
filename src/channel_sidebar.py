@@ -54,8 +54,19 @@ class MirdorphGuildEntry(Handy.ExpanderRow):
         # sidebar, not the entry.
         self.channel_listbox = Gtk.ListBox()
         self.channel_listbox.show()
-        self.channel_listbox.connect("row-activated", self._on_channel_list_entry_activated)
 
+        def channel_listbox_header_func(row, before):
+            if before is None:
+                row.set_header(None)
+                return
+            current = row.get_header()
+            if current is None:
+                current = Gtk.Separator.new(Gtk.Orientation.HORIZONTAL)
+                current.show()
+                row.set_header(current)
+        self.channel_listbox.set_header_func(channel_listbox_header_func)
+
+        self.channel_listbox.connect("row-activated", self._on_channel_list_entry_activated)
         self.add(self.channel_listbox)
 
         fetching_guild_thread = threading.Thread(

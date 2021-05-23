@@ -99,14 +99,15 @@ Basically mimics content without the rounding
 
 list.guild-list, list.guild-list list { background-color: transparent; }
 
-list.guild-list list.nested > row:not(:active):not(:hover):not(:selected), list.guild-list list.nested > row:not(:active):hover:not(.activatable):not(:selected) { background-color: mix(#f6f5f4, #ffffff, 0.5); }
+list.guild-list list.nested > row:not(:active):not(:hover):not(:selected), list.guild-list list.nested > row:not(:active):hover:not(.activatable):not(:selected) { background-color: mix(@theme_bg_color, @theme_base_color, 0.5); }
 
-list.guild-list list.nested > row.activatable:not(:active):hover:not(:selected) { background-color: mix(#2e3436, #ffffff, 0.95); }
+list.guild-list list.nested > row.activatable:not(:active):hover:not(:selected) { background-color: mix(@theme_fg_color, @theme_base_color, 0.95); }
 
-list.guild-list > row:not(.expander):not(:active):not(:hover):not(:selected), list.guild-list > row:not(.expander):not(:active):hover:not(.activatable):not(:selected), list.guild-list > row.expander row.header:not(:active):not(:hover):not(:selected), list.guild-list > row.expander row.header:not(:active):hover:not(.activatable):not(:selected) { background-color: #ffffff; }
+list.guild-list > row:not(.expander):not(:active):not(:hover):not(:selected), list.guild-list > row:not(.expander):not(:active):hover:not(.activatable):not(:selected), list.guild-list > row.expander row.header:not(:active):not(:hover):not(:selected), list.guild-list > row.expander row.header:not(:active):hover:not(.activatable):not(:selected) { background-color: @theme_base_color; }
 
-list.guild-list > row.activatable:not(.expander):not(:active):hover:not(:selected), list.guild-list > row.expander row.header.activatable:not(:active):hover:not(:selected) { background-color: mix(#2e3436, #ffffff, 0.95); }
+list.guild-list > row.activatable:not(.expander):not(:active):hover:not(:selected), list.guild-list > row.expander row.header.activatable:not(:active):hover:not(:selected) { background-color: mix(@theme_fg_color, @theme_base_color, 0.95); }
 
+/* Border color not generalized */
 list.guild-list > row, list.guild-list > row list > row { border-color: alpha(#cdc7c2, 0.7); border-style: solid; transition: 200ms cubic-bezier(0.25, 0.46, 0.45, 0.94); }
 
 list.guild-list > row:not(:last-child) { border-width: 1px 1px 0px 1px; }
