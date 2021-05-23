@@ -1,3 +1,34 @@
+v0.10.0:
+
+More improvements, milestone:
+	* The Message send button now stops being active after sending attachment
+	* Receiving messages performance improved by using proper solution to self bot on_message issues
+	* Usernames of no-role people now use the standard theme accent color
+	* When revealing the attachment tray, the animation is now smooth (most of the time)
+	* Initial system for displaying errors
+	* Related to previous, message sending errors are now explained in UI
+	* You cannot attempt to send messages to channels where you don't have the required perms
+	* The message entry is now focused by default when entering a channel
+	* Improved design of Login Window
+	* You can now additionally login with an email and password
+	* The UI now has a button to log out
+	* Under the hood: Flatpak auto CI
+	* The standard web-based discord login is now no longer a separate window
+	* No longer depends on Go
+	* Initial first-iteration app icon (and symbolic)
+	* Windows now have correct titles
+	* Long messages are now no longer censored
+	* There is now a scroll down to bottom button in channels
+	* You can now no longer accidentally launch multiple main windows
+	* Quotes now look nice in messages
+	* It now no longer looks like you can select multiple channels from different guilds at the same time
+	* You can now search the Guild/Channel list
+	* Channel sidebar looks a bit nicer
+	* Keyboard shortcuts now actually work
+	* Updated Appstream Metadata
+	* Updated Desktop file for better search results
+	* Updated Screenshots
+
 v0.0.4:
 
 Standard improvements:

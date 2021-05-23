@@ -32,6 +32,42 @@
   </screenshots>
 
   <releases>
+    <release version="0.10.0" date="2021-05-23">
+      <description>
+        <p>
+          More improvements, milestone:
+          <ul>
+            <li>The Message send button now stops being active after sending attachment</li>
+            <li>Receiving messages performance improved by using proper solution for self bot on_message issues</li>
+            <li>Usernames of no-role people now use the standard theme accent color</li>
+            <li>When revealing the attachment tray, the animation is now smooth (most of the time)</li>
+            <li>Initial system for displaying errors</li>
+            <li>Related to previous, message sending errors are now explained in UI</li>
+            <li>You cannot attempt to send messages to channels where you don't have the required perms</li>
+            <li>The message entry is now focused by default when entering a channel</li>
+            <li>Improved design of Login Window</li>
+            <li>You can now additionally login with an email and password</li>
+            <li>The UI now has a button to log out</li>
+            <li>Under the hood: Flatpak auto CI</li>
+            <li>The standard web-based discord login is now no longer a separate window</li>
+            <li>No longer depends on Go</li>
+            <li>Initial first-iteration app icon (and symbolic)</li>
+            <li>Windows now have correct titles</li>
+            <li>Long messages are now no longer censored</li>
+            <li>There is now a scroll down to bottom button in channels</li>
+            <li>You can now no longer accidentally launch multiple main windows</li>
+            <li>Quotes now look nice in messages</li>
+            <li>It now no longer looks like you can select multiple channels from different guilds at the same time</li>
+            <li>You can now search the Guild/Channel list</li>
+            <li>Channel sidebar looks a bit nicer</li>
+            <li>Keyboard shortcuts now actually work</li>
+            <li>Updated Appstream Metadata</li>
+            <li>Updated Desktop file for better search results</li>
+            <li>Updated Screenshots</li>
+          </ul>
+        </p>
+      </description>
+    </release>
     <release version="0.0.x" date="2021-05-14">
       <description>
         <p>This version series does not explain changes in metadata, only repo</p>
