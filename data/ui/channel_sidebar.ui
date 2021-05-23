@@ -23,7 +23,7 @@
                     <child>
                       <object class="GtkSearchEntry" id="_guild_list_search_entry">
                         <property name="visible">True</property>
-                        <signal name="changed" handler="_on_guild_list_search_entry_changed"/>
+                        <signal name="search-changed" handler="_on_guild_list_search_entry_changed"/>
                       </object>
                     </child>
                   </object>

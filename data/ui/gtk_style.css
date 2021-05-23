@@ -1,3 +1,11 @@
+.anti-channel-search-result {
+  background-color: shade(@theme_bg_color, 0.75);
+}
+
+.channel-search-result {
+
+}
+
 .login-button {
   padding-top: 10px;
   padding-bottom: 10px;

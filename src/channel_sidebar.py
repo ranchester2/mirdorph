@@ -31,6 +31,7 @@ class MirdorphChannelListEntry(Gtk.ListBoxRow):
     def __init__(self, discord_channel: discord.abc.GuildChannel, *args, **kwargs):
         Gtk.ListBoxRow.__init__(self, *args, **kwargs)
         self.id = discord_channel.id
+        self.name = discord_channel.name
         self._channel_label.set_label('#' + discord_channel.name)
 
 class MirdorphGuildEntry(Handy.ExpanderRow):
@@ -62,6 +63,25 @@ class MirdorphGuildEntry(Handy.ExpanderRow):
             args=(guild_id,)
         )
         fetching_guild_thread.start()
+
+    def do_search_display(self, search_string: str):
+        row_match = None
+        for channel_row in self.channel_listbox:
+            if search_string.lower() in channel_row.name.lower():
+                row_match = channel_row
+                self.set_expanded(True)
+                channel_row.get_style_context().add_class("channel-search-result")
+                channel_row.get_style_context().remove_class("anti-channel-search-result")
+            else:
+                if row_match is not None:
+                    channel_row.get_style_context().add_class("anti-channel-search-result")
+                channel_row.get_style_context().remove_class("channel-search-result")
+
+    def has_channel_search_result(self) -> bool:
+        for channel_row in self.channel_listbox:
+            if channel_row.get_style_context().has_class("channel-search-result"):
+                return True
+        return False
 
     def _get_icon_path_from_guild_id(self, guild_id) -> Path:
         return Path(self._guild_icon_dir_path / Path("icon" + "_" + str(guild_id) + ".png"))
@@ -214,13 +234,21 @@ class MirdorphChannelSidebar(Gtk.Box):
             else:
                 return search_text.lower() in row.guild_name.lower()
 
-        highlighted_row = None
+        search_string = self._guild_list_search_entry.get_text()
+        focused_row = None
+
+        [guild_row.do_search_display(search_string) for guild_row in self._channel_guild_list.get_children()]
+
         for guild_row in self._channel_guild_list.get_children():
-            guild_row.set_visible(is_row_in_search_results(guild_row, self._guild_list_search_entry.get_text()))
-            if highlighted_row is None and is_row_in_search_results(guild_row, self._guild_list_search_entry.get_text()):
+            if is_row_in_search_results(guild_row, search_string):
+                guild_row.set_visible(True)
+            else:
+                guild_row.set_visible(guild_row.has_channel_search_result())
+
+            if focused_row is None and is_row_in_search_results(guild_row, search_string):
                 for row in self._channel_guild_list.get_children():
                     row.set_expanded(False)
-                active_for_search_row = guild_row
+                focused_row = guild_row
                 guild_row.set_expanded(True)
 
     async def _get_guild_ids_list(self, client):
