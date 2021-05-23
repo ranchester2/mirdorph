@@ -62,6 +62,11 @@ class Application(Gtk.Application):
             {
                 'name': 'logout',
                 'func': self.log_out
+            },
+            {
+                'name': 'search-guilds',
+                'func': self.search_guilds,
+                'accel': '<Primary>k'
             }
         ]
 
@@ -71,7 +76,7 @@ class Application(Gtk.Application):
             self.add_action(c_action)
             if 'accel' in a.keys():
                 self.set_accels_for_action(
-                    f'app{a["name"]}',
+                    f'app.{a["name"]}',
                     [a['accel']]
                 )
 
@@ -132,6 +137,9 @@ class Application(Gtk.Application):
     def log_out(self, *args):
         keyring.delete_password("mirdorph", "token")
         self.relaunch()
+    
+    def search_guilds(self, *args):
+        self.main_win.channel_sidebar.guild_list_search_bar.set_search_mode(True)
 
     def create_inner_window_context(self, channel: int, flap: Handy.Flap):
         context = ChannelInnerWindow(empty=False, channel=channel)
