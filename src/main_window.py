@@ -65,10 +65,7 @@ class MirdorphMainWindow(Handy.ApplicationWindow):
         ]
 
         # Might be a bit weird to be public.
-        # However this needs to be used in main's connect
-        # and add channel functions.
-        # Would be better if instead of working on the channel sidebar correctly
-        # we had a channel manager object
+        # Before it was for adding channels, however now for toggling search function from MAIN
         self.channel_sidebar = MirdorphChannelSidebar(channel_search_button=self._channel_search_button)
         self.channel_sidebar.show()
         self._flap_box.pack_end(self.channel_sidebar, True, True, 0)

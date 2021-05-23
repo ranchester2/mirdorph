@@ -221,7 +221,7 @@ class MirdorphChannelSidebar(Gtk.Box):
 
     _view_switcher: Handy.ViewSwitcherBar = Gtk.Template.Child()
     _guild_list_search_entry: Gtk.SearchEntry = Gtk.Template.Child()
-    _guild_list_search_bar: Handy.SearchBar = Gtk.Template.Child()
+    guild_list_search_bar: Handy.SearchBar = Gtk.Template.Child()
     _channel_guild_list: Gtk.ListBox = Gtk.Template.Child()
 
     _channel_guild_loading_stack: Gtk.Stack = Gtk.Template.Child()
@@ -233,7 +233,7 @@ class MirdorphChannelSidebar(Gtk.Box):
         self._channel_guild_loading_stack.set_visible_child(self._channel_guild_loading_spinner_page)
         self._channel_search_button = channel_search_button
 
-        self._guild_list_search_bar.connect_entry(self._guild_list_search_entry)
+        self.guild_list_search_bar.connect_entry(self._guild_list_search_entry)
         self._channel_search_button.connect("notify::active", self._on_channel_search_button_toggled)
 
         # For search, the channel that with the sum of indicators is the one that is
@@ -244,11 +244,11 @@ class MirdorphChannelSidebar(Gtk.Box):
         build_guilds_thread.start()
 
     def _on_channel_search_button_toggled(self, button, param):
-        self._guild_list_search_bar.set_search_mode(self._channel_search_button.get_active())
+        self.guild_list_search_bar.set_search_mode(self._channel_search_button.get_active())
 
     @Gtk.Template.Callback()
     def _on_search_bar_search_enabled(self, search_bar, param):
-        self._channel_search_button.set_active(self._guild_list_search_bar.get_search_mode())
+        self._channel_search_button.set_active(self.guild_list_search_bar.get_search_mode())
 
     @Gtk.Template.Callback()
     def _on_guild_list_search_entry_changed(self, entry: Gtk.SearchEntry):
@@ -298,7 +298,7 @@ class MirdorphChannelSidebar(Gtk.Box):
     def _on_guild_list_search_entry_activate(self, entry: Gtk.SearchEntry):
         if self._most_wanted_search_channel:
             self._most_wanted_search_channel.emit("activate")
-            self._guild_list_search_bar.set_search_mode(False)
+            self.guild_list_search_bar.set_search_mode(False)
 
     async def _get_guild_ids_list(self, client):
         # Why the waiting?
