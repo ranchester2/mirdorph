@@ -71,7 +71,7 @@ class Application(Gtk.Application):
             self.add_action(c_action)
             if 'accel' in a.keys():
                 self.set_accels_for_action(
-                    f'app{a["name"]}',
+                    f'app.{a["name"]}',
                     [a['accel']]
                 )
 
