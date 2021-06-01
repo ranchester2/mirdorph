@@ -1,0 +1,47 @@
+From b271d0bdd7cb69b81e13f66e1c2bd74921ed194b Mon Sep 17 00:00:00 2001
+From: Raidro Manchester <raibo.quadrofus@gmail.com>
+Date: Tue, 1 Jun 2021 22:01:27 +0300
+Subject: [PATCH] fix on_typing for self bots
+
+To fix on_typing for self code it is needed to send opcode 14 to all
+guilds with the required parameters. This also magically fixes the
+`on_typing` to work.
+---
+ discord/client.py | 21 +++++++++++++++++++++
+ 1 file changed, 21 insertions(+)
+
+diff --git a/discord/client.py b/discord/client.py
+index 1c35fddf..ef26a3c5 100644
+--- a/discord/client.py
++++ b/discord/client.py
+@@ -269,6 +269,27 @@ class Client:
+         await self.ws.request_sync(guilds)
+ 
+     def _handle_ready(self):
++        for guild in self.guilds:
++            payload = {
++                "op": 14,
++                "d": {
++                    "guild_id": str(guild.id),
++                    "typing": True,
++                    "threads": False,
++                    "activities": True,
++                    "members": [],
++                    "channels": {
++                        str(guild.channels[0].id): [
++                            [
++                                0,
++                                99
++                            ]
++                        ]
++                    }
++                }
++            }
++
++            asyncio.ensure_future(self.ws.send_as_json(payload), loop=self.loop)
+         self._ready.set()
+ 
+     @property
+-- 
+2.30.2
+
