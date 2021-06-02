@@ -22,6 +22,7 @@ from pathlib import Path
 from gi.repository import Gtk, Gio, GLib, Handy
 from .event_receiver import EventReceiver
 from .message import MirdorphMessage
+from .typing_indicator import TypingIndicator
 
 
 # From clutter-easing.c, based on Robert Penner's
@@ -44,6 +45,7 @@ class MessageView(Gtk.Overlay, EventReceiver):
     scroller: Gtk.ScrolledWindow = Gtk.Template.Child()
 
     _scroll_btn_revealer: Gtk.Revealer = Gtk.Template.Child()
+    _typing_indicator_overlay: Gtk.Overlay = Gtk.Template.Child()
 
     def __init__(self, context, *args, **kwargs):
         Gtk.Overlay.__init__(self, *args, **kwargs)
@@ -81,6 +83,10 @@ class MessageView(Gtk.Overlay, EventReceiver):
         self._message_clamp.show()
         self._message_clamp.add(self._message_listbox)
         self._message_column.add(self._message_clamp)
+
+        self._typing_indicator = TypingIndicator(self.context.channel_disc)
+        self._typing_indicator.show()
+        self._typing_indicator_overlay.add_overlay(self._typing_indicator)
 
         self._adj = self.scroller.get_vadjustment()
         self._orig_upper = self._adj.get_upper()

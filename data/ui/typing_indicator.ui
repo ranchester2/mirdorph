@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <requires lib="gtk+" version="3.24"/>
+  <template class="TypingIndicator" parent="GtkRevealer">
+    <property name="transition-type">slide-up</property>
+    <property name="valign">GTK_ALIGN_END</property>
+    <child>
+      <object class="GtkLabel" id="_typing_label">
+        <property name="visible">True</property>
+        <property name="ellipsize">end</property>
+        <property name="xalign">0.0</property>
+        <property name="label">Noone is typing.</property>
+      </object>
+    </child>
+  </template>
+</interface>

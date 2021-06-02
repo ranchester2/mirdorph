@@ -35,6 +35,7 @@ mirdorph_sources = [
   'channel_properties_window.py',
   'atkpicture.py',
   'discord_web_grabber.py',
+  'typing_indicator.py',
   'get_token.js'
 ]
 
