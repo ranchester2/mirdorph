@@ -46,6 +46,8 @@ mode
 .message-history {
   background-color: @theme_base_color;
   padding: 0 8px 8px;
+  /* For room for typing indicator, unfortunatej*/
+  padding-bottom: 20px;
 }
 
 #message-entry-button-box {
@@ -90,6 +92,21 @@ mode
 .message-entry-bar-attachment-container {
   padding: 10px;
   background-color: @theme_bg_color;
+}
+
+.typing-indicator box {
+  background-color: @theme_base_color;
+  border-top-left-radius: 7px;
+  border-top-right-radius: 7px;
+  box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
+}
+
+.typing-indicator label {
+  margin-top: 2px;
+  margin-bottom: 2px;
+  margin-left: 4px;
+  margin-right: 4px;
+  color: @theme_selected_bg_color;
 }
 
 /*
