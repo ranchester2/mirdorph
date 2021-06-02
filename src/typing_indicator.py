@@ -55,10 +55,7 @@ class TypingIndicator(Gtk.Revealer, EventReceiver):
             self.set_reveal_child(True)
             typing_info_message = "is typing..."
             username_list = ', '.join([user.name for user in self._currently_typing_users])
-            if len(self._currently_typing_users) > 1:
-                typing_info_message = username_list + typing_info_message
-            else:
-                typing_info_message = username_list + " " + typing_info_message
+            typing_info_message = username_list + " " + typing_info_message
             self._typing_label.set_label(typing_info_message)
         else:
             self.set_reveal_child(False)
