@@ -48,6 +48,7 @@ class MessageView(Gtk.Overlay, EventReceiver):
     def __init__(self, context, *args, **kwargs):
         Gtk.Overlay.__init__(self, *args, **kwargs)
         EventReceiver.__init__(self)
+        self.context = context
 
         self._message_listbox = Gtk.ListBox(hexpand=True, selection_mode=Gtk.SelectionMode.NONE)
         # When nearly empty channel, messages should not pile up on top
@@ -89,8 +90,6 @@ class MessageView(Gtk.Overlay, EventReceiver):
         # this basically signifies if that animation is active and we should
         # always auto scroll
         self._attachment_tray_scroll_revealment_mode = False
-
-        self.context = context
 
     def set_balance_top(self):
         # DONTFIXME: Workaround: https://gitlab.gnome.org/GNOME/gtk/merge_requests/395
