@@ -61,6 +61,11 @@ class TypingIndicator(Gtk.Revealer, EventReceiver):
             self.set_reveal_child(False)
             self._typing_label.set_label("Noone is typing.")
 
+    def disc_on_message(self, message):
+        if message.channel == self._channel and message.author in self._currently_typing_users:
+            self._currently_typing_users.remove(message.author)
+            self._sync_typing_label()
+
     def disc_on_typing(self, channel, user, when):
         if user == self._channel.guild.me:
             return
