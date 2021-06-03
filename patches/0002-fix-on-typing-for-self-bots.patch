@@ -1,26 +1,78 @@
-From b271d0bdd7cb69b81e13f66e1c2bd74921ed194b Mon Sep 17 00:00:00 2001
+From baf3848c225ccaefb0f5ac078e2ce6f063d4540e Mon Sep 17 00:00:00 2001
 From: Raidro Manchester <raibo.quadrofus@gmail.com>
 Date: Tue, 1 Jun 2021 22:01:27 +0300
 Subject: [PATCH] fix on_typing for self bots
 
-To fix on_typing for self code it is needed to send opcode 14 to all
-guilds with the required parameters. This also magically fixes the
-`on_typing` to work.
+For `on_typing` to fire for self bots, it is required to send opcode 14
+to the guild in question.
+
+This does that, which is apparently used by the official client to
+signify when it is "viewing" the guild.
+
+Apparently you should ensure that the channel is a text channel first,
+which I did. Based on doflies
 ---
- discord/client.py | 21 +++++++++++++++++++++
- 1 file changed, 21 insertions(+)
+ discord/client.py  |  2 ++
+ discord/gateway.py | 33 ++++++++++++++++++++++++++++++++-
+ 2 files changed, 34 insertions(+), 1 deletion(-)
 
 diff --git a/discord/client.py b/discord/client.py
-index 1c35fddf..ef26a3c5 100644
+index 1c35fddf..a186b336 100644
 --- a/discord/client.py
 +++ b/discord/client.py
-@@ -269,6 +269,27 @@ class Client:
+@@ -269,6 +269,8 @@ class Client:
          await self.ws.request_sync(guilds)
  
      def _handle_ready(self):
 +        for guild in self.guilds:
-+            payload = {
-+                "op": 14,
++            self.ws.subscribe_to_guild_events(guild)
+         self._ready.set()
+ 
+     @property
+diff --git a/discord/gateway.py b/discord/gateway.py
+index 7647b591..bf75471d 100644
+--- a/discord/gateway.py
++++ b/discord/gateway.py
+@@ -40,7 +40,7 @@ import aiohttp
+ 
+ from . import utils
+ from .activity import BaseActivity
+-from .enums import SpeakingState
++from .enums import SpeakingState, ChannelType
+ from .errors import ConnectionClosed, InvalidArgument
+ 
+ log = logging.getLogger(__name__)
+@@ -249,6 +249,8 @@ class DiscordWebSocket:
+         a connection issue.
+     GUILD_SYNC
+         Send only. Requests a guild sync.
++    LAZY_GUILD_REQUEST
++        Send only. Subscribes you to guilds. Responds with GUILD_MEMBER_LIST_UPDATE sync.
+     gateway
+         The gateway we are currently connected to.
+     token
+@@ -268,6 +270,7 @@ class DiscordWebSocket:
+     HELLO              = 10
+     HEARTBEAT_ACK      = 11
+     GUILD_SYNC         = 12
++    LAZY_GUILD_REQUEST = 14
+ 
+     def __init__(self, socket, *, loop):
+         self.socket = socket
+@@ -418,6 +421,34 @@ class DiscordWebSocket:
+         await self.send_as_json(payload)
+         log.info('Shard ID %s has sent the RESUME payload.', self.shard_id)
+ 
++    def subscribe_to_guild_events(self, guild):
++        """Sends opcode 14 to guild."""
++        # The channel we use must be a text or news channel
++        first_valid_channel = None
++        for channel in guild.channels:
++            if channel.type in (ChannelType.news, ChannelType.text):
++                first_valid_channel = channel
++
++        payload = {
++                "op": self.LAZY_GUILD_REQUEST,
 +                "d": {
 +                    "guild_id": str(guild.id),
 +                    "typing": True,
@@ -28,7 +80,7 @@ index 1c35fddf..ef26a3c5 100644
 +                    "activities": True,
 +                    "members": [],
 +                    "channels": {
-+                        str(guild.channels[0].id): [
++                        str(first_valid_channel.id): [
 +                            [
 +                                0,
 +                                99
@@ -37,11 +89,11 @@ index 1c35fddf..ef26a3c5 100644
 +                    }
 +                }
 +            }
++        asyncio.ensure_future(self.send_as_json(payload), loop=self.loop)
 +
-+            asyncio.ensure_future(self.ws.send_as_json(payload), loop=self.loop)
-         self._ready.set()
+     async def received_message(self, msg):
+         self._dispatch('socket_raw_receive', msg)
  
-     @property
 -- 
 2.30.2
 
