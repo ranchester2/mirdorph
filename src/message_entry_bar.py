@@ -20,10 +20,11 @@ import discord
 from pathlib import Path
 from gi.repository import Gtk, Gio, GLib, Gdk, Handy
 from .attachment import MessageEntryBarAttachment
+from .event_receiver import EventReceiver
 
 
 @Gtk.Template(resource_path='/org/gnome/gitlab/ranchester/Mirdorph/ui/message_entry_bar.ui')
-class MessageEntryBar(Gtk.Box):
+class MessageEntryBar(Gtk.Box, EventReceiver):
     __gtype_name__ = "MessageEntryBar"
 
     _message_entry = Gtk.Template.Child()
@@ -35,9 +36,12 @@ class MessageEntryBar(Gtk.Box):
 
     def __init__(self, context, *args, **kwargs):
         Gtk.Box.__init__(self, *args, **kwargs)
+        EventReceiver.__init__(self)
 
         self.context = context
         self.app = Gio.Application.get_default()
+
+        self._already_displaying_user_currently_typing = False
 
         # Read comment there about why parent_for_sign
         self._add_extra_attachment_button = MessageEntryBarAttachment(parent_for_sign=self, add_mode=True)
@@ -131,10 +135,33 @@ class MessageEntryBar(Gtk.Box):
     def _on_message_entry_activate(self, entry):
         self._do_attempt_send()
 
+    async def _simulate_typing(self):
+        # We don't want to continually spam typing events
+        # and hit the rate limit
+        if self._already_displaying_user_currently_typing:
+            return
+
+        self._already_displaying_user_currently_typing = True
+        await self.context.channel_disc.trigger_typing()
+        await asyncio.sleep(9)
+        self._already_displaying_user_currently_typing = False
+
+    # When we send a message, the typing trigger is automatically cancelled,
+    # however then we don't reset currently_typing immediately, but instead
+    # continue to wait the full 9 seconds. This gives a weird delay
+    # for the next message
+    def disc_on_message(self, message):
+        if message.author == self.context.channel_disc.guild.me:
+            self._already_displaying_user_currently_typing = False
+
     @Gtk.Template.Callback()
     def _on_message_entry_changed(self, entry):
         if entry.get_text():
             self._send_button.set_sensitive(True)
+            asyncio.run_coroutine_threadsafe(
+                self._simulate_typing(),
+                self.app.discord_loop
+            )
             self._send_button.get_style_context().add_class("suggested-action")
         elif len(self._attachment_container.get_children()) < 2:
             self._send_button.set_sensitive(False)
