@@ -18,6 +18,7 @@ import time
 import threading
 import datetime
 from gi.repository import Gtk, GLib
+from xml.sax.saxutils import escape as escape_xml
 from .event_receiver import EventReceiver
 
 
@@ -54,9 +55,11 @@ class TypingIndicator(Gtk.Revealer, EventReceiver):
         if self._currently_typing_users:
             self.set_reveal_child(True)
             typing_info_message = "is typing..."
-            username_list = ', '.join([user.name for user in self._currently_typing_users])
+            username_list = ', '.join(
+                [f"<b>{escape_xml(user.name)}</b>" for user in self._currently_typing_users]
+            )
             typing_info_message = username_list + " " + typing_info_message
-            self._typing_label.set_label(typing_info_message)
+            self._typing_label.set_markup(typing_info_message)
         else:
             self.set_reveal_child(False)
             self._typing_label.set_label("Noone is typing.")
