@@ -12,3 +12,20 @@ flatpak:
         APP_ID: "org.gnome.gitlab.ranchester.Mirdorph"
     extends: .flatpak
 
+flatpak-test:
+    image: 'registry.gitlab.gnome.org/gnome/gnome-runtime-images/gnome:40'
+    script:
+      - !reference [.flatpak, script]
+      - 'flatpak install -y --noninteractive --user --no-pull --no-related mirdorph.flatpak'
+      - 'flatpak run --command="python3" --cwd=$(pwd)/tests --filesystem=$(pwd) org.gnome.gitlab.ranchester.Mirdorph -m pytest -v --junitxml=../report.xml'
+    variables:
+        MANIFEST_PATH: "org.gnome.gitlab.ranchester.Mirdorph.json"
+        FLATPAK_MODULE: "mirdorph"
+        RUNTIME_REPO: "https://flathub.org/repo/flathub.flatpakrepo"
+        APP_ID: "org.gnome.gitlab.ranchester.Mirdorph"
+    extends: .flatpak
+    artifacts:
+      when: always
+      reports:
+        junit: report.xml
+

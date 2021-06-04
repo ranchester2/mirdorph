@@ -311,6 +311,45 @@
 			]
 		},
 		{
+			"name": "python-pytest",
+			"buildsystem": "simple",
+			"build-commands": [
+				"pip3 install --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"pytest\" --no-build-isolation"
+			],
+			"sources": [
+				{
+					"type": "file",
+					"url": "https://files.pythonhosted.org/packages/f8/04/7a8542bed4b16a65c2714bf76cf5a0b026157da7f75e87cc88774aa10b14/pluggy-0.13.1.tar.gz",
+					"sha256": "15b2acde666561e1298d71b523007ed7364de07029219b604cf808bfa1c765b0"
+				},
+				{
+					"type": "file",
+					"url": "https://files.pythonhosted.org/packages/86/3c/bcd09ec5df7123abcf695009221a52f90438d877a2f1499453c6938f5728/packaging-20.9.tar.gz",
+					"sha256": "5b327ac1320dc863dca72f4514ecc086f31186744b84a230374cc1fd776feae5"
+				},
+				{
+					"type": "file",
+					"url": "https://files.pythonhosted.org/packages/0d/8c/50e9f3999419bb7d9639c37e83fa9cdcf0f601a9d407162d6c37ad60be71/py-1.10.0.tar.gz",
+					"sha256": "21b81bda15b66ef5e1a777a21c4dcd9c20ad3efd0b3f817e7a809035269e1bd3"
+				},
+				{
+					"type": "file",
+					"url": "https://files.pythonhosted.org/packages/23/a2/97899f6bd0e873fed3a7e67ae8d3a08b21799430fb4da15cfedf10d6e2c2/iniconfig-1.1.1.tar.gz",
+					"sha256": "bc3af051d7d14b2ee5ef9969666def0cd1a000e121eaea580d4a313df4b37f32"
+				},
+				{
+					"type": "file",
+					"url": "https://files.pythonhosted.org/packages/c1/47/dfc9c342c9842bbe0036c7f763d2d6686bcf5eb1808ba3e170afdb282210/pyparsing-2.4.7.tar.gz",
+					"sha256": "c203ec8783bf771a155b207279b9bccb8dea02d8f0c9e5f8ead507bc3246ecc1"
+				},
+				{
+					"type": "file",
+					"url": "https://files.pythonhosted.org/packages/5b/98/92bbda5f83ed995ef8953349ef30c77c934abcc251c42ab3d7787a40c49c/pytest-6.2.4.tar.gz",
+					"sha256": "50bcad0a0b9c5a72c8e4e7c9855a3ad496ca6a881a3641b4260605450772c54b"
+				}
+			]
+		},
+		{
 			"name": "mirdorph",
 			"builddir": true,
 			"buildsystem": "meson",
