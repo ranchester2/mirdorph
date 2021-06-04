@@ -11,7 +11,6 @@ I don't have much else to add.
 3. Press the download button on the right
 4. Extract the zip you downloaded and open a terminal in the resulting directory
 5. Install the snapshot with `flatpak --user install mirdorph.flatpak`
-NOTE: For some reason Appdata doesn't exist with these, I don't know why
 
 ### Build from source method:
 
