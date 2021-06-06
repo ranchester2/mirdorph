@@ -14,10 +14,12 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import copy
+import re
 import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 from enum import Enum
+from xml.sax.saxutils import escape as escape_xml
 
 # Why a separate file?
 # Because I want to test the parsing, but I can't really get pytest
@@ -95,10 +97,71 @@ def calculate_msg_parts(original_content: str) -> list:
     return components
 
 
+def _extract_discord_components(message_string) -> list:
+    """
+    Extract the discord-specific components of a string.
+    Returns a list of tuples. Where each tuple is:
+        0 - discord component type
+        1 - the data of the component
+        2 - range of chars of the original message string that are the
+        extracted component
+
+    List empty if none exist
+    """
+    # Not immplemented for now
+    return []
+
+
+def _process_links(message_string: str) -> str:
+    """
+    Find all the links in a string and replace them
+    with escaped pango links
+    """
+    url_finder = r'(?P<url>https?://[^\s]+)'
+    # Not escaping links because it is complicated with re.sub,
+    # and I don't think it is needed generally
+    marked_links = re.sub(url_finder, r'<a href="\1">\1</a>', message_string)
+    return marked_links
+
+
+def _create_pango_markup(message_string: str) -> str:
+    # Escape all existing potential markup before
+    # processing
+    workd_on_str = escape_xml(message_string)
+
+    workd_on_str = _process_links(workd_on_str)
+
+    # For now actual markdown isn't actually implemented
+    pass
+
+    return workd_on_str
+
+
+def build_widget_list(message_string: str) -> list:
+    """
+    Build a widget list for a part of text in a discord message.
+    List elements can be either a string of pango markup, or
+    a custom Gtk Widget
+
+    returns:
+        A list of either `Gtk.Widget` or `str`
+    """
+    discord_components = _extract_discord_components(message_string)
+    # Not implemented
+    if discord_components:
+        pass
+
+    widget_list = []
+    widget_list.append(_create_pango_markup(message_string))
+
+    return widget_list
+
+
 class MessageComponent(Gtk.Bin):
     def __init__(self, component_content: str, component_type: ComponentType, *args, **kwargs):
         Gtk.Bin.__init__(self, *args, **kwargs)
         self.component_type = component_type
+        self._raw_component_content = component_content
         if self.component_type in [ComponentType.STANDARD, ComponentType.QUOTE]:
             self._text_label = Gtk.Label(
                 wrap=True,
@@ -106,7 +169,8 @@ class MessageComponent(Gtk.Bin):
                 selectable=True,
                 xalign=0.0
             )
-            self._text_label.set_label(component_content)
+            # Safe currently as only strings
+            self._text_label.set_markup(''.join(build_widget_list(self._raw_component_content)))
             self._text_label.show()
 
             if self.component_type == ComponentType.QUOTE:
