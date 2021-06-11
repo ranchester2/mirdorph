@@ -134,15 +134,11 @@ class MirdorphLoginWindow(Handy.ApplicationWindow):
         self._notification_title_label.set_label("Error")
         self._notification_revealer.set_reveal_child(True)
 
-        # For automatically closing the notification
-        threading.Thread(target=self._notification_waiting_target).start()
-
-    def _notification_waiting_target(self):
-        time.sleep(5)
-        GLib.idle_add(self._notification_waiting_gtk_target)
+        GLib.timeout_add_seconds(5, self._notification_waiting_gtk_target)
 
     def _notification_waiting_gtk_target(self):
         self._notification_revealer.set_reveal_child(False)
+        return False
 
     def _token_password_retrieval_target(self):
         email = self._email_entry.get_text()
