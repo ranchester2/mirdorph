@@ -23,6 +23,7 @@
     <file>ui/generic_attachment.ui</file>
     <file>ui/message_entry_bar_attachment.ui</file>
     <file>ui/typing_indicator.ui</file>
+    <file>ui/link_preview.ui</file>
     <!-- Not in /ui due to cryptic meson error-->
     <file>about_dialog.ui</file>
   </gresource>

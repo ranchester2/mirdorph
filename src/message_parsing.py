@@ -20,11 +20,13 @@ gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 from enum import Enum
 from xml.sax.saxutils import escape as escape_xml
+from .link_preview import LinkPreviewExport
 
 # Why a separate file?
 # Because I want to test the parsing, but I can't really get pytest
 # to import a python file with Gresource magic, so this must be generic.
 
+LINK_REGEX = r'(?P<url>https?://[^\s]+)'
 
 class ComponentType(Enum):
     STANDARD = 0
@@ -112,15 +114,19 @@ def _extract_discord_components(message_string) -> list:
     return []
 
 
+def _generate_exports(message_string: str):
+    links = re.findall(LINK_REGEX, message_string)
+    return [LinkPreviewExport(link) for link in links]
+
+
 def _process_links(message_string: str) -> str:
     """
     Find all the links in a string and replace them
     with escaped pango links
     """
-    url_finder = r'(?P<url>https?://[^\s]+)'
     # Not escaping links because it is complicated with re.sub,
     # and I don't think it is needed generally
-    marked_links = re.sub(url_finder, r'<a href="\1">\1</a>', message_string)
+    marked_links = re.sub(LINK_REGEX, r'<a href="\1">\1</a>', message_string)
     return marked_links
 
 
@@ -162,6 +168,9 @@ class MessageComponent(Gtk.Bin):
         Gtk.Bin.__init__(self, *args, **kwargs)
         self.component_type = component_type
         self._raw_component_content = component_content
+        # Exports are based on non-sescaped, non-processed content
+        self.exports = _generate_exports(self._raw_component_content)
+
         if self.component_type in [ComponentType.STANDARD, ComponentType.QUOTE]:
             self._text_label = Gtk.Label(
                 wrap=True,

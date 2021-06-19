@@ -31,8 +31,10 @@ class MessageContent(Gtk.Box):
     def __init__(self, message_content: str, *args, **kwargs):
         Gtk.Box.__init__(self, orientation=Gtk.Orientation.VERTICAL, *args, **kwargs)
         self._message_content = message_content
+        self.exports = []
 
         for component in self._do_parse_construct():
+            self.exports.extend(component.exports)
             component.show()
             self.pack_start(component, False, False, 0)
 
@@ -143,6 +145,10 @@ class MirdorphMessage(Gtk.ListBoxRow):
                 att_widg.set_halign(Gtk.Align.START)
                 att_widg.show()
                 self._attachment_box.pack_start(att_widg, True, True, 0)
+
+        for export in self._message_content_wid.exports:
+            export.show()
+            self._attachment_box.pack_start(export, True, True, 0)
 
         label_color_fetch_thread = threading.Thread(target=self._fetch_label_color_target)
         label_color_fetch_thread.start()
