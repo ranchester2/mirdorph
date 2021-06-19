@@ -2,3 +2,5 @@
 build-dir/
 .flatpak-builder/
 .pytest_cache/
+unmeson-mirdorph.gresource.xml
+unmeson-mirdorph.gresource

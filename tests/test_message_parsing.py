@@ -1,6 +1,17 @@
 import sys
 # Workaround from stackoverflow to allow importing from src
 sys.path.append("..")
+
+# Loading the Gresource for imoprting modules that use composite templates for testing
+import os
+import gi
+from gi.repository import Gio
+# About dialog is created by meson which we can't use
+os.system("sed '/about_dialog/d' ../data/mirdorph.gresource.xml > ../data/unmeson-mirdorph.gresource.xml")
+os.system("cd ../data/ && glib-compile-resources unmeson-mirdorph.gresource.xml")
+resource = Gio.resource_load("../data/unmeson-mirdorph.gresource")
+Gio.Resource._register(resource)
+
 from src.message_parsing import _process_links, _create_pango_markup, calculate_msg_parts, ComponentType
 
 def test_process_links():
