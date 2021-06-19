@@ -162,9 +162,16 @@ class ImageAttachment(MirdorphAttachment, Gtk.Bin):
         """
         DESIRED_WIDTH_STANDARD = 290
 
-        if self._attachment_disc.height > DESIRED_WIDTH_STANDARD:
-            DESIRED_WIDTH_STANDARD -= 30
-        
+        try:
+            if self._attachment_disc.height > DESIRED_WIDTH_STANDARD:
+                DESIRED_WIDTH_STANDARD -= 30
+        except TypeError:
+            # With some very specific attachments this is NoneType.
+            # I think in these cases it is best to just return the mishapen
+            # image instead
+            logging.warning(f"could not get dimentions of {self._attachment_disc}")
+            return (DESIRED_WIDTH_STANDARD, DESIRED_WIDTH_STANDARD)
+
         size_allocation = (
             DESIRED_WIDTH_STANDARD,
             (DESIRED_WIDTH_STANDARD*self._attachment_disc.height/self._attachment_disc.width)
