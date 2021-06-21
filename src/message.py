@@ -184,23 +184,27 @@ class MirdorphMessage(Gtk.ListBoxRow):
         if self.author.discriminator == "0000":
             return
 
-        member = self._disc_message.guild.get_member(self.author.id)
-        if member is None:
-            # To make rate limit less frequent, we don't cache this for whatever reason,
-            # get_member always fails
-            time.sleep(random.uniform(0.1, 3.25))
-
-            try:
-                member = self._helper_get_member()
-            except discord.errors.NotFound:
-                logging.warning(f"could not get member info of {self.author}, 404? Will retry")
-                time.sleep(random.uniform(5.0, 10.0))
-                logging.warning(f"retrieing for member info {self.author}")
-                try:
-                    member = self._helper_get_member()
-                except discord.errors.NotFound:
-                    logging.warning(f"could not get even after retry, cancelling")
-                    return
+        # When we receive a message, it is a Member, however from history
+        # it is a user.
+        if isinstance(self.author, discord.member.Member):
+            member = self.author
+            Gio.Application.get_default().custom_member_cache[member.id] = member
+        else:
+            if self.author.id not in Gio.Application.get_default().custom_member_cache:
+                member = self._disc_message.guild.get_member(self.author.id)
+                if member:
+                    Gio.Application.get_default().custom_member_cache[member.id] = member
+                else:
+                    # Sometimes when fetching members like this it simply isn't found for
+                    # seemingly no reason. Maybe it is todo with if they are online?
+                    try:
+                        member = self._helper_get_member()
+                        Gio.Application.get_default().custom_member_cache[self.author.id] = member
+                    except discord.errors.NotFound:
+                        logging.warning(f"could not get member info of {self.author}, 404?")
+                        return
+            else:
+                member = Gio.Application.get_default().custom_member_cache[self.author.id]
 
         top_role = member.roles[-1]
         color_formatted = '#%02x%02x%02x' % top_role.color.to_rgb()

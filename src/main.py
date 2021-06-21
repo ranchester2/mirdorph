@@ -46,6 +46,13 @@ class Application(Gtk.Application):
         self.currently_running_channels = []
         self._inner_window_contexts = {}
 
+        # Why the custom member cache? Doesn't discord.py have one?
+        # Yes, however it usually doesn't actually work, which leads to doing
+        # a billion calls for getting a member from a guild to get the username
+        # color for the author of a message. We can optimise quite a lot by
+        # implementing this custom cache.
+        self.custom_member_cache = {}
+
     def do_startup(self):
         Gtk.Application.do_startup(self)
         Handy.init()
