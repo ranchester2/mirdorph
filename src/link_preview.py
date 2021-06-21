@@ -80,13 +80,17 @@ class LinkPreviewExport(Gtk.ListBox):
         GLib.idle_add(self._load_image)
 
     def _load_image(self):
-        image_pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(
-            str(self.image_path),
-            # 120 = request(140) - some phantom 20?? - the padding (optional??)
-            120,
-            120,
-            False
-        )
+        try:
+            image_pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(
+                str(self.image_path),
+                # 120 = request(140) - some phantom 20?? - the padding (optional??)
+                120,
+                120,
+                False
+            )
+        except gi.repository.GLib.Error:
+            logging.warning(f"attempted to load load GIF preview for {self.link}")
+            return
         self._link_image.set_from_pixbuf(image_pixbuf)
 
     @Gtk.Template.Callback()
