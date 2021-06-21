@@ -97,6 +97,8 @@ class MessageView(Gtk.Overlay, EventReceiver):
         # always auto scroll
         self._attachment_tray_scroll_revealment_mode = False
 
+        self._message_listbox.set_focus_vadjustment(self._adj)
+
     def set_balance_top(self):
         # DONTFIXME: Workaround: https://gitlab.gnome.org/GNOME/gtk/merge_requests/395
         self.scroller.set_kinetic_scrolling(False)
