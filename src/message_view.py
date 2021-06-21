@@ -163,8 +163,17 @@ class MessageView(Gtk.Overlay, EventReceiver):
 
     def disc_on_message(self, message):
         if message.channel.id == self.context.channel_id:
-            message_wid = MirdorphMessage(message)
+            last_message = self._message_listbox.get_children()[-1]
+            if isinstance(last_message, MirdorphMessage):
+                should_be_merged = (message.author == last_message.author)
+            else:
+                should_be_merged = False
+            message_wid = MirdorphMessage(
+                message,
+                merged=should_be_merged
+            )
             message_wid.show()
+
             # No risk of this being a duplicate as this event never happens twice
             self._message_listbox.add(message_wid)
 
@@ -209,6 +218,8 @@ class MessageView(Gtk.Overlay, EventReceiver):
         return tmp_list
 
     def _history_loading_gtk_target(self, messages: list):
+        previous_message_author = None
+
         for message in messages:
             # We need to check for duplicates and not add it if it is one
             # because load_history will often be called multiple times
@@ -221,7 +232,12 @@ class MessageView(Gtk.Overlay, EventReceiver):
                         duplicate = True
                         break
             if not duplicate:
-                message_wid = MirdorphMessage(message)
+
+                message_wid = MirdorphMessage(
+                    message,
+                    merged=(previous_message_author == message.author)
+                )
+                previous_message_author = message.author
                 message_wid.show()
                 self.set_balance_top()
                 self._message_listbox.add(message_wid)

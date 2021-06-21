@@ -113,9 +113,13 @@ class MirdorphMessage(Gtk.ListBoxRow):
 
     _attachment_box: Gtk.Box = Gtk.Template.Child()
 
-    def __init__(self, disc_message, *args, **kwargs):
+    def __init__(self, disc_message, merged=False, *args, **kwargs):
         Gtk.ListBoxRow.__init__(self, *args, **kwargs)
         self._disc_message = disc_message
+        # It can be needed to check the author of already existing
+        # messages. For example, when adding a message to check
+        # if the previous message is from the same user.
+        self.author: discord.abc.User = self._disc_message.author
 
         # Overall unique identifier to tell duplicates apart
         # here it is a message id, however other ways are possible.
@@ -124,13 +128,13 @@ class MirdorphMessage(Gtk.ListBoxRow):
         self.uniq_id = disc_message.id
         self.timestamp = disc_message.created_at.timestamp()
 
-        self._username_label.set_label(self._disc_message.author.name)
+        self._username_label.set_label(self.author.name)
 
         self._message_content_wid = MessageContent(self._disc_message.content)
         self._message_content_wid.show()
         self._message_content_container.pack_start(self._message_content_wid, True, True, 0)
 
-        avatar = UserMessageAvatar(self._disc_message.author, margin_top=3)
+        avatar = UserMessageAvatar(self.author, margin_top=3)
         avatar.show()
         self._avatar_box.pack_start(avatar, False, False, 0)
 
@@ -150,6 +154,15 @@ class MirdorphMessage(Gtk.ListBoxRow):
             export.show()
             self._attachment_box.pack_start(export, True, True, 0)
 
+        if merged:
+            self._username_label.hide()
+
+            # Width = Avatar Size (32)
+            self._avatar_box.props.width_request = 32
+            avatar.hide()
+
+            return
+
         label_color_fetch_thread = threading.Thread(target=self._fetch_label_color_target)
         label_color_fetch_thread.start()
 
@@ -157,7 +170,7 @@ class MirdorphMessage(Gtk.ListBoxRow):
     def _helper_get_member(self):
         member = asyncio.run_coroutine_threadsafe(
             self._disc_message.guild.fetch_member(
-                self._disc_message.author.id
+                self.author.id
             ),
             Gio.Application.get_default().discord_loop
         ).result()
@@ -166,10 +179,10 @@ class MirdorphMessage(Gtk.ListBoxRow):
 
     def _fetch_label_color_target(self):
         # Those with 0000 are generally "fake" members that are invalid
-        if self._disc_message.author.discriminator == "0000":
+        if self.author.discriminator == "0000":
             return
 
-        member = self._disc_message.guild.get_member(self._disc_message.author.id)
+        member = self._disc_message.guild.get_member(self.author.id)
         if member is None:
             # To make rate limit less frequent, we don't cache this for whatever reason,
             # get_member always fails
@@ -178,9 +191,9 @@ class MirdorphMessage(Gtk.ListBoxRow):
             try:
                 member = self._helper_get_member()
             except discord.errors.NotFound:
-                logging.warning(f"could not get member info of {self._disc_message.author}, 404? Will retry")
+                logging.warning(f"could not get member info of {self.author}, 404? Will retry")
                 time.sleep(random.uniform(5.0, 10.0))
-                logging.warning(f"retrieing for member info {self._disc_message.author}")
+                logging.warning(f"retrieing for member info {self.author}")
                 try:
                     member = self._helper_get_member()
                 except discord.errors.NotFound:
