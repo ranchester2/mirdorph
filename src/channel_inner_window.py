@@ -291,14 +291,6 @@ class ChannelInnerWindow(Gtk.Box):
         return self._msg_sending_scrl_mode_en
 
     @Gtk.Template.Callback()
-    def _on_close_button_clicked(self, button):
-        window = self.get_toplevel()
-        if window.is_toplevel():
-            if self.is_poped:
-                self.popin()
-            window.destroy()
-
-    @Gtk.Template.Callback()
     def _on_popout_context_button_clicked(self, button):
         self.popout()
 

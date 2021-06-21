@@ -14,6 +14,7 @@
       <child>
         <object class="HdyHeaderBar" id="_context_headerbar">
           <property name="visible">True</property>
+          <property name="show-close-button">True</property>
           <child>
             <object class="GtkButton" id="_flap_toggle_button">
               <property name="visible">False</property>
@@ -80,52 +81,6 @@
             </object>
             <packing>
               <property name="pack-type">end</property>
-            </packing>
-          </child>
-          <child>
-            <!-- Creating a custom fake close button so that we would be able to-->
-            <!-- change what happens when you click it, to handle poping in. -->
-            <!-- I tried to copy the defeault close button's hierarchy and style classes -->
-            <!-- however I still needed to add some margin-left for some reason -->
-            <!-- Breaks configuration of how many close buttons to show, etc -->
-            <object class="GtkBox">
-              <property name="visible">True</property>
-              <child>
-                <object class="GtkSeparator">
-                  <property name="visible">True</property>
-                  <property name="orientation">vertical</property>
-                  <style>
-                    <class name="titlebutton"/>
-                  </style>
-                </object>
-              </child>
-              <child>
-                <object class="GtkButton">
-                  <property name="visible">True</property>
-                  <property name="valign">GTK_ALIGN_CENTER</property>
-                  <property name="margin-left">5</property>
-                  <signal name="clicked" handler="_on_close_button_clicked"/>
-                  <child>
-                    <object class="GtkImage">
-                      <property name="visible">True</property>
-                      <property name="icon-name">window-close-symbolic</property>
-                    </object>
-                  </child>
-                  <style>
-                    <class name="titlebutton"/>
-                    <class name="close"/>
-                  </style>
-                </object>
-              </child>
-              <style>
-                <class name="right"/>
-                <class name="horizontal"/>
-              </style>
-            </object>
-            <packing>
-              <property name="pack-type">end</property>
-              <!-- Needed for some reason -->
-              <property name="position">2</property>
             </packing>
           </child>
         </object>
