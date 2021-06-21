@@ -21,6 +21,11 @@
   padding: 3px;
 }
 
+.merged-discord-message {
+  padding-top: 0px;
+  padding-bottom: 0px;
+}
+
 .quote {
     border-left: 2px solid @theme_selected_bg_color;
     color: #888A85;

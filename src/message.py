@@ -161,6 +161,8 @@ class MirdorphMessage(Gtk.ListBoxRow):
             self._avatar_box.props.width_request = 32
             avatar.hide()
 
+            self.get_style_context().add_class("merged-discord-message")
+
             return
 
         label_color_fetch_thread = threading.Thread(target=self._fetch_label_color_target)
