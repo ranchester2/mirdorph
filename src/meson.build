@@ -38,6 +38,7 @@ mirdorph_sources = [
   'typing_indicator.py',
   'settings_window.py',
   'link_preview.py',
+  'image_viewer.py',
   'get_token.js'
 ]
 

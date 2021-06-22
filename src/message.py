@@ -140,12 +140,12 @@ class MirdorphMessage(Gtk.ListBoxRow):
 
         for att in self._disc_message.attachments:
             if get_attachment_type(att) == AttachmentType.IMAGE:
-                att_widg = ImageAttachment(att)
+                att_widg = ImageAttachment(att, self._disc_message.channel.id)
                 att_widg.set_halign(Gtk.Align.START)
                 att_widg.show()
                 self._attachment_box.pack_start(att_widg, True, True, 0)
             elif get_attachment_type(att) == AttachmentType.GENERIC:
-                att_widg = GenericAttachment(att)
+                att_widg = GenericAttachment(att, self._disc_message.channel.id)
                 att_widg.set_halign(Gtk.Align.START)
                 att_widg.show()
                 self._attachment_box.pack_start(att_widg, True, True, 0)

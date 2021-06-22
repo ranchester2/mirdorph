@@ -26,6 +26,7 @@
     <file>ui/link_preview.ui</file>
     <file>ui/tos_notice.ui</file>
     <file>ui/settings_window.ui</file>
+    <file>ui/image_viewer.ui</file>
     <!-- Not in /ui due to cryptic meson error-->
     <file>about_dialog.ui</file>
     <file>tos.txt</file>

@@ -33,8 +33,9 @@ class AttachmentType(Enum):
 
 # Meant for subclassing
 class MirdorphAttachment:
-    def __init__(self, attachment):
+    def __init__(self, attachment: discord.Attachment, channel_id: int):
         self._attachment_disc: discord.Attachment = attachment
+        self._channel_id = channel_id
 
     def _do_template_render(self):
         """
@@ -60,9 +61,9 @@ class GenericAttachment(Gtk.ListBox, MirdorphAttachment):
     _download_progress_bar: Gtk.ProgressBar = Gtk.Template.Child()
     _download_button_image: Gtk.Image = Gtk.Template.Child()
 
-    # Capture attachment to not pass it on to the widget
-    def __init__(self, attachment, *args, **kwargs):
-        MirdorphAttachment.__init__(self, attachment)
+    # Capture attachment and channel_id to not pass it on to the widget
+    def __init__(self, attachment, channel_id: int, *args, **kwargs):
+        MirdorphAttachment.__init__(self, attachment, channel_id)
         Gtk.ListBox.__init__(self, *args, **kwargs)
 
         self._do_template_render()
@@ -138,17 +139,26 @@ class ImageAttachment(MirdorphAttachment, Gtk.Bin):
 
     _image_cache_dir_path = Path(os.environ["XDG_CACHE_HOME"]) / Path("mirdorph")
 
-    # Attachment argument captured to not pass it to widget gtk
-    def __init__(self, attachment, *args, **kwargs):
-        MirdorphAttachment.__init__(self, attachment)
+    # Attachment and channel_id arguments captured to not pass it to widget gtk
+    def __init__(self, attachment, channel_id: int, *args, **kwargs):
+        MirdorphAttachment.__init__(self, attachment, channel_id)
         Gtk.Bin.__init__(self, *args, **kwargs)
 
         self._image_stack = Gtk.Stack()
         self._image_stack.show()
         self.add(self._image_stack)
 
+        # Not GtkGestureSingle because it simply doesn't work on its own.
+        self.connect("button-press-event", self._on_clicked)
+
         self._do_template_render()
         self._do_full_render_at()
+
+    def _on_clicked(self, guesture: Gtk.GestureSingle, sequence):
+        context = Gio.Application.get_default().retrieve_inner_window_context(
+            self._channel_id
+        )
+        context.show_image_viewer(self._attachment_disc)
 
     def _get_image_path_from_id(self, image_id: int):
         return Path(self._image_cache_dir_path / Path(
@@ -216,6 +226,12 @@ class ImageAttachment(MirdorphAttachment, Gtk.Bin):
             )
             self._real_image = Gtk.Image.new_from_pixbuf(real_pixbuf)
             self._real_image.show()
+
+            # This seems really weird, but for ::button-press-event to work
+            # we need to create a gesture for this widget. It is completely
+            # unrelated.
+            self.guesture = Gtk.GestureSingle(widget=self._real_image)
+
             self._image_stack.add(self._real_image)
             self._image_stack.set_visible_child(self._real_image)
 

@@ -12,94 +12,109 @@
       <property name="orientation">vertical</property>
       <property name="width-request">355</property>
       <child>
-        <object class="HdyHeaderBar" id="_context_headerbar">
+        <object class="HdyDeck" id="_main_deck">
           <property name="visible">True</property>
-          <property name="show-close-button">True</property>
+          <property name="can-swipe-back">True</property>
+          <property name="can-swipe-forward">False</property>
+          <property name="transition-type">over</property>
+          <signal name="notify::visible-child" handler="_on_image_viewer_open_changed" />
           <child>
-            <object class="GtkButton" id="_flap_toggle_button">
-              <property name="visible">False</property>
-              <signal name="clicked" handler="_on_flap_toggle_button_clicked"/>
-              <property name="image">_flap_toggle_button_image</property>
-              <child>
-                <object class="GtkImage" id="_flap_toggle_button_image">
-                  <property name="visible">True</property>
-                  <property name="icon-name">view-sidebar-symbolic</property>
-                </object>
-              </child>
-              <style>
-                <class name="image-button"/>
-              </style>
-            </object>
-          </child>
-          <child>
-            <object class="GtkStack" id="_popout_button_stack">
-              <property name="visible">True</property>
-              <child>
-                <object class="GtkButton" id="_popout_button">
-                  <property name="visible">True</property>
-                  <property name="image">_popout_context_button_image</property>
-                  <signal name="clicked" handler="_on_popout_context_button_clicked"/>
-                  <child>
-                    <object class="GtkImage" id="_popout_context_button_image">
-                      <property name="visible">True</property>
-                      <property name="icon-name">view-fullscreen-symbolic</property>
-                    </object>
-                  </child>
-                  <style>
-                    <class name="image-button"/>
-                  </style>
-                </object>
-              </child>
-              <child>
-                <object class="GtkButton" id="_popin_button">
-                  <property name="visible">True</property>
-                  <property name="image">_popin_context_button_image</property>
-                  <signal name="clicked" handler="on_popin_context_button_clicked"/>
-                  <child>
-                    <object class="GtkImage" id="_popin_context_button_image">
-                      <property name="visible">True</property>
-                      <property name="icon-name">view-restore-symbolic</property>
-                    </object>
-                  </child>
-                  <style>
-                    <class name="image-button"/>
-                  </style>
-                </object>
-              </child>
-            </object>
-          </child>
-          <child>
-            <object class="GtkMenuButton" id="_context_menu_button">
-              <property name="visible">True</property>
-              <property name="popover">_context_menu_popover</property>
-              <child>
-                <object class="GtkImage">
-                  <property name="visible">True</property>
-                  <property name="icon-name">view-more-symbolic</property>
-                </object>
-              </child>
-            </object>
-            <packing>
-              <property name="pack-type">end</property>
-            </packing>
-          </child>
-        </object>
-      </child>
-      <child>
-        <object class="GtkStack" id="_toplevel_empty_stack">
-          <property name="visible">True</property>
-          <child>
-            <object class="GtkBox" id="_content_box">
+            <object class="GtkBox" id="_channel_box">
               <property name="visible">True</property>
               <property name="orientation">vertical</property>
-              <property name="vexpand">True</property>
-            </object>
-          </child>
-          <child>
-            <object class="HdyStatusPage" id="_empty_status_page">
-              <property name="visible">True</property>
-              <property name="title">Choose a channel</property>
-              <property name="icon-name">find-location-symbolic</property>
+              <child>
+                <object class="HdyHeaderBar" id="_context_headerbar">
+                  <property name="visible">True</property>
+                  <property name="show-close-button">True</property>
+                  <child>
+                    <object class="GtkButton" id="_flap_toggle_button">
+                      <property name="visible">False</property>
+                      <signal name="clicked" handler="_on_flap_toggle_button_clicked"/>
+                      <property name="image">_flap_toggle_button_image</property>
+                      <child>
+                        <object class="GtkImage" id="_flap_toggle_button_image">
+                          <property name="visible">True</property>
+                          <property name="icon-name">view-sidebar-symbolic</property>
+                        </object>
+                      </child>
+                      <style>
+                        <class name="image-button"/>
+                      </style>
+                    </object>
+                  </child>
+                  <child>
+                    <object class="GtkStack" id="_popout_button_stack">
+                      <property name="visible">True</property>
+                      <child>
+                        <object class="GtkButton" id="_popout_button">
+                          <property name="visible">True</property>
+                          <property name="image">_popout_context_button_image</property>
+                          <signal name="clicked" handler="_on_popout_context_button_clicked"/>
+                          <child>
+                            <object class="GtkImage" id="_popout_context_button_image">
+                              <property name="visible">True</property>
+                              <property name="icon-name">view-fullscreen-symbolic</property>
+                            </object>
+                          </child>
+                          <style>
+                            <class name="image-button"/>
+                          </style>
+                        </object>
+                      </child>
+                      <child>
+                        <object class="GtkButton" id="_popin_button">
+                          <property name="visible">True</property>
+                          <property name="image">_popin_context_button_image</property>
+                          <signal name="clicked" handler="on_popin_context_button_clicked"/>
+                          <child>
+                            <object class="GtkImage" id="_popin_context_button_image">
+                              <property name="visible">True</property>
+                              <property name="icon-name">view-restore-symbolic</property>
+                            </object>
+                          </child>
+                          <style>
+                            <class name="image-button"/>
+                          </style>
+                        </object>
+                      </child>
+                    </object>
+                  </child>
+                  <child>
+                    <object class="GtkMenuButton" id="_context_menu_button">
+                      <property name="visible">True</property>
+                      <property name="popover">_context_menu_popover</property>
+                      <child>
+                        <object class="GtkImage">
+                          <property name="visible">True</property>
+                          <property name="icon-name">view-more-symbolic</property>
+                        </object>
+                      </child>
+                    </object>
+                    <packing>
+                      <property name="pack-type">end</property>
+                    </packing>
+                  </child>
+                </object>
+              </child>
+              <child>
+                <object class="GtkStack" id="_toplevel_content_stack">
+                  <property name="visible">True</property>
+                  <child>
+                    <object class="GtkBox" id="_content_box">
+                      <property name="visible">True</property>
+                      <property name="orientation">vertical</property>
+                      <property name="vexpand">True</property>
+                    </object>
+                  </child>
+                  <child>
+                    <object class="HdyStatusPage" id="_empty_status_page">
+                      <property name="visible">True</property>
+                      <property name="title">Choose a channel</property>
+                      <property name="icon-name">find-location-symbolic</property>
+                    </object>
+                  </child>
+                </object>
+              </child>
             </object>
           </child>
         </object>

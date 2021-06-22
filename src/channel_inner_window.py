@@ -25,6 +25,7 @@ from gi.repository import Gtk, Gio, GLib, Handy
 from .channel_properties_window import ChannelPropertiesWindow
 from .message_view import MessageView
 from .message_entry_bar import MessageEntryBar
+from .image_viewer import ImageViewer
 
 
 @Gtk.Template(resource_path='/org/gnome/gitlab/ranchester/Mirdorph/ui/channel_inner_window.ui')
@@ -33,8 +34,11 @@ class ChannelInnerWindow(Gtk.Box):
 
     _context_headerbar: Handy.HeaderBar = Gtk.Template.Child()
 
-    _toplevel_empty_stack: Gtk.Stack = Gtk.Template.Child()
+    _toplevel_content_stack: Gtk.Stack = Gtk.Template.Child()
     _empty_status_page: Handy.StatusPage = Gtk.Template.Child()
+
+    _main_deck: Handy.Deck = Gtk.Template.Child()
+    _channel_box: Gtk.Box = Gtk.Template.Child()
 
     _content_box: Gtk.Box = Gtk.Template.Child()
 
@@ -77,6 +81,10 @@ class ChannelInnerWindow(Gtk.Box):
             if self.channel_disc.topic is not None:
                 self._context_headerbar.set_subtitle(self.channel_disc.topic)
 
+            self._image_viewer = ImageViewer(context=self)
+            self._image_viewer.show()
+            self._main_deck.add(self._image_viewer)
+
             self._message_view = MessageView(context=self)
             self._message_view.build_scroll()
             self._message_view.show()
@@ -115,7 +123,7 @@ class ChannelInnerWindow(Gtk.Box):
             self._popout_button.destroy()
             self._popin_button.destroy()
             self._popout_button_stack.destroy()
-            self._toplevel_empty_stack.set_visible_child(self._empty_status_page)
+            self._toplevel_content_stack.set_visible_child(self._empty_status_page)
 
     # Would be better to move this to main_win instead,
     # this is curently temp as we need to popin, however
@@ -218,6 +226,10 @@ class ChannelInnerWindow(Gtk.Box):
         self.app.main_win.unconfigure_popout_window(self)
         self.is_poped = False
 
+        # If the image viewer is open and then poped out, or multiple poped in
+        # while folding, this isn't updated.
+        self._on_image_viewer_open_changed()
+
     # If you are here because of all the random CRITICAL Gtk
     # assertion warnings, I think you're in the wrong place.
     # they started appearing after 1860e9aff877a5493b2c9dbd4db0456ed0d61466
@@ -305,6 +317,29 @@ class ChannelInnerWindow(Gtk.Box):
             not self.app.main_win.main_flap.get_reveal_flap()
         )
 
+    @Gtk.Template.Callback()
+    def _on_image_viewer_open_changed(self, *args):
+        # The flap should be made invisible when we open the image viewer,
+        # however only when not popped out.
+
+        # Cases of resizing the window to pop in popped out windows are handled
+        # by calling this on pop in.
+        if not self.is_poped:
+            if self._main_deck.get_visible_child() == self._channel_box:
+                self.app.main_win.main_flap.set_fold_policy(
+                    Handy.FlapFoldPolicy.AUTO
+                )
+                # If this is not checked, if the flap is made folded
+                # while popout windows exist that are being popped in,
+                # the flap is revealed which is unexpected.
+                if not self.app.main_win.main_flap.get_folded():
+                    self.app.main_win.main_flap.set_reveal_flap(True)
+            elif self._main_deck.get_visible_child() == self._image_viewer:
+                self.app.main_win.main_flap.set_fold_policy(
+                    Handy.FlapFoldPolicy.NEVER
+                )
+                self.app.main_win.main_flap.set_reveal_flap(False)
+
     def _on_channel_properties(self, action, param):
         properties_window = ChannelPropertiesWindow(channel=self.channel_disc)
         properties_window.set_modal(True)
@@ -317,3 +352,19 @@ class ChannelInnerWindow(Gtk.Box):
     def _on_channel_search(self, action, param):
         # placeholder
         print(f"channel search for {self.channel_disc.name}")
+
+    def show_image_viewer(self, attachment: discord.Attachment):
+        """
+        Show the image viewer/diretory for this channel
+
+        param:
+            attachment: show a given attachment at start
+        """
+        self._main_deck.set_visible_child(self._image_viewer)
+
+    def exit_image_viewer(self):
+        """
+        Helper function to exit the image viewer from within,
+        for example: for back buttons.
+        """
+        self._main_deck.set_visible_child(self._channel_box)
