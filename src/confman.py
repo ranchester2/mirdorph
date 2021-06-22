@@ -43,7 +43,8 @@ class ConfManager(GObject.GObject):
         ],
         # For atkpicture, not relevant yet
         'max_image_content_width': 550,
-        'tos_notice_accepted': False
+        'tos_notice_accepted': False,
+        'send_typing_events': True
     }
 
     def __init__(self, path: Path = None):

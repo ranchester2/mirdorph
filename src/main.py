@@ -29,6 +29,7 @@ from .main_window import MirdorphMainWindow
 from .event_manager import EventManager
 from .channel_inner_window import ChannelInnerWindow
 from .confman import ConfManager
+from .settings_window import MirdorphSettingsWindow
 
 
 class Application(Gtk.Application):
@@ -125,9 +126,9 @@ class Application(Gtk.Application):
             win.present()
 
     def show_settings_window(self, *args):
-        # Temp until proper
-        settings_window = Handy.ApplicationWindow(application=self)
-        # Modal doesn't work
+        settings_window = MirdorphSettingsWindow(application=self)
+        self.add_window(settings_window)
+
         settings_window.set_modal(True)
         settings_window.set_transient_for(self.main_win)
         settings_window.present()

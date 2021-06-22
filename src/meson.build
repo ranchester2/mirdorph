@@ -36,6 +36,7 @@ mirdorph_sources = [
   'atkpicture.py',
   'discord_web_grabber.py',
   'typing_indicator.py',
+  'settings_window.py',
   'link_preview.py',
   'get_token.js'
 ]

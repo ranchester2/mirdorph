@@ -19,6 +19,7 @@ import threading
 import discord
 from pathlib import Path
 from gi.repository import Gtk, Gio, GLib, Gdk, Handy
+from .confman import ConfManager
 from .attachment import MessageEntryBarAttachment
 from .event_receiver import EventReceiver
 
@@ -48,8 +49,14 @@ class MessageEntryBar(Gtk.Box, EventReceiver):
         self._add_extra_attachment_button.show()
         self._attachment_container.pack_start(self._add_extra_attachment_button, False, False, 0)
 
+        self.app.confman.connect("setting-changed", self._on_confman_setting_changed)
+        self._should_send_typing_events = self.app.confman.get_value("send_typing_events")
+
         check_if_can_send_thread = threading.Thread(target=self._check_if_can_send_target)
         check_if_can_send_thread.start()
+
+    def _on_confman_setting_changed(self, confman: ConfManager, setting: str):
+        self._should_send_typing_events = self.app.confman.get_value("send_typing_events")
 
     def handle_first_see(self):
         """
@@ -158,10 +165,11 @@ class MessageEntryBar(Gtk.Box, EventReceiver):
     def _on_message_entry_changed(self, entry):
         if entry.get_text():
             self._send_button.set_sensitive(True)
-            asyncio.run_coroutine_threadsafe(
-                self._simulate_typing(),
-                self.app.discord_loop
-            )
+            if self._should_send_typing_events:
+                asyncio.run_coroutine_threadsafe(
+                    self._simulate_typing(),
+                    self.app.discord_loop
+                )
             self._send_button.get_style_context().add_class("suggested-action")
         elif len(self._attachment_container.get_children()) < 2:
             self._send_button.set_sensitive(False)

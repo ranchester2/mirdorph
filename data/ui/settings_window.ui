@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <requires lib="gtk+" version="3.24" />
+  <requires lib="libhandy" version="1.0" />
+  <template class="MirdorphSettingsWindow" parent="HdyPreferencesWindow">
+    <child>
+      <object class="HdyPreferencesPage">
+        <property name="visible">True</property>
+        <property name="icon-name">preferences-system-privacy-symbolic</property>
+        <property name="title">Privacy</property>
+        <child>
+          <object class="HdyPreferencesGroup">
+            <property name="visible">True</property>
+            <property name="title">Interaction</property>
+            <child>
+              <object class="HdyActionRow">
+                <property name="visible">True</property>
+                <property name="title">Send typing events</property>
+                <property name="activatable-widget">_send_typing_switch</property>
+                <child>
+                  <object class="GtkSwitch" id="_send_typing_switch">
+                    <property name="visible">True</property>
+                    <property name="valign">GTK_ALIGN_CENTER</property>
+                    <signal name="state-set" handler="_on_send_typing_switch_state_set" />
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+  </template>
+</interface>
