@@ -36,7 +36,8 @@ class ConfManager:
         'added_channels': [
         ],
         # For atkpicture, not relevant yet
-        'max_image_content_width': 550
+        'max_image_content_width': 550,
+        'tos_notice_accepted': False
     }
 
     def __init__(self, path: Path = None):

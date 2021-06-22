@@ -21,8 +21,42 @@ import subprocess
 import threading
 import requests
 import time
-from gi.repository import Gtk, Gdk, GLib, Handy
+from gi.repository import Gtk, Gio, Gdk, GLib, Handy
 from .discord_web_grabber import DiscordGrabber
+
+
+@Gtk.Template(resource_path="/org/gnome/gitlab/ranchester/Mirdorph/ui/tos_notice.ui")
+class TosNotice(Gtk.MessageDialog):
+    __gtype_name__ = "TosNotice"
+
+    _tos_textview: Gtk.TextView = Gtk.Template.Child()
+    _tos_scrolled_win: Gtk.ScrolledWindow = Gtk.Template.Child()
+    _understood_checkbutton: Gtk.CheckButton = Gtk.Template.Child()
+
+    def __init__(self, *args, **kwargs):
+        Gtk.MessageDialog.__init__(self, *args, **kwargs)
+
+        tos_text_rd = Gio.resources_lookup_data(
+            "/org/gnome/gitlab/ranchester/Mirdorph/tos.txt", 0)
+        tos_text = tos_text_rd.get_data().decode("utf-8")
+
+        self._tos_textview.get_buffer().set_text(tos_text)
+
+        self._tos_scrolled_win.get_vadjustment().connect(
+            "value-changed", self._on_adj_value_changed)
+
+        self.get_widget_for_response(Gtk.ResponseType.CANCEL).grab_focus()
+
+        # If the secondary-text is long, even though it rewraps, the window
+        # is first resized to the size it would be if the text couldn't wrap.
+        # So we need to resize it again after that.
+        self.set_resizable(True)
+        self.resize(450, 1)
+
+    def _on_adj_value_changed(self, adj):
+        bottom = adj.get_upper() - adj.get_page_size()
+        if (abs(adj.get_value() - bottom) < sys.float_info.epsilon):
+            self._understood_checkbutton.get_parent().set_sensitive(True)
 
 
 @Gtk.Template(resource_path='/org/gnome/gitlab/ranchester/Mirdorph/ui/login_window.ui')
@@ -54,6 +88,10 @@ class MirdorphLoginWindow(Handy.ApplicationWindow):
         super().__init__(**kwargs)
         self._build_token_grabber()
 
+        if not self.props.application.confman.get_value("tos_notice_accepted"):
+            # If directly shown in __init__, the login window would not be displayed yet.
+            GLib.idle_add(self._show_tos_notice)
+
     def _build_token_grabber(self):
         try:
             self._token_grabber
@@ -66,6 +104,15 @@ class MirdorphLoginWindow(Handy.ApplicationWindow):
         self._token_grabber.connect("login_failed", self._on_web_login_failed)
         self._token_grabber.show()
         self._login_graphical_page_webview_container.pack_start(self._token_grabber, True, True, 0)
+
+    def _show_tos_notice(self):
+        notice = TosNotice(modal=True, transient_for=self)
+        response = notice.run()
+        if response == Gtk.ResponseType.OK:
+            self.props.application.confman.set_value("tos_notice_accepted", True)
+            notice.destroy()
+        else:
+            os._exit(0)
 
     @Gtk.Template.Callback()
     def _on_token_button_clicked(self, button):

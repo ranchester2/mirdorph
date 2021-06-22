@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <requires lib="gtk+" version="3.22" />
+  <template class="TosNotice" parent="GtkMessageDialog">
+    <property name="message-type">warning</property>
+    <property name="title">Critical Warning</property>
+    <property name="secondary-text">Use of Mirdorph is a direct violation of Discord's terms of service, and may lead to account termination.</property>
+    <child internal-child="vbox">
+      <object class="GtkBox">
+        <child>
+          <object class="GtkBox">
+            <property name="visible">True</property>
+            <property name="border-width">10</property>
+            <property name="spacing">12</property>
+            <property name="orientation">vertical</property>
+            <child>
+              <object class="GtkScrolledWindow" id="_tos_scrolled_win">
+                <property name="visible">True</property>
+                <property name="min-content-width">400</property>
+                <property name="min-content-height">200</property>
+                <property name="shadow-type">out</property>
+                <child>
+                  <object class="GtkTextView" id="_tos_textview">
+                    <property name="visible">True</property>
+                    <property name="monospace">True</property>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkBox">
+                <property name="visible">True</property>
+                <property name="sensitive">False</property>
+                <property name="spacing">6</property>
+                <child>
+                  <object class="GtkCheckButton" id="_understood_checkbutton">
+                    <property name="visible">True</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="visible">True</property>
+                    <property name="label">I have understood the terms.</property>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="pack-type">end</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+    <child type="action">
+      <object class="GtkButton" id="_button_proceed">
+        <property name="visible">True</property>
+        <property name="sensitive" bind-source="_understood_checkbutton" bind-property="active" bind-flags="default">False</property>
+        <property name="can_default">False</property>
+        <property name="label">Proceed</property>
+        <style>
+          <class name="destructive-action" />
+        </style>
+      </object>
+    </child>
+    <child type="action">
+      <object class="GtkButton" id="_button_cancel">
+        <property name="visible">True</property>
+        <property name="can_default">True</property>
+        <property name="label">Cancel</property>
+      </object>
+    </child>
+    <action-widgets>
+      <action-widget response="ok">_button_proceed</action-widget>
+      <action-widget response="cancel" default="true">_button_cancel</action-widget>
+    </action-widgets>
+  </template>
+</interface>
