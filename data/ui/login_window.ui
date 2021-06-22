@@ -268,7 +268,6 @@
                       <object class="GtkInfoBar">
                         <property name="visible">True</property>
                         <property name="valign">GTK_ALIGN_START</property>
-                        <property name="halign">GTK_ALIGN_CENTER</property>
                         <property name="message-type">warning</property>
                         <property name="show-close-button">True</property>
                         <signal name="response" handler="_on_password_warning_bar_response" />
@@ -286,7 +285,7 @@
                                     <property name="wrap">True</property>
                                     <property name="wrap-mode">word</property>
                                     <property name="xalign">0.0</property>
-                                    <property name="label">WARNING: Email and password login not recommended.</property>
+                                    <property name="label">WARNING: Email and password login not recommended:</property>
                                   </object>
                                 </child>
                                 <child>
@@ -295,16 +294,7 @@
                                     <property name="wrap">True</property>
                                     <property name="wrap-mode">word</property>
                                     <property name="xalign">0.0</property>
-                                    <property name="label">Will not work with advanced configurations (2FA/Captcha).</property>
-                                  </object>
-                                </child>
-                                <child>
-                                  <object class="GtkLabel">
-                                    <property name="visible">True</property>
-                                    <property name="wrap">True</property>
-                                    <property name="wrap-mode">word</property>
-                                    <property name="xalign">0.0</property>
-                                    <property name="label">Use Graphical Login or Manual Token instead.</property>
+                                    <property name="label">Will not work with advanced configurations (2FA/Captcha), use Graphical Login or Manual Token instead.</property>
                                   </object>
                                 </child>
                               </object>
