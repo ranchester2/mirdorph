@@ -1,24 +1,21 @@
+# Significantly copied from GIARA and Gabmus's blog
 import cairo
 from gi.repository import Gtk, Gdk, GdkPixbuf
 
 # What is this?
 # This is a resizable picture widget, copied from Gabmus's blog and Giara.
-# Unfortunatley it was eventually left unused.
-# It really messed up scrolling no matter in what way I tried to implement it, so
-# by this
+# I tried to use it for the post images, however
+# it really messed up scrolling no matter in what way I tried to implement it, so
+# bye this
+
 
 class AtkPicture(Gtk.DrawingArea):
-    __gtype_name__ = "AtkPicture"
-
-    def __init__(self, path, confman, template=False, width=None, height=None, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.confman = confman
+    def __init__(self, path: str, max_width=450, *args, **kwargs):
+        Gtk.DrawingArea.__init__(self, *args, **kwargs)
         self.path = path
+        self.max_width = max_width
 
-        if not template:
-            self.pixbuf = GdkPixbuf.Pixbuf.new_from_file(self.path)
-        else:
-            self.pixbuf = GdkPixbuf.Pixbuf.new_from_resource_at_scale(self.path, width, height, preserve_aspect_ratio=False)
+        self.pixbuf = GdkPixbuf.Pixbuf.new_from_file(self.path)
         self.img_surface = Gdk.cairo_surface_create_from_pixbuf(
             self.pixbuf, 1, None
         )
@@ -37,15 +34,10 @@ class AtkPicture(Gtk.DrawingArea):
     def do_draw(self, context):
         width = self.get_allocated_width()
         x_pos = 0
-        max_wid = self.confman.get_value('max_image_content_width')
-        if self.pixbuf.get_width() < 100:
-            max_wid /= max_wid / 3
-    
-        if max_wid > 0:
-            if width > max_wid:
-                width = max_wid
+        if self.max_width > 0:
+            if width > self.max_width:
+                width = self.max_width
                 x_pos = (self.get_allocated_width()//2)-(width//2)
-
         height = self.get_useful_height(width)
         sf = self.get_mscale_factor(width)
         if sf != self.old_sf:
