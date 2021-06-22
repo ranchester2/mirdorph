@@ -20,8 +20,9 @@ import json
 import logging
 import copy
 from pathlib import Path
+from gi.repository import GObject
 
-class ConfManager:
+class ConfManager(GObject.GObject):
     """
     The ConfManager is a system that helps manage the configuration
     of the application.
@@ -29,6 +30,11 @@ class ConfManager:
     It is recommended to ever only have one instane, and add it to 
     your application class
     """
+
+    __gsignals__ = {
+        "setting_changed": (GObject.SignalFlags.RUN_FIRST, None,
+                            (str,))
+    }
 
     BASE_SCHEMA = {
         # Example and for testing
@@ -47,6 +53,7 @@ class ConfManager:
         param:
             path: (optional) override the default path
         """
+        GObject.GObject.__init__(self)
         if path is None:
             self.path = Path(os.environ["XDG_CONFIG_HOME"] + "/" + "mirdorph.conf.json")
         else:
@@ -96,6 +103,7 @@ class ConfManager:
         """
         self._conf[name] = copy.deepcopy(val)
         self.save_conf()
+        self.emit("setting_changed", name)
 
     def get_value(self, name: str) -> any:
         return self._conf[name]
