@@ -360,6 +360,7 @@ class ChannelInnerWindow(Gtk.Box):
         param:
             attachment: show a given attachment at start
         """
+        self._image_viewer.display_image(attachment)
         self._main_deck.set_visible_child(self._image_viewer)
 
     def exit_image_viewer(self):
