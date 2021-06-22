@@ -16,7 +16,7 @@
 import discord
 import os
 from pathlib import Path
-from gi.repository import Gtk, Gio
+from gi.repository import Gtk, Gio, Handy
 from .atkpicture import AtkPicture
 
 
@@ -25,6 +25,7 @@ class ImageViewer(Gtk.Box):
     __gtype_name__ = "ImageViewer"
 
     _picture_container: Gtk.Box = Gtk.Template.Child()
+    _headerbar: Handy.HeaderBar = Gtk.Template.Child()
 
     def __init__(self, context, *args, **kwargs):
         Gtk.Box.__init__(self, *args, **kwargs)
@@ -59,3 +60,5 @@ class ImageViewer(Gtk.Box):
         )
         picture_wid.show()
         self._picture_container.add(picture_wid)
+
+        self._headerbar.set_title(attachment.filename)

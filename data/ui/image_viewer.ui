@@ -5,7 +5,7 @@
   <template class="ImageViewer" parent="GtkBox">
     <property name="orientation">vertical</property>
     <child>
-      <object class="HdyHeaderBar">
+      <object class="HdyHeaderBar" id="_headerbar">
         <property name="visible">True</property>
         <property name="show-close-button">True</property>
         <property name="title">media.bin</property>
