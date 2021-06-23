@@ -14,10 +14,11 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import discord
+import time
 import os
 import subprocess
 from pathlib import Path
-from gi.repository import Gtk, Gdk, Gio, Handy
+from gi.repository import Gtk, Gdk, GLib, Gio, Handy
 from .atkpicture import AtkPicture
 
 
@@ -29,11 +30,15 @@ class ImageViewer(Handy.Flap):
     _headerbar: Handy.HeaderBar = Gtk.Template.Child()
     _fullscreen_button_image: Gtk.Image = Gtk.Template.Child()
 
+    _mouse_hover_eventbox: Gtk.EventBox = Gtk.Template.Child()
+    _catalog_buttons_revealer: Gtk.Revealer = Gtk.Template.Child()
+
     def __init__(self, context, *args, **kwargs):
         Handy.Flap.__init__(self, *args, **kwargs)
         self.context = context
         self.app = Gio.Application.get_default()
 
+        self._last_show_catalog_button_time = None
         self._current_image_path: Path = None
         # It is recommended to not assume from .fullscreen()
         # However, using ::window-state-event causes MASSIVE
@@ -51,6 +56,8 @@ class ImageViewer(Handy.Flap):
 
         self.insert_action_group("image-viewer", self._image_viewer_action_group)
 
+        # Doesn't work by default
+        self._mouse_hover_eventbox.set_events(Gdk.EventMask.POINTER_MOTION_MASK)
         # When switching channels, this will "pile up"
         # FIXME: it is counted as an umap when a window is being popped in
         self.connect("unmap", self._remove_existing_image)
@@ -58,6 +65,22 @@ class ImageViewer(Handy.Flap):
     @Gtk.Template.Callback()
     def _on_back_button_clicked(self, button: Gtk.Button):
         self.context.exit_image_viewer()
+
+    @Gtk.Template.Callback()
+    def _on_motion(self, *args):
+        def waiting_callback():
+            if (self._last_show_catalog_button_time) + 3 >= time.time():
+                return True
+            else:
+                self._catalog_buttons_revealer.set_reveal_child(False)
+                return False
+
+        self._catalog_buttons_revealer.set_reveal_child(True)
+        self._last_show_catalog_button_time = time.time()
+        GLib.timeout_add(
+            250,
+            waiting_callback
+        )
 
     def _action_open_in_app(self, *args):
         subprocess.run(["xdg-open", str(self._current_image_path)])
