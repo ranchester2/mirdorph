@@ -25,7 +25,7 @@ from .atkpicture import AtkPicture
 class ImageViewer(Gtk.Box):
     __gtype_name__ = "ImageViewer"
 
-    _picture_container: Gtk.Box = Gtk.Template.Child()
+    _picture_container: Gtk.ScrolledWindow = Gtk.Template.Child()
     _headerbar: Handy.HeaderBar = Gtk.Template.Child()
     _fullscreen_button_image: Gtk.Image = Gtk.Template.Child()
 
@@ -94,6 +94,7 @@ class ImageViewer(Gtk.Box):
         )
         picture_wid = AtkPicture(
             str(self._current_image_path),
+            self._picture_container,
             max_width=attachment.width if attachment.width else 0,
             vexpand=True,
             hexpand=True,

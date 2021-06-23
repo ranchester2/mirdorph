@@ -75,13 +75,8 @@
       <object class="GtkOverlay">
         <property name="visible">True</property>T
         <child>
-          <object class="GtkScrolledWindow">
+          <object class="GtkScrolledWindow" id="_picture_container">
             <property name="visible">True</property>
-            <child>
-              <object class="GtkBox" id="_picture_container">
-                <property name="visible">True</property>
-              </object>
-            </child>
           </object>
         </child>
       </object>

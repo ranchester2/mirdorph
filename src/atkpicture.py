@@ -10,17 +10,16 @@ from gi.repository import Gtk, Gdk, GdkPixbuf
 
 
 class AtkPicture(Gtk.DrawingArea):
-    def __init__(self, path: str, max_width=450, *args, **kwargs):
+    def __init__(self, path: str, governing_container: Gtk.Widget, max_width=450, *args, **kwargs):
         Gtk.DrawingArea.__init__(self, *args, **kwargs)
         self.path = path
         self.max_width = max_width
+        self.governing_container = governing_container
 
         self.pixbuf = GdkPixbuf.Pixbuf.new_from_file(self.path)
         self.img_surface = Gdk.cairo_surface_create_from_pixbuf(
             self.pixbuf, 1, None
         )
-        self.old_scaled_surface = None
-        self.old_sf = -1
 
     def get_useful_height(self, width):
         aw = width
@@ -31,28 +30,38 @@ class AtkPicture(Gtk.DrawingArea):
     def get_mscale_factor(self, width):
         return width / self.pixbuf.get_width()
 
+    # Based on Fractal code
+    # Adjust the `w` x `h` to fit in `maxw` x `maxh`, keeping the aspect ratio.
+    def adjust_to(self, w: int, h: int, maxw: int, maxh: int) -> (int, int,):
+        pw = w
+        ph = h
+
+        if pw > maxw:
+            ph = maxw * ph / pw
+            pw = maxw
+        elif ph > maxh:
+            pw = maxh * pw / ph
+            ph = maxh
+
+        return (pw, ph)
+
     def do_draw(self, context):
         width = self.get_allocated_width()
-        x_pos = 0
         if self.max_width > 0:
             if width > self.max_width:
                 width = self.max_width
-                x_pos = (self.get_allocated_width()//2)-(width//2)
-        height = self.get_useful_height(width)
+
+        width, height = self.adjust_to(
+            width,
+            self.get_useful_height(width),
+            self.governing_container.get_allocation().width,
+            self.governing_container.get_allocation().height,
+        )
+
+
         sf = self.get_mscale_factor(width)
-        if sf != self.old_sf:
-            self.old_sf = sf
-            wsf = self.get_scale_factor()
-            self.old_scaled_surface = context.get_target().create_similar(
-                cairo.Content.COLOR_ALPHA,
-                int(wsf*width),
-                int(wsf*height)
-            )
-            self.old_scaled_surface.set_device_scale(wsf, wsf)
-            scaled_ctx = cairo.Context(self.old_scaled_surface)
-            scaled_ctx.scale(sf, sf)
-            scaled_ctx.set_source_surface(self.img_surface, x_pos, 0)
-            scaled_ctx.paint()
-        context.set_source_surface(self.old_scaled_surface, x_pos, 0)
+        context.scale(sf, sf)
+        x_pos = ((self.get_allocated_width()//2)-(width//2))
+        context.set_source_surface(self.img_surface, x_pos, 0)
         context.paint()
         self.set_size_request(-1, height)
