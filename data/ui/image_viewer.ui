@@ -18,9 +18,13 @@
       </object>
     </child>
   </object>
-  <template class="ImageViewer" parent="GtkBox">
+  <template class="ImageViewer" parent="HdyFlap">
     <property name="orientation">vertical</property>
-    <child>
+    <property name="fold-policy">never</property>
+    <property name="modal">False</property>
+    <property name="swipe-to-close">False</property>
+    <property name="swipe-to-open">False</property>
+    <child type="flap">
       <object class="HdyHeaderBar" id="_headerbar">
         <property name="visible">True</property>
         <property name="show-close-button">True</property>
@@ -71,7 +75,7 @@
         </child>
       </object>
     </child>
-    <child>
+    <child type="content">
       <object class="GtkOverlay">
         <property name="visible">True</property>T
         <child>

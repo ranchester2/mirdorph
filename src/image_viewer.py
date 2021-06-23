@@ -22,7 +22,7 @@ from .atkpicture import AtkPicture
 
 
 @Gtk.Template(resource_path="/org/gnome/gitlab/ranchester/Mirdorph/ui/image_viewer.ui")
-class ImageViewer(Gtk.Box):
+class ImageViewer(Handy.Flap):
     __gtype_name__ = "ImageViewer"
 
     _picture_container: Gtk.ScrolledWindow = Gtk.Template.Child()
@@ -30,7 +30,7 @@ class ImageViewer(Gtk.Box):
     _fullscreen_button_image: Gtk.Image = Gtk.Template.Child()
 
     def __init__(self, context, *args, **kwargs):
-        Gtk.Box.__init__(self, *args, **kwargs)
+        Handy.Flap.__init__(self, *args, **kwargs)
         self.context = context
         self.app = Gio.Application.get_default()
 
@@ -70,6 +70,10 @@ class ImageViewer(Gtk.Box):
                     "view-fullscreen-symbolic",
                     Gtk.IconSize.BUTTON
                 )
+
+                self.set_fold_policy(Handy.FlapFoldPolicy.NEVER)
+                self.set_reveal_flap(True)
+
                 self._is_fullscreen = False
             else:
                 window.fullscreen()
@@ -77,6 +81,10 @@ class ImageViewer(Gtk.Box):
                     "view-restore-symbolic",
                     Gtk.IconSize.BUTTON
                 )
+
+                self.set_fold_policy(Handy.FlapFoldPolicy.ALWAYS)
+                self.set_reveal_flap(True)
+
                 self._is_fullscreen = True
 
     def _remove_existing_image(self, *args):
