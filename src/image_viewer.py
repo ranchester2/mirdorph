@@ -15,6 +15,7 @@
 
 import discord
 import os
+import subprocess
 from pathlib import Path
 from gi.repository import Gtk, Gio, Handy
 from .atkpicture import AtkPicture
@@ -32,6 +33,14 @@ class ImageViewer(Gtk.Box):
         self.context = context
         self.app = Gio.Application.get_default()
 
+        self._current_image_path: Path = None
+
+        self._image_viewer_action_group = Gio.SimpleActionGroup()
+        open_in_app = Gio.SimpleAction.new("open-in-app", None)
+        open_in_app.connect("activate", self._action_open_in_app)
+        self._image_viewer_action_group.add_action(open_in_app)
+        self.insert_action_group("image-viewer", self._image_viewer_action_group)
+
         # When switching channels, this will "pile up"
         self.connect("unmap", self._remove_existing_image)
 
@@ -39,20 +48,24 @@ class ImageViewer(Gtk.Box):
     def _on_back_button_clicked(self, button: Gtk.Button):
         self.context.exit_image_viewer()
 
+    def _action_open_in_app(self, *args):
+        subprocess.run(["xdg-open", str(self._current_image_path)])
+
     def _remove_existing_image(self, *args):
         if self._picture_container.get_children():
             self._picture_container.get_children()[0].destroy()
+            self._current_image_path = None
 
     def display_image(self, attachment: discord.Attachment):
         self._remove_existing_image()
         # It is safe to assume that the picture exists, because the click to open the ImagePreview
         # can only happen after the image is downloaded
-        image_path = Path(
+        self._current_image_path = Path(
             Path(os.environ["XDG_CACHE_HOME"]) / Path("mirdorph") / Path(
             "attachment_image_" + str(attachment.id) + os.path.splitext(attachment.filename)[1])
         )
         picture_wid = AtkPicture(
-            str(image_path),
+            str(self._current_image_path),
             max_width=attachment.width if attachment.width else 0,
             vexpand=True,
             hexpand=True,
