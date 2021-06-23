@@ -52,6 +52,7 @@ class ImageViewer(Handy.Flap):
         self.insert_action_group("image-viewer", self._image_viewer_action_group)
 
         # When switching channels, this will "pile up"
+        # FIXME: it is counted as an umap when a window is being popped in
         self.connect("unmap", self._remove_existing_image)
 
     @Gtk.Template.Callback()
