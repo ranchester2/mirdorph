@@ -128,7 +128,7 @@ class ChannelInnerWindow(Gtk.Box):
     # Would be better to move this to main_win instead,
     # this is curently temp as we need to popin, however
     # we could just go through the list of channel contexts.
-    def handle_flap_folding(self, flap, folded):
+    def handle_flap_folding(self, flap, *args):
         if flap.get_folded():
             self._flap_toggle_button.set_visible(True)
             self._popout_button_stack.set_visible(False)
@@ -139,6 +139,7 @@ class ChannelInnerWindow(Gtk.Box):
             self._flap_toggle_button.set_visible(False)
             self._popout_button_stack.set_visible(True)
             flap.set_swipe_to_close(False)
+        flap.set_swipe_to_open(True)
 
     # wrapper to load history in the messageview for message sending
     def load_history(self):
@@ -334,11 +335,17 @@ class ChannelInnerWindow(Gtk.Box):
                 # the flap is revealed which is unexpected.
                 if not self.app.main_win.main_flap.get_folded():
                     self.app.main_win.main_flap.set_reveal_flap(True)
+
+                # May be unset after disable swipe to open
+                self.handle_flap_folding(self.app.main_win.main_flap)
             elif self._main_deck.get_visible_child() == self._image_viewer:
                 self.app.main_win.main_flap.set_fold_policy(
                     Handy.FlapFoldPolicy.NEVER
                 )
                 self.app.main_win.main_flap.set_reveal_flap(False)
+                # Sometime it is possible to have it appear
+                # via swipe back.
+                self.app.main_win.main_flap.set_swipe_to_open(False)
 
     def _on_channel_properties(self, action, param):
         properties_window = ChannelPropertiesWindow(channel=self.channel_disc)
