@@ -77,7 +77,7 @@
     </child>
     <child type="content">
       <object class="GtkOverlay">
-        <property name="visible">True</property>T
+        <property name="visible">True</property>
         <child>
           <object class="GtkScrolledWindow" id="_picture_container">
             <property name="visible">True</property>
