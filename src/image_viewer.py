@@ -17,7 +17,7 @@ import discord
 import os
 import subprocess
 from pathlib import Path
-from gi.repository import Gtk, Gio, Handy
+from gi.repository import Gtk, Gdk, Gio, Handy
 from .atkpicture import AtkPicture
 
 
@@ -27,6 +27,7 @@ class ImageViewer(Gtk.Box):
 
     _picture_container: Gtk.Box = Gtk.Template.Child()
     _headerbar: Handy.HeaderBar = Gtk.Template.Child()
+    _fullscreen_button_image: Gtk.Image = Gtk.Template.Child()
 
     def __init__(self, context, *args, **kwargs):
         Gtk.Box.__init__(self, *args, **kwargs)
@@ -34,11 +35,20 @@ class ImageViewer(Gtk.Box):
         self.app = Gio.Application.get_default()
 
         self._current_image_path: Path = None
+        # It is recommended to not assume from .fullscreen()
+        # However, using ::window-state-event causes MASSIVE
+        # performance problems
+        self._is_fullscreen = False
 
         self._image_viewer_action_group = Gio.SimpleActionGroup()
+
         open_in_app = Gio.SimpleAction.new("open-in-app", None)
         open_in_app.connect("activate", self._action_open_in_app)
         self._image_viewer_action_group.add_action(open_in_app)
+        fullscreen = Gio.SimpleAction.new("fullscreen", None)
+        fullscreen.connect("activate", self._action_fullscreen)
+        self._image_viewer_action_group.add_action(fullscreen)
+
         self.insert_action_group("image-viewer", self._image_viewer_action_group)
 
         # When switching channels, this will "pile up"
@@ -50,6 +60,24 @@ class ImageViewer(Gtk.Box):
 
     def _action_open_in_app(self, *args):
         subprocess.run(["xdg-open", str(self._current_image_path)])
+
+    def _action_fullscreen(self, *args):
+        window = self.get_toplevel()
+        if window.is_toplevel():
+            if self._is_fullscreen:
+                window.unfullscreen()
+                self._fullscreen_button_image.set_from_icon_name(
+                    "view-fullscreen-symbolic",
+                    Gtk.IconSize.BUTTON
+                )
+                self._is_fullscreen = False
+            else:
+                window.fullscreen()
+                self._fullscreen_button_image.set_from_icon_name(
+                    "view-restore-symbolic",
+                    Gtk.IconSize.BUTTON
+                )
+                self._is_fullscreen = True
 
     def _remove_existing_image(self, *args):
         if self._picture_container.get_children():
