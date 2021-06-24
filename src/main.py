@@ -22,7 +22,7 @@ import keyring
 
 gi.require_version('Gtk', '3.0')
 
-from gi.repository import Gtk, Gdk, Gio, Handy
+from gi.repository import Gtk, Gdk, GLib, Gio, Handy
 from pathlib import Path
 from .login_window import MirdorphLoginWindow
 from .main_window import MirdorphMainWindow
@@ -37,6 +37,8 @@ class Application(Gtk.Application):
     def __init__(self, discord_loop, discord_client, keyring_exists=False):
         super().__init__(application_id='org.gnome.gitlab.ranchester.Mirdorph',
                          flags=Gio.ApplicationFlags.FLAGS_NONE)
+        GLib.set_application_name("Mirdorph")
+        GLib.set_prgname("org.gnome.gitlab.ranchester.Mirdorph")
         self.discord_loop = discord_loop
         self.discord_client = discord_client
         self.keyring_exists = keyring_exists
