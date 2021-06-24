@@ -78,54 +78,93 @@
     <child type="content">
       <object class="GtkOverlay">
         <property name="visible">True</property>
-        <child>
-          <object class="GtkScrolledWindow" id="_picture_container">
+        <child type="overlay">
+          <object class="GtkRevealer" id="_loading_notif_revealer">
             <property name="visible">True</property>
+            <property name="valign">GTK_ALIGN_START</property>
+            <property name="halign">GTK_ALIGN_CENTER</property>
+            <property name="transition-type">slide-down</property>
+            <child>
+              <object class="GtkBox">
+                <property name="visible">True</property>
+                <property name="spacing">6</property>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="visible">True</property>
+                    <property name="label">Loading more media...</property>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkSpinner">
+                    <property name="visible">True</property>
+                    <property name="active">True</property>
+                  </object>
+                  <packing>
+                    <property name="pack-type">end</property>
+                  </packing>
+                </child>
+                <style>
+                  <class name="app-notification" />
+                </style>
+              </object>
+            </child>
           </object>
         </child>
-        <child type="overlay">
-          <object class="GtkEventBox" id="_mouse_hover_eventbox">
+        <child>
+          <object class="GtkOverlay">
             <property name="visible">True</property>
-            <signal name="motion-notify-event" handler="_on_motion" />
             <child>
-              <object class="GtkRevealer" id="_catalog_buttons_revealer">
+              <object class="GtkScrolledWindow" id="_picture_container">
                 <property name="visible">True</property>
-                <property name="transition-type">crossfade</property>
+              </object>
+            </child>
+            <child type="overlay">
+              <object class="GtkEventBox" id="_mouse_hover_eventbox">
+                <property name="visible">True</property>
+                <signal name="motion-notify-event" handler="_on_motion" />
                 <child>
-                  <object class="GtkBox">
+                  <object class="GtkRevealer" id="_catalog_buttons_revealer">
                     <property name="visible">True</property>
-                    <property name="valign">GTK_ALIGN_CENTER</property>
-                    <property name="margin">12</property>
+                    <property name="transition-type">crossfade</property>
                     <child>
-                      <object class="GtkButton">
+                      <object class="GtkBox">
                         <property name="visible">True</property>
+                        <property name="valign">GTK_ALIGN_CENTER</property>
+                        <property name="margin">12</property>
                         <child>
-                          <object class="GtkImage">
+                          <object class="GtkButton" id="_catalog_forward">
                             <property name="visible">True</property>
-                            <property name="icon-name">go-previous-symbolic</property>
+                            <signal name="clicked" handler="_on_navigate_forward" />
+                            <child>
+                              <object class="GtkImage">
+                                <property name="visible">True</property>
+                                <property name="icon-name">go-previous-symbolic</property>
+                              </object>
+                            </child>
+                            <style>
+                              <class name="osd" />
+                            </style>
                           </object>
                         </child>
-                        <style>
-                          <class name="osd" />
-                        </style>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkButton">
-                        <property name="visible">True</property>
                         <child>
-                          <object class="GtkImage">
+                          <object class="GtkButton" id="_catalog_back">
                             <property name="visible">True</property>
-                            <property name="icon-name">go-next-symbolic</property>
+                            <signal name="clicked" handler="_on_navigate_back" />
+                            <child>
+                              <object class="GtkImage">
+                                <property name="visible">True</property>
+                                <property name="icon-name">go-next-symbolic</property>
+                              </object>
+                            </child>
+                            <style>
+                              <class name="osd" />
+                            </style>
                           </object>
+                          <packing>
+                            <property name="pack-type">end</property>
+                          </packing>
                         </child>
-                        <style>
-                          <class name="osd" />
-                        </style>
                       </object>
-                      <packing>
-                        <property name="pack-type">end</property>
-                      </packing>
                     </child>
                   </object>
                 </child>

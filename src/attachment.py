@@ -23,7 +23,7 @@ import time
 import random
 from enum import Enum
 from pathlib import Path
-from gi.repository import Gtk, Gio, GLib, Gdk, GdkPixbuf, Handy
+from gi.repository import Gtk, Gio, GObject, GLib, Gdk, GdkPixbuf, Handy
 
 
 class AttachmentType(Enum):
@@ -137,6 +137,11 @@ class ImageAttachmentLoadingTemplate(Gtk.Bin):
 class ImageAttachment(MirdorphAttachment, Gtk.Bin):
     __gtype_name__ = "ImageAttachment"
 
+    __gsignals__ = {
+        "image_fully_loaded": (GObject.SIGNAL_RUN_FIRST, None,
+                                 ())
+    }
+
     _image_cache_dir_path = Path(os.environ["XDG_CACHE_HOME"]) / Path("mirdorph")
 
     # Attachment and channel_id arguments captured to not pass it to widget gtk
@@ -235,6 +240,7 @@ class ImageAttachment(MirdorphAttachment, Gtk.Bin):
             self._image_stack.add(self._real_image)
             self._image_stack.set_visible_child(self._real_image)
 
+            self.emit("image_fully_loaded")
 
 def get_attachment_type(attachment: discord.Attachment) -> str:
     """

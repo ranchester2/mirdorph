@@ -17,9 +17,12 @@ import discord
 import time
 import os
 import subprocess
+import asyncio
+import threading
 from pathlib import Path
 from gi.repository import Gtk, Gdk, GLib, Gio, Handy
 from .atkpicture import AtkPicture
+from .attachment import ImageAttachment, AttachmentType, get_attachment_type
 
 
 @Gtk.Template(resource_path="/org/gnome/gitlab/ranchester/Mirdorph/ui/image_viewer.ui")
@@ -32,6 +35,9 @@ class ImageViewer(Handy.Flap):
 
     _mouse_hover_eventbox: Gtk.EventBox = Gtk.Template.Child()
     _catalog_buttons_revealer: Gtk.Revealer = Gtk.Template.Child()
+    _catalog_forward: Gtk.Button = Gtk.Template.Child()
+    _catalog_back: Gtk.Button = Gtk.Template.Child()
+    _loading_notif_revealer: Gtk.Revealer = Gtk.Template.Child()
 
     def __init__(self, context, *args, **kwargs):
         Handy.Flap.__init__(self, *args, **kwargs)
@@ -82,6 +88,108 @@ class ImageViewer(Handy.Flap):
             waiting_callback
         )
 
+    @Gtk.Template.Callback()
+    def _on_navigate_forward(self, button: Gtk.Button):
+        threading.Thread(
+            target=self._navigate_media_target,
+            args=(True,)
+        ).start()
+
+    @Gtk.Template.Callback()
+    def _on_navigate_back(self, button: Gtk.Button):
+        threading.Thread(
+            target=self._navigate_media_target,
+            args=(False,)
+        ).start()
+
+    async def _check_if_first_media(self) -> bool:
+        async for message in self.context.channel_disc.history(limit=None):
+            for attachment in message.attachments:
+                if self._current_attachment == attachment:
+                    return True
+
+                if get_attachment_type(attachment) == AttachmentType.IMAGE:
+                    return False
+        # Very rare edge case (deleted) if this is executed
+        return True
+
+    def _check_if_first_media_target(self):
+        is_first = asyncio.run_coroutine_threadsafe(
+            self._check_if_first_media(),
+            self.app.discord_loop
+        ).result()
+        GLib.idle_add(lambda *_: self._catalog_back.set_visible(not is_first))
+
+    def _signify_catalog_load_start(self):
+        self._loading_notif_revealer.set_reveal_child(True)
+        self._catalog_forward.set_sensitive(False)
+        self._catalog_back.set_sensitive(False)
+
+    def _signify_catalog_load_end(self):
+        self._loading_notif_revealer.set_reveal_child(False)
+        self._catalog_forward.set_sensitive(True)
+        self._catalog_back.set_sensitive(True)
+
+    async def _get_next_attachment(self) -> discord.Attachment:
+        current_attachment_found = False
+        async for message in self.context.channel_disc.history(limit=None):
+            for attachment in message.attachments:
+                if get_attachment_type(attachment) != AttachmentType.IMAGE:
+                    continue
+                if attachment == self._current_attachment:
+                    current_attachment_found = True
+                    continue
+                if current_attachment_found:
+                    return attachment
+        # There are no further attachment
+        return None
+
+    async def _get_previous_attachment(self) -> discord.Attachment:
+        previous_processed_att = None
+        async for message in self.context.channel_disc.history(limit=None):
+            for attachment in message.attachments:
+                if get_attachment_type(attachment) != AttachmentType.IMAGE:
+                    continue
+                if attachment == self._current_attachment:
+                    return previous_processed_att
+                previous_processed_att = attachment
+
+    def _setup_new_imge(self, new_attachment: discord.Attachment):
+        new_image_wid = ImageAttachment(
+            new_attachment, self.context.channel_id)
+
+        def on_full_render(image_attachment: ImageAttachment):
+            # Widget no longer needed, however the file remains,
+            # and the promise of display_image only being used when the image is
+            # downloaded is kept.
+            image_attachment.destroy()
+            self.display_image(new_attachment)
+            self._signify_catalog_load_end()
+
+        new_image_wid.connect("image_fully_loaded", on_full_render)
+
+    def _navigate_media_target(self, forward: bool):
+        GLib.idle_add(self._signify_catalog_load_start)
+
+        if forward:
+            next_attachment = asyncio.run_coroutine_threadsafe(
+                self._get_next_attachment(),
+                self.app.discord_loop
+            ).result()
+            if next_attachment:
+                GLib.idle_add(self._setup_new_imge, next_attachment)
+            else:
+                self._signify_catalog_load_end()
+        else:
+            previous_attachment = asyncio.run_coroutine_threadsafe(
+                self._get_previous_attachment(),
+                self.app.discord_loop
+            ).result()
+            if previous_attachment:
+                GLib.idle_add(self._setup_new_imge, previous_attachment)
+            else:
+                self._signify_catalog_load_end()
+
     def _action_open_in_app(self, *args):
         subprocess.run(["xdg-open", str(self._current_image_path)])
 
@@ -118,16 +226,23 @@ class ImageViewer(Handy.Flap):
 
     def display_image(self, attachment: discord.Attachment):
         self._remove_existing_image()
+
+        self._current_attachment = attachment
         # It is safe to assume that the picture exists, because the click to open the ImagePreview
         # can only happen after the image is downloaded
         self._current_image_path = Path(
-            Path(os.environ["XDG_CACHE_HOME"]) / Path("mirdorph") / Path(
-            "attachment_image_" + str(attachment.id) + os.path.splitext(attachment.filename)[1])
+            Path(os.environ["XDG_CACHE_HOME"]) \
+            / Path("mirdorph") \
+            / Path(
+                "attachment_image_" \
+                + str(self._current_attachment.id) \
+                + os.path.splitext(self._current_attachment.filename)[1]
+            )
         )
         picture_wid = AtkPicture(
             str(self._current_image_path),
             self._picture_container,
-            max_width=attachment.width if attachment.width else 0,
+            max_width=self._current_attachment.width if self._current_attachment.width else 0,
             vexpand=True,
             hexpand=True,
             valign=Gtk.Align.CENTER
@@ -135,4 +250,6 @@ class ImageViewer(Handy.Flap):
         picture_wid.show()
         self._picture_container.add(picture_wid)
 
-        self._headerbar.set_title(attachment.filename)
+        self._headerbar.set_title(self._current_attachment.filename)
+
+        threading.Thread(target=self._check_if_first_media_target).start()
