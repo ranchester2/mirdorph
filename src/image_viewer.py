@@ -64,9 +64,6 @@ class ImageViewer(Handy.Flap):
 
         # Doesn't work by default
         self._mouse_hover_eventbox.set_events(Gdk.EventMask.POINTER_MOTION_MASK)
-        # When switching channels, this will "pile up"
-        # FIXME: it is counted as an umap when a window is being popped in
-        self.connect("unmap", self._remove_existing_image)
 
     @Gtk.Template.Callback()
     def _on_back_button_clicked(self, button: Gtk.Button):
