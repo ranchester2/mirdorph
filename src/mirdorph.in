@@ -21,7 +21,6 @@ import signal
 import gettext
 import asyncio
 import threading
-import time
 import keyring
 import discord
 import logging
@@ -38,12 +37,9 @@ gettext.install('mirdorph', localedir)
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
 
-    import gi
-    from gi.repository import Gio
-
     def init_gtk(discord_loop, client, keyring_exists):
-        logging.basicConfig(level=logging.INFO)
         logging.info("starting gtk")
+
         import gi
         gi.require_version('Gtk', '3.0')
         gi.require_version('Handy', '1')
@@ -53,12 +49,17 @@ if __name__ == '__main__':
         resource._register()
 
         from mirdorph import main
-        sys.exit(main.main(VERSION, discord_loop=discord_loop, discord_client=client, keyring_exists=keyring_exists))
+        sys.exit(
+            main.main(
+                VERSION,
+                discord_loop=discord_loop,
+                discord_client=client,
+                keyring_exists=keyring_exists
+            )
+        )
 
     def init_discord(discord_client, discord_token):
-        if discord_token is None:
-            pass
-        else:
+        if discord_token:
             @discord_client.event
             async def on_ready():
                 logging.info(f"discord logged in as {client.user.name}")
@@ -72,26 +73,28 @@ if __name__ == '__main__':
 
             try:
                 discord_client.run(discord_token, bot=False)
-            # This usually catches improper tokens, unfortunatly can't relaunch
             except discord.errors.LoginFailure:
                 keyring.delete_password("mirdorph", "token")
-                os._exit(1)
+                from gi.repository import GLib, Gio
+                GLib.idle_add(lambda *_ : Gio.Application.get_default().relaunch())
 
     logging.info("retrieving token")
     discord_token = keyring.get_password("mirdorph", "token")
     if discord_token is None:
         logging.info("token doesn't exist")
-        keyring_exists=False
+        keyring_exists = False
     else:
         logging.info("token exists")
-        keyring_exists=True
+        keyring_exists = True
 
     # If stuff breaks, drop intents and set fetch_offline_members to False again.
     intents = discord.Intents.all()
-    client = commands.Bot(command_prefix="&&&", intents=intents, max_messages=100000000000000000, fetch_offline_members=True, guild_subscriptions=True)
+    client = commands.Bot(command_prefix="&&&", intents=intents, max_messages=100000000000000000,
+                          fetch_offline_members=True, guild_subscriptions=True)
 
     discord_loop = asyncio.get_event_loop()
-    gtk_thread = threading.Thread(target=init_gtk, args=(discord_loop, client, keyring_exists))
+    gtk_thread = threading.Thread(target=init_gtk, args=(
+        discord_loop, client, keyring_exists))
     gtk_thread.start()
 
     init_discord(client, discord_token)
