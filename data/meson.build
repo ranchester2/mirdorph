@@ -42,9 +42,6 @@ appstream_file = i18n.merge_file(
   install_dir: join_paths(get_option('datadir'), 'appdata')
 )
 
-# Here because else appstream complains about missing icons
-
-subdir('icons')
 appstream_util = find_program('appstream-util', required: false)
 if appstream_util.found()
   test('Validate appstream file', appstream_util,
@@ -63,3 +60,4 @@ if compile_schemas.found()
   )
 endif
 
+subdir('icons')

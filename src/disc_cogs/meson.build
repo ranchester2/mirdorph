@@ -1,7 +1,5 @@
 pkgdatadir = join_paths(get_option('prefix'), get_option('datadir'), meson.project_name())
 moduledir = join_paths(pkgdatadir, 'mirdorph', 'disc_cogs')
-gnome = import('gnome')
-python = import('python')
 
 discord_test_cogs_sources = [
 	'event_listening.py'
