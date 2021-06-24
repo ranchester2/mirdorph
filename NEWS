@@ -1,99 +1,105 @@
-v0.10.0:
+Version 0.10.0
+~~~~~~~~~~~~~~
+Released: 2021-05-23
 
 More improvements, milestone:
-	* The Message send button now stops being active after sending attachment
-	* Receiving messages performance improved by using proper solution to self bot on_message issues
-	* Usernames of no-role people now use the standard theme accent color
-	* When revealing the attachment tray, the animation is now smooth (most of the time)
-	* Initial system for displaying errors
-	* Related to previous, message sending errors are now explained in UI
-	* You cannot attempt to send messages to channels where you don't have the required perms
-	* The message entry is now focused by default when entering a channel
-	* Improved design of Login Window
-	* You can now additionally login with an email and password
-	* The UI now has a button to log out
-	* Under the hood: Flatpak auto CI
-	* The standard web-based discord login is now no longer a separate window
-	* No longer depends on Go
-	* Initial first-iteration app icon (and symbolic)
-	* Windows now have correct titles
-	* Long messages are now no longer censored
-	* There is now a scroll down to bottom button in channels
-	* You can now no longer accidentally launch multiple main windows
-	* Quotes now look nice in messages
-	* It now no longer looks like you can select multiple channels from different guilds at the same time
-	* You can now search the Guild/Channel list
-	* Channel sidebar looks a bit nicer
-	* Keyboard shortcuts now actually work
-	* Updated Appstream Metadata
-	* Updated Desktop file for better search results
-	* Updated Screenshots
+ * The Message send button now stops being active after sending attachment
+ * Receiving messages performance improved by using proper solution for self bot on_message issues
+ * Usernames of no-role people now use the standard theme accent color
+ * When revealing the attachment tray, the animation is now smooth (most of the time)
+ * Initial system for displaying errors
+ * Related to previous, message sending errors are now explained in UI
+ * You cannot attempt to send messages to channels where you don't have the required perms
+ * The message entry is now focused by default when entering a channel
+ * Improved design of Login Window
+ * You can now additionally login with an email and password
+ * The UI now has a button to log out
+ * Under the hood: Flatpak auto CI
+ * The standard web-based discord login is now no longer a separate window
+ * No longer depends on Go
+ * Initial first-iteration app icon (and symbolic)
+ * Windows now have correct titles
+ * Long messages are now no longer censored
+ * There is now a scroll down to bottom button in channels
+ * You can now no longer accidentally launch multiple main windows
+ * Quotes now look nice in messages
+ * It now no longer looks like you can select multiple channels from different guilds at the same
+   time
+ * You can now search the Guild/Channel list
+ * Channel sidebar looks a bit nicer
+ * Keyboard shortcuts now actually work
+ * Updated Appstream Metadata
+ * Updated Desktop file for better search results
+ * Updated Screenshots
 
-v0.0.4:
+Version 0.0.4
+~~~~~~~~~~~~~
+Released: 2021-05-14
 
 Standard improvements:
-	* You can now select message text
-	* Better sizing for message view (clamp)
-	* Message entry completely Redesigned
-	* Channels now have a basic properties window (transient only on Wayland)
-	* The cache is now in a single mirdorph specific directory
-	* cache is now cleared at startup to prevent massive file buildup (with attach)
-	* Better default sizes and width limits for channels
-	* Messages now look a bit nicer
-	* Images support 
-	* Support for all other types of attachments (downloadable nice file)
-	* You can now send attachments
-	* Usernames now have colors if they have roles (can take long to load)
-	* Appstream metadata now actually works
-	* Updated screenshots
+ * You can now select message text
+ * Better sizing for message view (clamp)
+ * Channels now have a basic properties window (transient only on Wayland)
+ * The cache is now in a single Mirdorph-specific directory
+ * Cache is now cleared at startup to prevent massive file buildup (with attach)
+ * Better default sizes and width limits for channels
+ * Messages now look a bit nicer
+ * Images support
+ * Support for all other types of attachments (downloadable nice file)
+ * You can now send attachments
+ * Usernames now have colors if they have roles (can take long to load)
+ * Appstream metadata now actually works
+ * Updated screenshots
 
-v0.0.3:
+Version 0.0.3
+~~~~~~~~~~~~~
+Released: 2021-05-12
 
 More basic very early improvements:
-	* Messages now wrap and you now longer have clunky horizontal
-scrollbar
-	* Initial basic main app menu with empty preferences and fancy
-about dialog!
-	* Channels now have guild and search in an extra menu that currently
-don't do anything
-	* Now the flap closes automatically when you select a channel in
-mobile mode
-	* Now you have graphical discord login, no more messing with
-getting your token, nice login email and password gui
-	* Messages now have profile icons
-	* Flatpak is now buildable offline apart from one module
-	* Things can now be gpu accelerated
-	* You can now scroll endlessly in channels and history is loaded on the fly
-	* Prettier messages view with clamp
+ * Messages now wrap and you now no longer have clunky horizontal scrollbar
+ * Initial basic main app menu with empty preferences and fancy about dialog!
+ * Channels now have guild and search in an extra menu that currently doesn't do anything
+ * Now the flap closes automatically when you select a channel in mobile mode
+ * Now you have graphical discord login, no more messing with getting your token, nice login email
+   and password gui
+ * Messages now have profile icons
+ * Flatpak is now buildable offline apart from one module
+ * Things can now be gpu accelerated
+ * You can now scroll endlessly in channels and history is loaded on the fly
+ * Prettier messages view with clamp
 
-v0.0.2:
+Version 0.0.2
+~~~~~~~~~~~~~
+Released: 2021-05-09
 
-Basic very early improvements:
-	* When a message is sent by another user and you are near the
-bottom of the view, you are now automatically scrolled to see the message
-	* Added running and building instructions
-	* Slightly improved the discord.py patch for on_message
-	* Initial unit testing, currently only for confman, don't really see how
-to test most other current stuff
-	* Channels now have their name and topic in the titlebar
-	* Redesigned sidebar that shows all the guilds you are part of, has images, and looks
-somewhat nice (however a lot more to come)
-	* You can now toggle the flap without swiping while a channel is not selected
-	* Removed add channel function, obseleter with guild supprt. Adding guild support will
-come in the future
-	* Improved startup performance by lazy loading channels
-	* Documented attempts at solving the April 30th selfbot issue
-	* Nice loading animations for the guild list
-	* Updated screenshots
+Basic very early improvements
+ * When a message is sent by another userand you are near the bottom of the view, you are now
+   automatically scrolled to see the message
+ * Added running and building instructions
+ * Slightly improved the discord.py patch for on_message
+ * Initial unit testing, currently only for confman, don't really see how to test most other
+   current stuff
+ * Chanels now have their name and topic in the titlebar
+ * Redesigned sidebar that shows all the guilds you are part of, has images and looks somewhat nice
+   (however a lot more to come)
+ * You can now toggle the flap without swiping while a channel is not selected
+ * Removed add channel function, obselete with guild support. Adding guild support will come in the
+   future
+ * Improved startup performance by lazy loading channels
+ * Documented attempts at solving the April 30th selfbot issue
+ * Nice loading animations for the guild list
+ * Updated screenshots
 
-v0.0.1:
+Version 0.0.1
+~~~~~~~~~~~~~
+Released: 2021-05-07
 
 Initial MVP released, features:
-	* login support with token and secret storage
-	* somewhat adaptive
-	* adding channels
-	* opening channels
-	* poping out channels into separate windows
-	* sending messages
-	* receiving messages
-	* seeing previous messages
+ * login support with token and secret storage
+ * somewhat adaptive
+ * adding channels
+ * opening channels
+ * poping out channels into separate windows
+ * sending messages
+ * receiving messages
+ * seeing previous messages
