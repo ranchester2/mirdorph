@@ -37,9 +37,9 @@ class DiscordGrabber(WebKit2.WebView):
     __gtype_name__ =  "DiscordGrabber"
 
     __gsignals__ = {
-        'login_complete': (GObject.SIGNAL_RUN_FIRST, None,
+        "login_complete": (GObject.SIGNAL_RUN_FIRST, None,
                       (str,)),
-        'login_failed': (GObject.SIGNAL_RUN_FIRST, None,
+        "login_failed": (GObject.SIGNAL_RUN_FIRST, None,
                       (str,))
     }
 
@@ -54,7 +54,7 @@ class DiscordGrabber(WebKit2.WebView):
         self.get_context().register_uri_scheme(f"token{str(self.SCHEME_ID)}", self._token_uri_callback)
         self.connect("load-changed", self._on_load_changed)
         self.connect("resource-load-started", self._on_resource_load_started)
-        with open(os.path.join(os.path.dirname(__file__), "get_token.js"), 'r') as f:
+        with open(os.path.join(os.path.dirname(__file__), "get_token.js"), "r") as f:
             self._grabber_injection = f"var scheme_id = {str(self.SCHEME_ID)}\n{f.read()}"
 
         self.load_uri("https://discord.com/login")

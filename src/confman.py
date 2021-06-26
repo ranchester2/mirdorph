@@ -38,13 +38,13 @@ class ConfManager(GObject.GObject):
 
     BASE_SCHEMA = {
         # Example and for testing
-        'example': 0,
-        'added_channels': [
+        "example": 0,
+        "added_channels": [
         ],
         # For atkpicture, not relevant yet
-        'max_image_content_width': 550,
-        'tos_notice_accepted': False,
-        'send_typing_events': True
+        "max_image_content_width": 550,
+        "tos_notice_accepted": False,
+        "send_typing_events": True
     }
 
     def __init__(self, path: Path = None):
@@ -86,7 +86,7 @@ class ConfManager(GObject.GObject):
         """
         Force save current configuration to disk
         """
-        with open(str(self.path), 'w') as fd:
+        with open(str(self.path), "w") as fd:
             fd.write(json.dumps(self._conf))
 
     def set_value(self, name: str, val: any):

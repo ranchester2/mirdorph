@@ -59,9 +59,9 @@ class TosNotice(Gtk.MessageDialog):
             self._understood_checkbutton.get_parent().set_sensitive(True)
 
 
-@Gtk.Template(resource_path='/org/gnome/gitlab/ranchester/Mirdorph/ui/login_window.ui')
+@Gtk.Template(resource_path="/org/gnome/gitlab/ranchester/Mirdorph/ui/login_window.ui")
 class MirdorphLoginWindow(Handy.ApplicationWindow):
-    __gtype_name__ = 'MirdorphLoginWindow'
+    __gtype_name__ = "MirdorphLoginWindow"
 
     _toplevel_deck = Gtk.Template.Child()
     _login_welcome_page = Gtk.Template.Child()
@@ -202,7 +202,7 @@ class MirdorphLoginWindow(Handy.ApplicationWindow):
             self.props.application.relaunch()
 
     def _token_web_retrieval_target(self):
-        token = subprocess.check_output('discordlogin', shell=True, text=True)
+        token = subprocess.check_output("discordlogin", shell=True, text=True)
         GLib.idle_add(self._token_generic_retrieval_gtk_target, token)
 
     def _token_generic_retrieval_gtk_target(self, token):

@@ -22,7 +22,7 @@ from pathlib import Path
 from gi.repository import Gtk, Handy, Gio, GObject, GLib, Pango, GdkPixbuf
 from .event_receiver import EventReceiver
 
-@Gtk.Template(resource_path='/org/gnome/gitlab/ranchester/Mirdorph/ui/channel_list_entry.ui')
+@Gtk.Template(resource_path="/org/gnome/gitlab/ranchester/Mirdorph/ui/channel_list_entry.ui")
 class MirdorphChannelListEntry(Gtk.ListBoxRow):
     __gtype_name__ = "MirdorphChannelListEntry"
 
@@ -32,7 +32,7 @@ class MirdorphChannelListEntry(Gtk.ListBoxRow):
         Gtk.ListBoxRow.__init__(self, *args, **kwargs)
         self.id = discord_channel.id
         self.name = discord_channel.name
-        self._channel_label.set_label('#' + discord_channel.name)
+        self._channel_label.set_label("#" + discord_channel.name)
 
 class MirdorphGuildEntry(Handy.ExpanderRow):
     __gtype_name__ = "MirdorphGuildEntry"

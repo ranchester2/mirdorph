@@ -16,7 +16,7 @@
 import copy
 import re
 import gi
-gi.require_version('Gtk', '3.0')
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 from enum import Enum
 from xml.sax.saxutils import escape as escape_xml
@@ -26,7 +26,7 @@ from .link_preview import LinkPreviewExport
 # Because I want to test the parsing, but I can't really get pytest
 # to import a python file with Gresource magic, so this must be generic.
 
-LINK_REGEX = r'(?P<url>https?://[^\s]+)'
+LINK_REGEX = r"(?P<url>https?://[^\s]+)"
 
 class ComponentType(Enum):
     STANDARD = 0
@@ -179,7 +179,7 @@ class MessageComponent(Gtk.Bin):
                 xalign=0.0
             )
             # Safe currently as only strings
-            self._text_label.set_markup(''.join(build_widget_list(self._raw_component_content)))
+            self._text_label.set_markup("".join(build_widget_list(self._raw_component_content)))
             self._text_label.show()
 
             if self.component_type == ComponentType.QUOTE:

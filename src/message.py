@@ -102,7 +102,7 @@ class UserMessageAvatar(Handy.Avatar):
         return pixbuf
 
 
-@Gtk.Template(resource_path='/org/gnome/gitlab/ranchester/Mirdorph/ui/message.ui')
+@Gtk.Template(resource_path="/org/gnome/gitlab/ranchester/Mirdorph/ui/message.ui")
 class MirdorphMessage(Gtk.ListBoxRow):
     __gtype_name__ = "MirdorphMessage"
 
@@ -207,7 +207,7 @@ class MirdorphMessage(Gtk.ListBoxRow):
                 member = Gio.Application.get_default().custom_member_cache[self.author.id]
 
         top_role = member.roles[-1]
-        color_formatted = '#%02x%02x%02x' % top_role.color.to_rgb()
+        color_formatted = "#%02x%02x%02x" % top_role.color.to_rgb()
 
         # @everyone is completely black, we should fix that, to be the default
         # theme color instead

@@ -20,7 +20,7 @@ import os
 import shutil
 import keyring
 
-gi.require_version('Gtk', '3.0')
+gi.require_version("Gtk", "3.0")
 
 from gi.repository import Gtk, Gdk, GLib, Gio, Handy
 from pathlib import Path
@@ -35,7 +35,7 @@ from .settings_window import MirdorphSettingsWindow
 class Application(Gtk.Application):
 
     def __init__(self, discord_loop, discord_client, keyring_exists=False):
-        super().__init__(application_id='org.gnome.gitlab.ranchester.Mirdorph',
+        super().__init__(application_id="org.gnome.gitlab.ranchester.Mirdorph",
                          flags=Gio.ApplicationFlags.FLAGS_NONE)
         GLib.set_application_name("Mirdorph")
         GLib.set_prgname("org.gnome.gitlab.ranchester.Mirdorph")
@@ -61,40 +61,40 @@ class Application(Gtk.Application):
         Handy.init()
         actions = [
             {
-                'name': 'settings',
-                'func': self.show_settings_window,
-                'accel': '<Primary>comma'
+                "name": "settings",
+                "func": self.show_settings_window,
+                "accel": "<Primary>comma"
             },
             {
-                'name': 'about',
-                'func': self.show_about_dialog
+                "name": "about",
+                "func": self.show_about_dialog
             },
             {
-                'name': 'logout',
-                'func': self.log_out
+                "name": "logout",
+                "func": self.log_out
             },
             {
-                'name': 'search-guilds',
-                'func': self.search_guilds,
-                'accel': '<Primary>k'
+                "name": "search-guilds",
+                "func": self.search_guilds,
+                "accel": "<Primary>k"
             }
         ]
 
         for a in actions:
-            c_action = Gio.SimpleAction.new(a['name'], None)
-            c_action.connect('activate', a['func'])
+            c_action = Gio.SimpleAction.new(a["name"], None)
+            c_action.connect("activate", a["func"])
             self.add_action(c_action)
-            if 'accel' in a.keys():
+            if "accel" in a.keys():
                 self.set_accels_for_action(
-                    f'app.{a["name"]}',
-                    [a['accel']]
+                    f"app.{a['name']}",
+                    [a["accel"]]
                 )
 
     def do_activate(self):
         stylecontext = Gtk.StyleContext()
         provider = Gtk.CssProvider()
         provider.load_from_resource(
-            f'/org/gnome/gitlab/ranchester/Mirdorph/ui/gtk_style.css'
+            "/org/gnome/gitlab/ranchester/Mirdorph/ui/gtk_style.css"
         )
         stylecontext.add_provider_for_screen(
             Gdk.Screen.get_default(),
@@ -137,9 +137,9 @@ class Application(Gtk.Application):
 
     def show_about_dialog(self, *args):
         about_builder = Gtk.Builder.new_from_resource(
-            '/org/gnome/gitlab/ranchester/Mirdorph/about_dialog.ui'
+            "/org/gnome/gitlab/ranchester/Mirdorph/about_dialog.ui"
         )
-        dialog = about_builder.get_object('about_dialog')
+        dialog = about_builder.get_object("about_dialog")
         dialog.set_modal(True)
         dialog.set_transient_for(self.main_win)
         dialog.present()

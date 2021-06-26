@@ -32,7 +32,7 @@ def ease_out_cubic(t: float) -> float:
     return (p * p * p + float(1))
 
 
-@Gtk.Template(resource_path='/org/gnome/gitlab/ranchester/Mirdorph/ui/message_view.ui')
+@Gtk.Template(resource_path="/org/gnome/gitlab/ranchester/Mirdorph/ui/message_view.ui")
 class MessageView(Gtk.Overlay, EventReceiver):
     __gtype_name__ = "MessageView"
 

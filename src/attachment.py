@@ -105,7 +105,7 @@ class GenericAttachment(Gtk.ListBox, MirdorphAttachment):
 
     def _save_attachment_target(self):
         # Magic string editing required because xdg-user-dir output isn't completely clean
-        download_dir = str(subprocess.check_output('xdg-user-dir DOWNLOAD', shell=True, text=True))[:-1]
+        download_dir = str(subprocess.check_output("xdg-user-dir DOWNLOAD", shell=True, text=True))[:-1]
 
         pulse_thread = threading.Thread(target=self._pulse_target)
         pulse_thread.start()
@@ -250,13 +250,13 @@ def get_attachment_type(attachment: discord.Attachment) -> str:
     """
 
     data_format = os.path.splitext(attachment.filename)
-    if data_format[1][1:].lower() in ['jpg', 'jpeg', 'bmp', 'png', 'webp']:
+    if data_format[1][1:].lower() in ["jpg", "jpeg", "bmp", "png", "webp"]:
         return AttachmentType.IMAGE
     else:
         return AttachmentType.GENERIC
 
 
-@Gtk.Template(resource_path='/org/gnome/gitlab/ranchester/Mirdorph/ui/message_entry_bar_attachment.ui')
+@Gtk.Template(resource_path="/org/gnome/gitlab/ranchester/Mirdorph/ui/message_entry_bar_attachment.ui")
 # Should be Gtk.bin but then padding and margin don't work?
 class MessageEntryBarAttachment(Gtk.Button):
     __gtype_name__ = "MessageEntryBarAttachment"

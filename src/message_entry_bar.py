@@ -24,7 +24,7 @@ from .attachment import MessageEntryBarAttachment
 from .event_receiver import EventReceiver
 
 
-@Gtk.Template(resource_path='/org/gnome/gitlab/ranchester/Mirdorph/ui/message_entry_bar.ui')
+@Gtk.Template(resource_path="/org/gnome/gitlab/ranchester/Mirdorph/ui/message_entry_bar.ui")
 class MessageEntryBar(Gtk.Box, EventReceiver):
     __gtype_name__ = "MessageEntryBar"
 
@@ -127,7 +127,7 @@ class MessageEntryBar(Gtk.Box, EventReceiver):
             if not child.add_mode:
                 child.destroy()
         self._attachment_togglebutton.set_active(False)
-        self._message_entry.set_text('')
+        self._message_entry.set_text("")
 
         # This doesn't really work with when attachments are sent too,
         # so we do this again manually here

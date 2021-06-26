@@ -21,7 +21,7 @@ import discord
 from gi.repository import Gtk, Gio, GLib, Gdk, Handy
 from .event_receiver import EventReceiver
 
-@Gtk.Template(resource_path='/org/gnome/gitlab/ranchester/Mirdorph/ui/channel_properties_window.ui')
+@Gtk.Template(resource_path="/org/gnome/gitlab/ranchester/Mirdorph/ui/channel_properties_window.ui")
 class ChannelPropertiesWindow(Handy.Window):
     __gtype_name__ = "ChannelPropertiesWindow"
 

@@ -23,7 +23,7 @@ from .event_receiver import EventReceiver
 from .channel_inner_window import ChannelInnerWindow
 from .channel_sidebar import MirdorphChannelSidebar
 
-@Gtk.Template(resource_path='/org/gnome/gitlab/ranchester/Mirdorph/ui/main_window.ui')
+@Gtk.Template(resource_path="/org/gnome/gitlab/ranchester/Mirdorph/ui/main_window.ui")
 class MirdorphMainWindow(Handy.ApplicationWindow):
     __gtype_name__ = "MirdorphMainWindow"
 
@@ -47,9 +47,9 @@ class MirdorphMainWindow(Handy.ApplicationWindow):
         Handy.ApplicationWindow.__init__(self, *args, **kwargs)
 
         menu_builder = Gtk.Builder.new_from_resource(
-            '/org/gnome/gitlab/ranchester/Mirdorph/ui/general_menu.ui'
+            "/org/gnome/gitlab/ranchester/Mirdorph/ui/general_menu.ui"
         )
-        menu = menu_builder.get_object('generalMenu')
+        menu = menu_builder.get_object("generalMenu")
         self._main_menu_popover.bind_model(menu)
 
         self._empty_inner_window = ChannelInnerWindow(empty=True)

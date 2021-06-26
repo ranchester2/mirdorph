@@ -22,7 +22,7 @@ from xml.sax.saxutils import escape as escape_xml
 from .event_receiver import EventReceiver
 
 
-@Gtk.Template(resource_path='/org/gnome/gitlab/ranchester/Mirdorph/ui/typing_indicator.ui')
+@Gtk.Template(resource_path="/org/gnome/gitlab/ranchester/Mirdorph/ui/typing_indicator.ui")
 class TypingIndicator(Gtk.Revealer, EventReceiver):
     __gtype_name__ = "TypingIndicator"
 
@@ -55,7 +55,7 @@ class TypingIndicator(Gtk.Revealer, EventReceiver):
         if self._currently_typing_users:
             self.set_reveal_child(True)
             typing_info_message = "is typing..."
-            username_list = ', '.join(
+            username_list = ", ".join(
                 [f"<b>{escape_xml(user.name)}</b>" for user in self._currently_typing_users]
             )
             typing_info_message = username_list + " " + typing_info_message

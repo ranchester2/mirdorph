@@ -28,7 +28,7 @@ from .message_entry_bar import MessageEntryBar
 from .image_viewer import ImageViewer
 
 
-@Gtk.Template(resource_path='/org/gnome/gitlab/ranchester/Mirdorph/ui/channel_inner_window.ui')
+@Gtk.Template(resource_path="/org/gnome/gitlab/ranchester/Mirdorph/ui/channel_inner_window.ui")
 class ChannelInnerWindow(Gtk.Box):
     __gtype_name__ = "ChannelInnerWindow"
 
@@ -214,7 +214,7 @@ class ChannelInnerWindow(Gtk.Box):
         try:
             assert self._popout_window
         except AttributeError:
-            logging.warning('attempted popin even though not popped out')
+            logging.warning("attempted popin even though not popped out")
             return
 
         self._popout_button_stack.set_visible_child(self._popout_button)
