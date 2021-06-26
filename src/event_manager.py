@@ -13,16 +13,15 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import discord
 import logging
 from .event_receiver import EventReceiver
-from gi.repository import Gio, Gtk, Handy
+from gi.repository import Gio, Gtk
 
 class EventManager:
     """
     Manages events and event receivers
 
-    You need your application to have on as .event_manager
+    You need your application to have one as .event_manager
     for the event receivers to register against.
     """
     def __init__(self):
@@ -35,7 +34,7 @@ class EventManager:
 
         param:
             receiver: the receiver object that will now receive e
-                NOTE: usually users don't use this as the EventReeiver __init__
+                NOTE: usually users don't use this as the EventReceiver __init__
                 does it
         """
         self._receivers.append(receiver)
