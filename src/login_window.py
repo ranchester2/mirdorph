@@ -17,11 +17,9 @@ import os
 import sys
 import keyring
 import logging
-import subprocess
 import threading
 import requests
-import time
-from gi.repository import Gtk, Gio, Gdk, GLib, Handy
+from gi.repository import Gtk, Gio, GLib, Handy
 from .discord_web_grabber import DiscordGrabber
 
 
@@ -53,7 +51,7 @@ class TosNotice(Gtk.MessageDialog):
         self.set_resizable(True)
         self.resize(450, 1)
 
-    def _on_adj_value_changed(self, adj):
+    def _on_adj_value_changed(self, adj: Gtk.Adjustment):
         bottom = adj.get_upper() - adj.get_page_size()
         if (abs(adj.get_value() - bottom) < sys.float_info.epsilon):
             self._understood_checkbutton.get_parent().set_sensitive(True)
@@ -63,26 +61,26 @@ class TosNotice(Gtk.MessageDialog):
 class MirdorphLoginWindow(Handy.ApplicationWindow):
     __gtype_name__ = "MirdorphLoginWindow"
 
-    _toplevel_deck = Gtk.Template.Child()
-    _login_welcome_page = Gtk.Template.Child()
+    _toplevel_deck: Handy.Deck = Gtk.Template.Child()
+    _login_welcome_page: Gtk.Box = Gtk.Template.Child()
 
-    _second_stage_stack = Gtk.Template.Child()
+    _second_stage_stack: Gtk.Stack = Gtk.Template.Child()
 
-    _login_token_page = Gtk.Template.Child()
-    _login_token_entry = Gtk.Template.Child()
-    _login_token_entry_button = Gtk.Template.Child()
+    _login_token_page: Gtk.Box = Gtk.Template.Child()
+    _login_token_entry: Gtk.Entry = Gtk.Template.Child()
+    _login_token_entry_button: Gtk.Button = Gtk.Template.Child()
 
-    _login_password_page = Gtk.Template.Child()
-    _email_entry = Gtk.Template.Child()
-    _password_entry = Gtk.Template.Child()
+    _login_password_page: Gtk.Box = Gtk.Template.Child()
+    _email_entry: Gtk.Entry = Gtk.Template.Child()
+    _password_entry: Gtk.Entry = Gtk.Template.Child()
     _finish_password_login_button = Gtk.Template.Child()
 
-    _login_graphical_page = Gtk.Template.Child()
-    _login_graphical_page_webview_container = Gtk.Template.Child()
+    _login_graphical_page: Gtk.Box = Gtk.Template.Child()
+    _login_graphical_page_webview_container: Gtk.Box = Gtk.Template.Child()
 
-    _notification_revealer = Gtk.Template.Child()
-    _notification_title_label = Gtk.Template.Child()
-    _notification_label = Gtk.Template.Child()
+    _notification_revealer: Gtk.Revealer = Gtk.Template.Child()
+    _notification_title_label: Gtk.Label = Gtk.Template.Child()
+    _notification_label: Gtk.Label = Gtk.Template.Child()
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -103,13 +101,15 @@ class MirdorphLoginWindow(Handy.ApplicationWindow):
         self._token_grabber.connect("login_complete", self._on_web_login_complete)
         self._token_grabber.connect("login_failed", self._on_web_login_failed)
         self._token_grabber.show()
-        self._login_graphical_page_webview_container.pack_start(self._token_grabber, True, True, 0)
+        self._login_graphical_page_webview_container.pack_start(
+            self._token_grabber, True, True, 0)
 
     def _show_tos_notice(self):
         notice = TosNotice(modal=True, transient_for=self)
         response = notice.run()
         if response == Gtk.ResponseType.OK:
-            self.props.application.confman.set_value("tos_notice_accepted", True)
+            self.props.application.confman.set_value(
+                "tos_notice_accepted", True)
             notice.destroy()
         else:
             os._exit(0)
@@ -133,7 +133,7 @@ class MirdorphLoginWindow(Handy.ApplicationWindow):
         os._exit(1)
 
     @Gtk.Template.Callback()
-    def _on_password_warning_bar_response(self, bar, response_id: int):
+    def _on_password_warning_bar_response(self, bar: Gtk.InfoBar, response_id: int):
         if response_id == Gtk.ResponseType.CLOSE:
             bar.hide()
 
@@ -175,17 +175,14 @@ class MirdorphLoginWindow(Handy.ApplicationWindow):
 
     def _on_web_login_failed(self, grabber, help: str):
         self._build_token_grabber()
-        # Currently notification code is copy pasted from main window
-        # But is there a better way?
         self._notification_label.set_label(help)
         self._notification_title_label.set_label("Error")
         self._notification_revealer.set_reveal_child(True)
 
-        GLib.timeout_add_seconds(5, self._notification_waiting_gtk_target)
-
-    def _notification_waiting_gtk_target(self):
-        self._notification_revealer.set_reveal_child(False)
-        return False
+        def notification_waiting_gtk_target():
+            self._notification_revealer.set_reveal_child(False)
+            return False
+        GLib.timeout_add_seconds(5, notification_waiting_gtk_target)
 
     def _token_password_retrieval_target(self):
         email = self._email_entry.get_text()
@@ -194,16 +191,15 @@ class MirdorphLoginWindow(Handy.ApplicationWindow):
             "login": email,
             "password": password
         }
-        r = requests.post("https://discord.com/api/v9/auth/login", json=payload)
+        r = requests.post(
+            "https://discord.com/api/v9/auth/login", json=payload)
         if "token" in r.json():
-            GLib.idle_add(self._token_generic_retrieval_gtk_target, r.json()["token"])
+            GLib.idle_add(
+                self._token_generic_retrieval_gtk_target, r.json()["token"])
         else:
-            logging.fatal("Token not find in Discord Password login response, login failed")
+            logging.fatal(
+                "Token not found in Discord Password login response, login failed. Incorrect password?")
             self.props.application.relaunch()
-
-    def _token_web_retrieval_target(self):
-        token = subprocess.check_output("discordlogin", shell=True, text=True)
-        GLib.idle_add(self._token_generic_retrieval_gtk_target, token)
 
     def _token_generic_retrieval_gtk_target(self, token):
         if token:
