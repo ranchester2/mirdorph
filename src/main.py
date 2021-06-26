@@ -14,22 +14,20 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys
-import gi
 import logging
 import os
 import shutil
 import keyring
-
-gi.require_version("Gtk", "3.0")
-
+import asyncio
+import discord.ext.commands
 from gi.repository import Gtk, Gdk, GLib, Gio, Handy
 from pathlib import Path
 from .login_window import MirdorphLoginWindow
 from .main_window import MirdorphMainWindow
 from .event_manager import EventManager
 from .channel_inner_window import ChannelInnerWindow
-from .confman import ConfManager
 from .settings_window import MirdorphSettingsWindow
+from .confman import ConfManager
 
 
 class Application(Gtk.Application):
@@ -39,14 +37,13 @@ class Application(Gtk.Application):
                          flags=Gio.ApplicationFlags.FLAGS_NONE)
         GLib.set_application_name("Mirdorph")
         GLib.set_prgname("org.gnome.gitlab.ranchester.Mirdorph")
-        self.discord_loop = discord_loop
-        self.discord_client = discord_client
+        self.discord_loop: asyncio.BaseEventLoop = discord_loop
+        self.discord_client: discord.ext.commands.Bot = discord_client
         self.keyring_exists = keyring_exists
 
         self.confman = ConfManager()
         self.event_manager = EventManager()
 
-        self.currently_running_channels = []
         self._inner_window_contexts = {}
 
         # Why the custom member cache? Doesn't discord.py have one?
@@ -104,21 +101,23 @@ class Application(Gtk.Application):
 
         logging.info("clearing cache")
         cache_dir_path = Path(os.environ["XDG_CACHE_HOME"] / Path("mirdorph"))
-        # For first launch
         cache_dir_path.mkdir(exist_ok=True)
         shutil.rmtree(cache_dir_path)
         cache_dir_path.mkdir(parents=True, exist_ok=True)
 
         if self.keyring_exists:
             logging.info("launching with token")
-            # A lot of things break with multiple windows,
+            # A lot of things break with multiple main windows,
             # while this still creats multiple discord clients,
             # it prevents further damage.
+            # The underlying issue why we can't handle this nicely
+            # is because discord is started before this. And if
+            # the application already exists, the process changes,
+            # so we can't kill it easily.
             if self.props.active_window:
                 logging.fatal("Multiple Window formation error")
                 os._exit(1)
             self.main_win = MirdorphMainWindow(application=self)
-
             self.main_win.present()
         else:
             logging.info("launching token retrieval sequence")
@@ -129,8 +128,6 @@ class Application(Gtk.Application):
 
     def show_settings_window(self, *args):
         settings_window = MirdorphSettingsWindow(application=self)
-        self.add_window(settings_window)
-
         settings_window.set_modal(True)
         settings_window.set_transient_for(self.main_win)
         settings_window.present()
@@ -152,13 +149,18 @@ class Application(Gtk.Application):
         self.main_win.channel_sidebar.guild_list_search_bar.set_search_mode(True)
 
     def create_inner_window_context(self, channel: int, flap: Handy.Flap):
-        context = ChannelInnerWindow(empty=False, channel=channel)
+        """
+        Create  an inner window context, usually this is done automatically
+        if none exists.
 
-        # So that it could handle folding
-        # Here not in the init of context, as then the app window
-        # hasn't been created yet, so we need to get a reference from
-        # it somehow before that
-        flap.connect("notify::folded", context.handle_flap_folding)
+        param:
+            channel: integer of the id of the channel
+            flap: the HdyFlap that should be monitored for adaptiveness,
+            you have to provide it here so that ChannelInnerWindows could be
+            created while the main window isn't initialized yet.
+        """
+        context = ChannelInnerWindow(empty=False, channel=channel)
+        flap.connect("notify::oflded", context.handle_flap_folding)
 
         self.main_win.context_stack.add(context)
         self._inner_window_contexts[channel] = context
@@ -170,6 +172,9 @@ class Application(Gtk.Application):
         NOTE: If one does not already exist, it will be
         automatically created
 
+        NOTE: should not be called if the main window isn't
+        assigned yet.
+
         param:
             channel: integer of the id of the channel
         """
@@ -180,7 +185,8 @@ class Application(Gtk.Application):
 
     def do_error(self, error_title: str, error_body: str):
         """
-        Display an error (Discord) in the application.
+        Display an error (Discord) in the application. Note that
+        this is only for the main window.
 
         param:
             error_title: The abstract title of the type of the widget

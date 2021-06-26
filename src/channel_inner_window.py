@@ -56,6 +56,11 @@ class ChannelInnerWindow(Gtk.Box):
         Create a new ChannelInnerWindow. NOTE: don't use this, use
         that of your application instead.
 
+        NOTE: for correctly handling adaptiveness and folding, you need to
+        connect ::notify::folded of your Flap yourself to `handle_flap_folding`.
+        This is because we can't cleanly connect from __init__ here, as in some
+        cases the main window isn't fully initialized yet.
+
         param:
             channel: channel id that this context uses (note: if none empty is on)
             empty: if this is just an empty state for its status message
@@ -125,10 +130,8 @@ class ChannelInnerWindow(Gtk.Box):
             self._popout_button_stack.destroy()
             self._toplevel_content_stack.set_visible_child(self._empty_status_page)
 
-    # Would be better to move this to main_win instead,
-    # this is curently temp as we need to popin, however
-    # we could just go through the list of channel contexts.
-    def handle_flap_folding(self, flap, *args):
+    # NOTE: not connected to the signal automatically, connect it yourself
+    def handle_flap_folding(self, flap: Handy.Flap, *args):
         if flap.get_folded():
             self._flap_toggle_button.set_visible(True)
             self._popout_button_stack.set_visible(False)
