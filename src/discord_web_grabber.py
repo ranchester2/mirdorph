@@ -14,9 +14,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
-import gi
-import logging
 import random
+import gi
 gi.require_version("WebKit2", "4.0")
 from gi.repository import Gtk, GObject, WebKit2
 
@@ -26,13 +25,13 @@ class DiscordGrabber(WebKit2.WebView):
     A custom Discord Web-based token grabber implementation.
 
     Created because discordlogin by diamondburned kind of sucks
-    in some ways. However still has issues with narrow window
-    size and new background.
+    in some ways.
 
     To use, create the widget and listen for the "login-complete"
-    signal, it has the token as an str argument.
+    signal, it has the token as an argument.
 
-    The "login-failed" signal is emitted if it fails.
+    The "login-failed" signal is emitted if it fails (comes with
+    suggested help)
     """
     __gtype_name__ =  "DiscordGrabber"
 
@@ -43,40 +42,50 @@ class DiscordGrabber(WebKit2.WebView):
                       (str,))
     }
 
-    LOGIN_TROUBLESHOOT = "Retry until you get a non-colorful background and make sure the window isn't narrow."
+    LOGIN_TROUBLESHOOT = "Login failed, make sure the window isn't narrow."
 
     def __init__(self, *args, **kwargs):
         WebKit2.WebView.__init__(self, is_ephemeral=True, *args, **kwargs)
-        # To not complain about registering twice
+        # URI schemes - how to send data from Javascript.
+        # WebKitGtk doesn't seem to have an easy way to call host python code from
+        # javascript, however we can register a custom URI scheme,
+        # and put the data we want to send in the path. And trying to open
+        # an arbitrary URI is easy in Javascript.
+
+        # WebKit stores registered URI schemes globally, and fails if multiple of the same
+        # are registered. We can't check which ones are registered easily, however we
+        # can make them random to make this extremely unlikely.
         self.SCHEME_ID = random.randrange(1, 100000)
+        self._scheme = f"token{str(self.SCHEME_ID)}"
 
-        self._inital_exec = False
-        self.get_context().register_uri_scheme(f"token{str(self.SCHEME_ID)}", self._token_uri_callback)
-        self.connect("load-changed", self._on_load_changed)
-        self.connect("resource-load-started", self._on_resource_load_started)
+        self.get_context().register_uri_scheme(self._scheme, self._token_uri_callback)
+
+        # The js file can't immediately contain the scheme id, as it is unique
         with open(os.path.join(os.path.dirname(__file__), "get_token.js"), "r") as f:
-            self._grabber_injection = f"var scheme_id = {str(self.SCHEME_ID)}\n{f.read()}"
+            self._injection_code = f"var scheme_id = {self._scheme}\n{f.read()}"
 
+        self.connect("resource-load-started", self._on_resource_load_started)
+
+        # The Javascript can not be loaded after the website, as then it is overriden.
+        # However we can't just run it after load_uri either, as that will still get
+        # it overriden. Listening to ::load-changed allows us to know when exactly
+        # the website is fully loaded, which is when we need to inject the Javascript.
+        self._initial_exec = False
+        self.connect("load-changed", self._on_load_changed)
         self.load_uri("https://discord.com/login")
 
     def _on_load_changed(self, webview, load_event):
-        if load_event == WebKit2.LoadEvent.FINISHED and not self._inital_exec:
-            self._inital_exec = True
-            self.run_javascript(self._grabber_injection, None, None, None)
+        if load_event == WebKit2.LoadEvent.FINISHED and not self._initial_exec:
+            self._initial_exec = True
+            self.run_javascript(self._injection_code, None, None, None)
 
-    def do_login_complete(self, token: str):
-        pass
-
-    def do_login_failed(self, help: str):
-        pass
-
-    def _token_uri_callback(self, request):
-        self.emit("login_complete", request.get_uri()[len(f"token{str(self.SCHEME_ID)}://"):])
-        # We don't want discord to be continued being displayed instead
+    def _token_uri_callback(self, request: WebKit2.URISchemeRequest):
+        self.emit("login_complete", request.get_uri()[len(f"{self._scheme}://"):])
+        # We don't want discord to be continued being displayed
         self.load_uri("http://www.blankwebsite.com")
 
     def _on_resource_load_started(self, webview, resource, request):
+        # If the token isn't grabbed, we will go on to load the discord Application,
+        # this indicates failure.
         if request.get_uri() == "https://discord.com/app":
-            # When we fail to get the token, we go on to load /app.
             self.emit("login_failed", self.LOGIN_TROUBLESHOOT)
-
