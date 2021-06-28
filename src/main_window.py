@@ -18,7 +18,7 @@ import logging
 import threading
 import queue
 import time
-from gi.repository import Gtk, Handy, Gio, GLib
+from gi.repository import Gtk, GLib, Handy
 from .event_receiver import EventReceiver
 from .channel_inner_window import ChannelInnerWindow
 from .channel_sidebar import MirdorphChannelSidebar
@@ -28,14 +28,11 @@ class MirdorphMainWindow(Handy.ApplicationWindow):
     __gtype_name__ = "MirdorphMainWindow"
 
     main_flap: Handy.Flap = Gtk.Template.Child()
-    # Public, the contexts themselves interact with the stack to manage popout and similar
+    # Public, the contexts themselves interact with the stack to manage popout and popin
     context_stack: Gtk.Stack = Gtk.Template.Child()
     _flap_box: Gtk.Box = Gtk.Template.Child()
 
     _main_menu_popover: Gtk.Popover = Gtk.Template.Child()
-    _main_menu_button: Gtk.Button = Gtk.Template.Child()
-
-    _add_server_button: Gtk.ToggleButton = Gtk.Template.Child()
 
     _notification_revealer: Gtk.Revealer = Gtk.Template.Child()
     _notification_label: Gtk.Label = Gtk.Template.Child()
@@ -57,15 +54,9 @@ class MirdorphMainWindow(Handy.ApplicationWindow):
         self._empty_inner_window.show()
         self.context_stack.add(self._empty_inner_window)
 
-
-        # This is so that we could know when was the first time channel was selected
-        # and then scroll to bottom. For show_active_channel
-        self._previously_selected_channels = [
-
-        ]
-
         # Might be a bit weird to be public.
-        # Before it was for adding channels, however now for toggling search function from MAIN
+        # However we need to toggle the search function from main, I may think about having a method
+        # here for it though.
         self.channel_sidebar = MirdorphChannelSidebar(channel_search_button=self._channel_search_button)
         self.channel_sidebar.show()
         self._flap_box.pack_end(self.channel_sidebar, True, True, 0)
@@ -79,10 +70,9 @@ class MirdorphMainWindow(Handy.ApplicationWindow):
     @Gtk.Template.Callback()
     def _on_context_stack_focus_change(self, stack, strpar):
         # I have been trying to set the default focus when swithing to a child to be the entry bar
-        # However, in most places it just DOESN'T WORK (the function is called though.
-        # It seems that it only works if you wait for GTK to finish whatever its doing. Like
-        # to finish loading channel history. Here, it must be in a GLib.idle_add for whatever
-        # reaso
+        # However, you can't do it here, as you need to wait for GTK to finish everything,
+        # which is why GLib.idle_add. And also why the standard focus APIs don't work,
+        # as the channel is displayed down the line.
         GLib.idle_add(self._setting_switching_focus_gtk_target, stack.get_visible_child())
 
         try:
@@ -104,7 +94,6 @@ class MirdorphMainWindow(Handy.ApplicationWindow):
 
         NOTE: must be called AFTER you remove the channelcontext
         """
-
         self.context_stack.set_visible_child(self._empty_inner_window)
 
     def unconfigure_popout_window(self, context):
@@ -117,36 +106,8 @@ class MirdorphMainWindow(Handy.ApplicationWindow):
         param:
             context - the ChannelInnerWindow context
         """
-
         self.context_stack.add(context)
         self.context_stack.set_visible_child(context)
-
-    def _is_channel_selected_first_time(self, channel_id):
-        return (True if (channel_id not in self._previously_selected_channels) else False)
-
-    def _setting_messages_to_bottom_first_time_target(self, channel_id):
-        stop_qu = queue.Queue()
-        while True:
-            try:
-                is_compl = stop_qu.get(timeout=0.1)
-                if is_compl:
-                    return
-            except queue.Empty:
-                pass
-
-            time.sleep(0.1)
-            GLib.idle_add(
-                self._setting_messages_to_bottom_check_and_run_gtk_target,
-                channel_id,
-                stop_qu
-            )
-
-    def _setting_messages_to_bottom_check_and_run_gtk_target(self, channel_id, stop_qu):
-        context = self.props.application.retrieve_inner_window_context(channel_id)
-        if context.history_loading_is_complete:
-            context.scroll_messages_to_bottom()
-            stop_qu.put(True)
-
 
     def show_active_channel(self, channel_id):
         """
@@ -156,16 +117,14 @@ class MirdorphMainWindow(Handy.ApplicationWindow):
             channel_id: int of the channel that you want
             to display
         """
-
         context = self.props.application.retrieve_inner_window_context(channel_id)
         if context.is_poped:
             temp_win_top = context.get_toplevel()
-            # Function name misleading
             if temp_win_top.is_toplevel():
                 temp_win_top.present()
 
-            # May seem weird to use it here, however if we don't make it look
-            # like there is no channel selected, then the previous channel is shown
+            # May seem weird to use it here, however without it the previous channel
+            # is shown, and the channel selection breaks.
             self.reconfigure_for_popout_window()
         else:
             # Temp hack to get it to work when switching channels in mobile
@@ -175,20 +134,6 @@ class MirdorphMainWindow(Handy.ApplicationWindow):
             self.context_stack.set_visible_child(context)
             # For making the entry the default focus
             context.do_first_see()
-            
-        if self._is_channel_selected_first_time(channel_id):
-            self._previously_selected_channels.append(channel_id)
-
-            # Because loading channels is in another thread, we cannot directly
-            # try scrolling the messages here as it might not have finished yet
-            # which is why we create another thread that continually checks if it has completed
-            stop_thread = False
-
-            setting_messages_to_bot_thread = threading.Thread(
-                target=self._setting_messages_to_bottom_first_time_target,
-                args=(channel_id,)
-            )
-            setting_messages_to_bot_thread.start()
 
     @Gtk.Template.Callback()
     def _on_notification_button_clicked(self, button):
@@ -204,4 +149,3 @@ class MirdorphMainWindow(Handy.ApplicationWindow):
     def _notification_waiting_gtk_target(self):
         self._notification_revealer.set_reveal_child(False)
         return False
-

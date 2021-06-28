@@ -263,11 +263,10 @@ class ChannelInnerWindow(Gtk.Box):
 
     def do_first_see(self):
         """
-        Do actions when first selected for.
+        Do actions for when switched to/displayed.
 
-        This is similar to handle_first_see of the entry bar,
-        currently the main functionality is making the user immediatly
-        able to type in the message entry
+        For example, make the message entry bar focused
+        when switching to this channel.
         """
         self._message_entry_bar.handle_first_see()
 

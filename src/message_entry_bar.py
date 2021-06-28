@@ -60,9 +60,9 @@ class MessageEntryBar(Gtk.Box, EventReceiver):
 
     def handle_first_see(self):
         """
-        To act as if being seen again for the first time.
-
-        This is for example if the context has just bene opened, or if just popped out.
+        Handle for first display, for example to focus the entry bar,
+        this is meant to be called when this is first displayed, for
+        example when switching to this channel
         """
         self._message_entry.grab_focus()
 
