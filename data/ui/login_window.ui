@@ -24,6 +24,7 @@
                     <property name="visible">True</property>
                     <property name="show-close-button">False</property>
                     <property name="width-request">370</property>
+                    <property name="valign">GTK_ALIGN_CENTER</property>
                     <property name="title">Connect your Account</property>
                     <child>
                       <object class="GtkButton">
@@ -38,6 +39,7 @@
                   <object class="HdyHeaderBar">
                     <property name="visible">True</property>
                     <property name="show-close-button">False</property>
+                    <property name="valign">GTK_ALIGN_CENTER</property>
                     <property name="title">Connect your Account</property>
                   </object>
                 </child>
