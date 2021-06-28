@@ -34,14 +34,13 @@ class TypingIndicator(Gtk.Revealer, EventReceiver):
         self._channel = channel
 
         self._currently_typing_users = []
-        # For the waiting for a few seconds and then automatically removing,
-        # sometimes that is run a few times due to long typing, so we have to 
-        # not end it pre-maturely.
+        # Basically saving when the last typing event was received,
+        # so we know when to stop displaying it.
         self._times_of_user_typings = []
 
-    def _wating_for_type_end_target(self, user, when: datetime.datetime):
+    def _wating_for_type_end_target(self, user: discord.User, when: datetime.datetime):
         # Even if we wanted this to be smaller, we can't decrease it too much as discord itself
-        # only sends the typing event every so oftem.
+        # only sends the typing event every so often.
         time.sleep(10)
         for tims in [typing_event[1] for typing_event in self._times_of_user_typings if typing_event[0] == user]:
             if tims > when:
@@ -64,12 +63,12 @@ class TypingIndicator(Gtk.Revealer, EventReceiver):
             self.set_reveal_child(False)
             self._typing_label.set_label("Noone is typing.")
 
-    def disc_on_message(self, message):
+    def disc_on_message(self, message: discord.Message):
         if message.channel == self._channel and message.author in self._currently_typing_users:
             self._currently_typing_users.remove(message.author)
             self._sync_typing_label()
 
-    def disc_on_typing(self, channel, user, when):
+    def disc_on_typing(self, channel: discord.channel.TextChannel, user: discord.User, when: datetime.datetime):
         if user == self._channel.guild.me:
             return
 
