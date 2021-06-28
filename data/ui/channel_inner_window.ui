@@ -2,13 +2,11 @@
 <interface>
   <requires lib="gtk+" version="3.24"/>
     <object class="GtkPopoverMenu" id="_context_menu_popover">
-      <property name="can-focus">False</property>
       <child>
         <placeholder/>
       </child>
     </object>
     <template class="ChannelInnerWindow" parent="GtkBox">
-      <property name="visible">True</property>
       <property name="orientation">vertical</property>
       <property name="width-request">355</property>
       <child>
@@ -30,9 +28,8 @@
                     <object class="GtkButton" id="_flap_toggle_button">
                       <property name="visible">False</property>
                       <signal name="clicked" handler="_on_flap_toggle_button_clicked"/>
-                      <property name="image">_flap_toggle_button_image</property>
                       <child>
-                        <object class="GtkImage" id="_flap_toggle_button_image">
+                        <object class="GtkImage">
                           <property name="visible">True</property>
                           <property name="icon-name">view-sidebar-symbolic</property>
                         </object>
@@ -48,10 +45,9 @@
                       <child>
                         <object class="GtkButton" id="_popout_button">
                           <property name="visible">True</property>
-                          <property name="image">_popout_context_button_image</property>
                           <signal name="clicked" handler="_on_popout_context_button_clicked"/>
                           <child>
-                            <object class="GtkImage" id="_popout_context_button_image">
+                            <object class="GtkImage">
                               <property name="visible">True</property>
                               <property name="icon-name">view-fullscreen-symbolic</property>
                             </object>
@@ -64,10 +60,9 @@
                       <child>
                         <object class="GtkButton" id="_popin_button">
                           <property name="visible">True</property>
-                          <property name="image">_popin_context_button_image</property>
                           <signal name="clicked" handler="on_popin_context_button_clicked"/>
                           <child>
-                            <object class="GtkImage" id="_popin_context_button_image">
+                            <object class="GtkImage">
                               <property name="visible">True</property>
                               <property name="icon-name">view-restore-symbolic</property>
                             </object>
@@ -102,8 +97,8 @@
                   <child>
                     <object class="GtkBox" id="_content_box">
                       <property name="visible">True</property>
-                      <property name="orientation">vertical</property>
                       <property name="vexpand">True</property>
+                      <property name="orientation">vertical</property>
                     </object>
                   </child>
                   <child>

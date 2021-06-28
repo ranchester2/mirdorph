@@ -15,13 +15,9 @@
 
 import asyncio
 import logging
-import threading
 import discord
-import os
 import sys
-import subprocess
-from pathlib import Path
-from gi.repository import Gtk, Gio, GLib, Handy
+from gi.repository import Gtk, Gio, Handy
 from .channel_properties_window import ChannelPropertiesWindow
 from .message_view import MessageView
 from .message_entry_bar import MessageEntryBar
@@ -65,11 +61,11 @@ class ChannelInnerWindow(Gtk.Box):
             channel: channel id that this context uses (note: if none empty is on)
             empty: if this is just an empty state for its status message
         """
-        
         Gtk.Box.__init__(self, *args, **kwargs)
         self.app = Gio.Application.get_default()
         self.channel_id = channel
         self.empty = empty
+
         if self.channel_id is None:
             self.empty = True
 
@@ -91,28 +87,33 @@ class ChannelInnerWindow(Gtk.Box):
             self._main_deck.add(self._image_viewer)
 
             self._message_view = MessageView(context=self)
-            self._message_view.build_scroll()
             self._message_view.show()
-
-            self._loading_history = False
-
+            # It is needed to check if now the scroll should be handled differently
+            # if for example the user just sent a message, for example to
+            # always scroll to the bottom then.
+            # Users are expected to directly read, set, and get this attribute.
+            self.scroll_for_msg_send = False
             self._content_box.pack_start(self._message_view, True, True, 0)
 
             self._message_entry_bar = MessageEntryBar(context=self)
             self._message_entry_bar.show()
-
-            self._msg_sending_scrl_mode_en = False
-
+            # If the attachment tray "revealment" mode for handling scrolling is
+            # used (smooth animation), users of this are expected to directly set it
+            self.attachment_tray_scroll_mode = False
             self._content_box.pack_end(self._message_entry_bar, False, False, 0)
             self._content_box.pack_end(Gtk.Separator(visible=True), False, False, 0)
+
+            self._msg_sending_scrl_mode_en = False
 
             self._context_action_group = Gio.SimpleActionGroup()
             prop_action = Gio.SimpleAction.new("properties", None)
             prop_action.connect("activate", self._on_channel_properties)
             self._context_action_group.add_action(prop_action)
+
             search_action = Gio.SimpleAction.new("search", None)
             search_action.connect("activate", self._on_channel_search)
             self._context_action_group.add_action(search_action)
+
             self.insert_action_group("context", self._context_action_group)
             context_menu_builder = Gtk.Builder.new_from_resource(
                 "/org/gnome/gitlab/ranchester/Mirdorph/ui/context_menu.ui"
@@ -121,8 +122,6 @@ class ChannelInnerWindow(Gtk.Box):
                 "contextMenu"
             )
             self._context_menu_popover.bind_model(context_menu)
-
-
         elif self.empty:
             self._context_menu_button.destroy()
             self._popout_button.destroy()
@@ -136,7 +135,8 @@ class ChannelInnerWindow(Gtk.Box):
             self._flap_toggle_button.set_visible(True)
             self._popout_button_stack.set_visible(False)
             flap.set_swipe_to_close(True)
-
+            # Expected that going into "mobile mode" unpops
+            # all the popped out windows.
             self.popin()
         else:
             self._flap_toggle_button.set_visible(False)
@@ -144,79 +144,37 @@ class ChannelInnerWindow(Gtk.Box):
             flap.set_swipe_to_close(False)
         flap.set_swipe_to_open(True)
 
-    # wrapper to load history in the messageview for message sending
     def load_history(self):
+        """
+        Load the initial history view, designed for
+        when first displaying.
+        """
         self._message_view.load_history()
-
-    # Could be better if this was defined in message_view instead?
-    @property
-    def is_loading_history(self):
-        # Not using the spinner like before because .get_active()
-        # seems undocumented and broken right now
-        return self._loading_history
-
-    def signify_loading_hs(self):
-        self._loading_history = True
-
-    def signify_stopped_loading_hs(self):
-        self._loading_history = False
-
-    @property
-    def history_loading_is_complete(self):
-        """
-        Wrapper around message view's is history loading complete
-        """
-
-        return self._message_view.history_loading_is_complete
-
 
     def scroll_messages_to_bottom(self):
         """
         Scroll the view to the very bottom
 
-        NOTE: you need to add to this box BEFORE you scroll
-        if you wish to go to the real bottom
+        For example, when you send a message it is useful to
+        see it.
         """
-
         adj = self._message_view.scroller.get_vadjustment()
         adj.set_value(adj.get_upper())
 
     @property
     def is_scroll_at_bottom(self):
         """
-        Is the user currently scrolled to the very bottom of the
-        view
-        """
-        adj = self._message_view.scroller.get_vadjustment()
-        # We can't check for it exactly, because if you scroll
-        # for some reason it isn't the true bottom. So we use an "almost"
-        # Also, we currently use this when showing the attachment bar
-
-        # NOTE: for when attachment bar reveals, this for some reason doesn't
-        # work with taller windows. However if I increase it it doesn't work at all!
-        difference = abs(adj.get_value() - adj.get_upper())
-        return difference < 600
-
-    # Currently not used, initially intended for the revealer animation scrolling,
-    # to disable it while scrolling. However that isn't needed
-    @property
-    def precise_is_scroll_at_bottom(self):
-        """
-        Is the scroll currently at the bottom (accurate mode)
+        Is the scroll currently at the very bottom
         """
         adj = self._message_view.scroller.get_vadjustment()
         bottom = adj.get_upper() - adj.get_page_size()
         return (abs(adj.get_value() - bottom) < sys.float_info.epsilon)
 
-
     def popin(self):
         """
         Popin back to the main window
         """
-
-        try:
-            assert self._popout_window
-        except AttributeError:
+        if not self.is_poped:
             logging.warning("attempted popin even though not popped out")
             return
 
@@ -224,8 +182,6 @@ class ChannelInnerWindow(Gtk.Box):
 
         self._popout_window.remove(self)
         self._popout_window.destroy()
-        # If we don't then the popin detection and folding breaks
-        del(self._popout_window)
 
         self.app.main_win.unconfigure_popout_window(self)
         self.is_poped = False
@@ -234,17 +190,11 @@ class ChannelInnerWindow(Gtk.Box):
         # while folding, this isn't updated.
         self._on_image_viewer_open_changed()
 
-    # If you are here because of all the random CRITICAL Gtk
-    # assertion warnings, I think you're in the wrong place.
-    # they started appearing after 1860e9aff877a5493b2c9dbd4db0456ed0d61466
-    # even though that changed NOTHING todo with popout
     def popout(self):
         """
         Popout the channel into a separate window
         """
-
         self.app.main_win.context_stack.remove(self)
-
         self.app.main_win.reconfigure_for_popout_window()
 
         self._popout_window = Handy.Window(
@@ -255,9 +205,9 @@ class ChannelInnerWindow(Gtk.Box):
         )
         self._popout_window.connect("delete-event", lambda w, e : self.popin())
         self._popout_window.add(self)
-        # For getting the focus
-        self._message_entry_bar.handle_first_see()
+        self.do_first_see()
         self._popout_window.present()
+
         self._popout_button_stack.set_visible_child(self._popin_button)
         self.is_poped = True
 
@@ -269,42 +219,6 @@ class ChannelInnerWindow(Gtk.Box):
         when switching to this channel.
         """
         self._message_entry_bar.handle_first_see()
-
-    def prepare_scroll_for_msg_send(self):
-        """
-        Schedule next message to cause screen to scroll
-        """
-        self._msg_sending_scrl_mode_en = True
-
-    def unprepare_scroll_for_msg_send(self):
-        """
-        Disable mode of scheduling next messages to cause
-        screen to scroll
-        """
-        self._msg_sending_scrl_mode_en = False
-
-    def start_attachment_reveal_scroll_mode(self):
-        """
-        Start the scroll mode for while the attachment tray is revealing,
-        This is for smooth animation on all window sizes
-        """
-        self._message_view._attachment_tray_scroll_revealment_mode = True
-
-    def end_attachment_reveal_scroll_mode(self):
-        """
-        End the scroll mode for while the attachment tray is revealing,
-        This is for smooth animation on all window sizes
-        """
-        self._message_view._attachment_tray_scroll_revealment_mode = False
-
-    @property
-    def is_scroll_for_msg_send(self):
-        """
-        Wether currently the next received message is expected to be
-        the one sent by the user, and it is expected that the view
-        is scrolled to their message
-        """
-        return self._msg_sending_scrl_mode_en
 
     @Gtk.Template.Callback()
     def _on_popout_context_button_clicked(self, button):
@@ -324,7 +238,6 @@ class ChannelInnerWindow(Gtk.Box):
     def _on_image_viewer_open_changed(self, *args):
         # The flap should be made invisible when we open the image viewer,
         # however only when not popped out.
-
         # Cases of resizing the window to pop in popped out windows are handled
         # by calling this on pop in.
         if not self.is_poped:

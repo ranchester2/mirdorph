@@ -51,6 +51,7 @@ class MessageView(Gtk.Overlay, EventReceiver):
         Gtk.Overlay.__init__(self, *args, **kwargs)
         EventReceiver.__init__(self)
         self.context = context
+        self._loading_history = False
 
         self._message_listbox = Gtk.ListBox(hexpand=True, selection_mode=Gtk.SelectionMode.NONE)
         # When nearly empty channel, messages should not pile up on top
@@ -92,12 +93,10 @@ class MessageView(Gtk.Overlay, EventReceiver):
         self._orig_upper = self._adj.get_upper()
         self._balance = None
         self._autoscroll = False
-        # When the attachment tray is revealed we want a smooth animation,
-        # this basically signifies if that animation is active and we should
-        # always auto scroll
-        self._attachment_tray_scroll_revealment_mode = False
 
         self._message_listbox.set_focus_vadjustment(self._adj)
+
+        self._build_scroll()
 
     def set_balance_top(self):
         # DONTFIXME: Workaround: https://gitlab.gnome.org/GNOME/gtk/merge_requests/395
@@ -108,7 +107,7 @@ class MessageView(Gtk.Overlay, EventReceiver):
         new_upper = self._adj.get_upper()
         diff = new_upper - self._orig_upper
 
-        if self._attachment_tray_scroll_revealment_mode:
+        if self.context.attachment_tray_scroll_mode:
             self._adj.set_value(self._adj.get_upper())
 
         # Don't do anything if upper didn't change
@@ -122,8 +121,8 @@ class MessageView(Gtk.Overlay, EventReceiver):
                 self.scroller.set_kinetic_scrolling(True)
 
     def _handle_value_adj_changed(self, adj):
-        self._autoscroll = self.context.precise_is_scroll_at_bottom
-        self._scroll_btn_revealer.set_reveal_child(not self.context.precise_is_scroll_at_bottom)
+        self._autoscroll = self.context.is_scroll_at_bottom
+        self._scroll_btn_revealer.set_reveal_child(not self.context.is_scroll_at_bottom)
 
         if adj.get_value() < adj.get_page_size() * 1.5:
             self.load_history(additional=15)
@@ -156,12 +155,9 @@ class MessageView(Gtk.Overlay, EventReceiver):
             start
         )
 
-    def build_scroll(self):
+    def _build_scroll(self):
         self._adj.connect("notify::upper", self._handle_upper_adj_notify)
         self._adj.connect("value-changed", self._handle_value_adj_changed)
-
-    def _on_msg_send_mode_scl_send_wrap(self):
-        self.context.scroll_messages_to_bottom()
 
     def disc_on_message(self, message):
         if message.channel.id == self.context.channel_id:
@@ -179,34 +175,14 @@ class MessageView(Gtk.Overlay, EventReceiver):
             # No risk of this being a duplicate as this event never happens twice
             self._message_listbox.add(message_wid)
 
-            if self.context.is_scroll_for_msg_send or self.context.is_scroll_at_bottom:
-                # With GLIB.idle_add and a wrapper instead of directly,
-                # since for some reason it only works like this.
-                GLib.idle_add(self._on_msg_send_mode_scl_send_wrap)
+            if self.context.scroll_for_msg_send:
+                GLib.idle_add(self.context.scroll_messages_to_bottom)
 
             # We unset it here since currently it always intended for one message - the next one
             # And it is extremely unlikely that the next on_message isn't the one that has been sent.
             # This isnt called in the async send msg function with GLib.idle_add because it for some
             # reason executes in the wrong order then and misses the message
-            # However this now be a bit different (seems a bit more accurate) with the additional
-            # Fractal scrolling code.
-            self.context.unprepare_scroll_for_msg_send()
-
-    @property
-    def history_loading_is_complete(self):
-        """
-        If history loading has completed atleast once
-
-        This is useful for calling something that depends on history getting loaded,
-        like scrolling the messages to the bottom for the first time. Not 100% accurate
-        """
-        # Works as the message listboxes are direct children of the message listbox
-        # However not 100% accurate as some could have been from on_message,
-        # but that is highly unlikely
-        for child in self._message_listbox.get_children():
-            if isinstance(child, MirdorphMessage):
-                return True
-        return False
+            self.context.scroll_for_msg_send = False
 
     async def _get_history_messages_to_list(self, channel, amount_to_load):
         """
@@ -245,7 +221,7 @@ class MessageView(Gtk.Overlay, EventReceiver):
                 self._message_listbox.add(message_wid)
 
         self._history_loading_spinner.stop()
-        self.context.signify_stopped_loading_hs()
+        self._loading_history = False
 
     def _history_loading_target(self, additional):
         amount_to_load = self._STANDARD_HISTORY_LOADING
@@ -274,10 +250,10 @@ class MessageView(Gtk.Overlay, EventReceiver):
             additional - additional ammount of messages to load, useful
             only if previously loaded
         """
-        if self.context.is_loading_history:
+        if self._loading_history:
             logging.warning("attempted to load history even if already loading")
             return
-        self.context.signify_loading_hs()
+        self._loading_history = True
         self._history_loading_spinner.start()
         message_loading_thread = threading.Thread(target=self._history_loading_target, args=(additional,))
         message_loading_thread.start()

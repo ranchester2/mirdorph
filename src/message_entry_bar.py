@@ -95,12 +95,8 @@ class MessageEntryBar(Gtk.Box, EventReceiver):
         # Done here, not with a separate async wrapper with idle_add
         # because it doesn't help because if we do it from that
         # it executes in the wrong order.
-
-        # However now it may be a bit different with the fractal scrolling
-        # like system.
-
         # Unsetting happens in on_message due to similar reasons
-        self.context.prepare_scroll_for_msg_send()
+        self.context.scroll_for_msg_send = True
 
         atts_to_send = []
         for att_widg in self._attachment_container.get_children():
@@ -177,15 +173,14 @@ class MessageEntryBar(Gtk.Box, EventReceiver):
 
     @Gtk.Template.Callback()
     def _on_revealer_reveal_child(self, revealer, param):
-        if not self._attachment_area_revealer.get_child_revealed() and self.context.precise_is_scroll_at_bottom:
-           self.context.start_attachment_reveal_scroll_mode()
-        else:
-           self.context.end_attachment_reveal_scroll_mode()
+        self.context.attachment_tray_scroll_mode = (
+            not self._attachment_area_revealer.get_child_revealed() and self.context.is_scroll_at_bottom
+        )
 
     @Gtk.Template.Callback()
     def _on_revealer_child_revealed(self, revealer, param):
         if self._attachment_area_revealer.get_child_revealed():
-            self.context.end_attachment_reveal_scroll_mode()
+            self.context.attachment_tray_scroll_mode = False
 
     # Gtk Box does not support this, so we will do it manually when we add
     def emulate_attachment_container_change(self):
