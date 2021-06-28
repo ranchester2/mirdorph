@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
   <requires lib="gtk+" version="3.24" />
+  <requires lib="libhandy" version="1.0" />
   <template class="ChannelPropertiesWindow" parent="HdyWindow">
     <property name="default-width">375</property>
     <property name="default-height">550</property>
@@ -31,10 +32,9 @@
                 <child>
                   <object class="GtkButton" id="_back_button">
                     <property name="visible">True</property>
-                    <property name="image">_back_button_image</property>
-                    <signal name="clicked" handler="_on_back_button_clicked"/>
+                    <signal name="clicked" handler="_on_back_button_clicked" />
                     <child>
-                      <object class="GtkImage" id="_back_button_image">
+                      <object class="GtkImage">
                         <property name="visible">True</property>
                         <property name="icon-name">go-previous-symbolic</property>
                       </object>
@@ -74,7 +74,7 @@
                         <property name="visible">True</property>
                         <property name="xalign">0.0</property>
                         <property name="label">#</property>
-                        <property name="ellipsize">3</property>
+                        <property name="ellipsize">end</property>
                         <style>
                           <class name="large-title" />
                           <class name="reverse-text" />
@@ -88,7 +88,7 @@
                         <property name="label">Unknown usage</property>
                         <!-- About enough to not oversize window-->
                         <property name="max-width-chars">45</property>
-                        <property name="ellipsize">3</property>
+                        <property name="ellipsize">end</property>
                         <style>
                           <class name="caption" />
                           <class name="reverse-text" />
@@ -96,9 +96,6 @@
                       </object>
                     </child>
                   </object>
-                  <packing>
-                    <property name="pack-type">start</property>
-                  </packing>
                 </child>
                 <style>
                   <class name="channel-banner-box" />
@@ -109,7 +106,7 @@
               <object class="GtkNotebook">
                 <property name="visible">True</property>
                 <child>
-                  <object class="GtkBox" id="_general_tab_content">
+                  <object class="GtkBox">
                     <property name="visible">True</property>
                     <child>
                       <object class="HdyPreferencesGroup">
@@ -144,10 +141,9 @@
                               <object class="GtkButton" id="_statistics_button">
                                 <property name="visible">True</property>
                                 <property name="valign">GTK_ALIGN_CENTER</property>
-                                <property name="image">_statistics_button_image</property>
                                 <signal name="activate" handler="_on_statistics_button_activate" />
                                 <child>
-                                  <object class="GtkImage" id="_statistics_button_image">
+                                  <object class="GtkImage">
                                     <property name="visible">True</property>
                                     <property name="icon-name">go-next-symbolic</property>
                                   </object>
@@ -162,7 +158,7 @@
                       </object>
                     </child>
                     <style>
-                      <class name="dialog-content-container" />
+                      <class name="channel-properties-content-container" />
                     </style>
                   </object>
                 </child>

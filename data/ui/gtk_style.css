@@ -77,7 +77,7 @@ mode
   color: @theme_bg_color;
 }
 
-.dialog-content-container {
+.channel-properties-content-container {
   padding: 10px;
 }
 

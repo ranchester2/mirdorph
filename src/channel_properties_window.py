@@ -15,7 +15,6 @@
 
 import asyncio
 import datetime
-import logging
 import threading
 import discord
 from gi.repository import Gtk, Gio, GLib, Gdk, Handy
@@ -34,21 +33,20 @@ class ChannelPropertiesWindow(Handy.Window):
 
     def __init__(self, channel: discord.TextChannel, *args, **kwargs):
         Handy.Window.__init__(self, *args, **kwargs)
-
         self.app = Gio.Application.get_default()
-
         self._channel_disc = channel
 
         self._name_label.set_label("#" + self._channel_disc.name)
         self._channel_avatar.set_text(self._channel_disc.name)
         if self._channel_disc.topic:
+            # New lines mess up the formatting, as this is designed
+            # for one line.
             cleaned_topic = self._channel_disc.topic.replace("\n", "")
             self._description_label.set_label(cleaned_topic)
         else:
             self._description_label.destroy()
 
-        last_activity_time_thread = threading.Thread(target=self._get_last_activity_time_target)
-        last_activity_time_thread.start()
+        threading.Thread(target=self._get_last_activity_time_target).start()
 
     async def _get_last_activity_time_async_target(self, channel: discord.TextChannel) -> datetime.datetime:
         async for message in channel.history(limit=1):
