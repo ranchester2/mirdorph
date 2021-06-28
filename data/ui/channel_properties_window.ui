@@ -18,7 +18,6 @@
                 <property name="visible">True</property>
                 <property name="show-close-button">True</property>
                 <property name="width-request">362</property>
-                <property name="valign">GTK_ALIGN_CENTER</property>
                 <property name="title">Channel Properties</property>
               </object>
             </child>
@@ -26,7 +25,6 @@
               <object class="HdyHeaderBar">
                 <property name="visible">True</property>
                 <property name="show-close-button">True</property>
-                <property name="valign">GTK_ALIGN_CENTER</property>
                 <property name="title">Channel Properties</property>
                 <child>
                   <object class="GtkButton" id="_back_button">
