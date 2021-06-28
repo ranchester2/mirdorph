@@ -53,7 +53,10 @@ class TypingIndicator(Gtk.Revealer, EventReceiver):
     def _sync_typing_label(self):
         if self._currently_typing_users:
             self.set_reveal_child(True)
-            typing_info_message = "is typing..."
+            if len(self._currently_typing_users) >= 2:
+                typing_info_message = "are typing..."
+            else:
+                typing_info_message = "is typing..."
             username_list = ", ".join(
                 [f"<b>{escape_xml(user.name)}</b>" for user in self._currently_typing_users]
             )
