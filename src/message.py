@@ -149,6 +149,10 @@ class MirdorphMessage(Gtk.ListBoxRow):
                 att_widg.set_halign(Gtk.Align.START)
                 att_widg.show()
                 self._attachment_box.pack_start(att_widg, True, True, 0)
+            # There is atleast one attachment, and it looks better with a top margin,
+            # not set from the start, as it looks weird with regular messages, and hiding
+            # it is complicated with exports.
+            self._attachment_box.set_margin_top(5)
 
         for export in self._message_content_wid.exports:
             export.show()
