@@ -18,7 +18,6 @@ import logging
 import threading
 import discord
 import sys
-from pathlib import Path
 from gi.repository import Gtk, Gio, GLib, Handy
 from .event_receiver import EventReceiver
 from .message import MirdorphMessage
@@ -28,7 +27,7 @@ from .typing_indicator import TypingIndicator
 # From clutter-easing.c, based on Robert Penner's
 # infamous easing equations, MIT license.
 def ease_out_cubic(t: float) -> float:
-    p = t - float(1);
+    p = t - float(1)
     return (p * p * p + float(1))
 
 
@@ -41,7 +40,7 @@ class MessageView(Gtk.Overlay, EventReceiver):
     _message_column: Gtk.Box = Gtk.Template.Child()
     # Originally code was designed with message_view inheriting from
     # Gtk.ScrolledWindow, however since now that isn't the case, and people
-    # expect to access this instead, we use it by making it public
+    # expect to access this, we use it by making it public
     scroller: Gtk.ScrolledWindow = Gtk.Template.Child()
 
     _scroll_btn_revealer: Gtk.Revealer = Gtk.Template.Child()
@@ -51,29 +50,32 @@ class MessageView(Gtk.Overlay, EventReceiver):
         Gtk.Overlay.__init__(self, *args, **kwargs)
         EventReceiver.__init__(self)
         self.context = context
+        self.app = Gio.Application.get_default()
         self._loading_history = False
 
         self._message_listbox = Gtk.ListBox(hexpand=True, selection_mode=Gtk.SelectionMode.NONE)
-        # When nearly empty channel, messages should not pile up on top
-        self._message_listbox.set_valign(Gtk.Align.END)
         self._message_listbox.get_style_context().add_class("message-history")
-
-        # Due to events, the messages might often become out of order
-        # this ensures that the messages that were created earlier
-        # are always displayed *before* the later ones. This is for history
+        # With nearly empty channel, messages should not pile up on top
+        self._message_listbox.set_valign(Gtk.Align.END)
+        # It is better to always ensure the order is correct, instead of manually fidling with
+        # it when adding children.
         def message_listbox_sort_func(row_1, row_2, data, notify_destroy):
-            # For history loading spinner, which is a special case
-            if not isinstance(row_1, MirdorphMessage) or not isinstance(row_2, MirdorphMessage):
+            # The history row should always be at the end
+            if hasattr(row_1, "is_history_row"):
                 return -1
+
             if row_1.timestamp < row_2.timestamp:
                 return -1
+            elif row_1.timestamp > row_2.timestamp:
+                return 1
             else:
-                return (row_1.timestamp < row_2.timestamp) + 1
-
+                return 0
         self._message_listbox.set_sort_func(message_listbox_sort_func, None, False)
         self._message_listbox.show()
 
         self._history_loading_row = Gtk.ListBoxRow(height_request=32)
+        # Attribute makes detecting it in sort easy
+        self._history_loading_row.is_history_row = True
         self._history_loading_row.show()
         self._history_loading_spinner = Gtk.Spinner()
         self._history_loading_spinner.show()
@@ -91,45 +93,43 @@ class MessageView(Gtk.Overlay, EventReceiver):
 
         self._adj = self.scroller.get_vadjustment()
         self._orig_upper = self._adj.get_upper()
-        self._balance = None
+        self._inserting_message = False
+        # Autoscrolling is useful if for example you want to immediately see new
+        # messages when they arrive and similar.
         self._autoscroll = False
+        self._adj.connect("notify::upper", self._on_upper_changed)
+        self._adj.connect("value-changed", self._on_adj_value_changed)
 
         self._message_listbox.set_focus_vadjustment(self._adj)
 
-        self._build_scroll()
-
-    def set_balance_top(self):
-        # DONTFIXME: Workaround: https://gitlab.gnome.org/GNOME/gtk/merge_requests/395
-        self.scroller.set_kinetic_scrolling(False)
-        self._balance = Gtk.PositionType.TOP
-
-    def _handle_upper_adj_notify(self, upper, adjparam):
+    def _on_upper_changed(self, upper: float, adjparam):
         new_upper = self._adj.get_upper()
         diff = new_upper - self._orig_upper
 
         if self.context.attachment_tray_scroll_mode:
             self._adj.set_value(self._adj.get_upper())
 
-        # Don't do anything if upper didn't change
         if diff != 0.0:
             self._orig_upper = new_upper
             if self._autoscroll:
                 self._adj.set_value(self._adj.get_upper() - self._adj.get_page_size())
-            elif self._balance == Gtk.PositionType.TOP:
-                self._balance = False
+            # Keeping scroll position when loading extra content
+            elif self._inserting_message:
                 self._adj.set_value(self._adj.get_value() + diff)
                 self.scroller.set_kinetic_scrolling(True)
+                self._inserting_message = False
 
-    def _handle_value_adj_changed(self, adj):
+    def _on_adj_value_changed(self, adj):
         self._autoscroll = self.context.is_scroll_at_bottom
         self._scroll_btn_revealer.set_reveal_child(not self.context.is_scroll_at_bottom)
 
+        # Near top of loaded history
         if adj.get_value() < adj.get_page_size() * 1.5:
             self.load_history(additional=15)
 
-
-    ### Smooth Scrolling code taken from Fractal, but converted from rust to Python ###
-    ### I don't know how it works, its magic. And I don't even know Rust, but it seems to work ###
+    ### Smooth scroll animation code taken from Fractal, but converted from rust to Python
+    ### Also, I basically know zero Rust ###
+    ### I don't know how it works, its magic. ###
     def _scroll_down_tick_callback(self, scroller, clock, start_time, end_time, start):
         now = clock.get_frame_time()
         end = self._adj.get_upper() - self._adj.get_page_size()
@@ -142,7 +142,9 @@ class MessageView(Gtk.Overlay, EventReceiver):
             self._adj.set_value(end)
             return GLib.SOURCE_REMOVE
 
-    def _scroll_down_animated(self):
+    @Gtk.Template.Callback()
+    def _on_scroll_btn_clicked(self, button):
+        self._scroll_btn_revealer.set_reveal_child(False)
         clock = self.scroller.get_frame_clock()
         duration = 200
         start = self._adj.get_value()
@@ -155,17 +157,13 @@ class MessageView(Gtk.Overlay, EventReceiver):
             start
         )
 
-    def _build_scroll(self):
-        self._adj.connect("notify::upper", self._handle_upper_adj_notify)
-        self._adj.connect("value-changed", self._handle_value_adj_changed)
-
     def disc_on_message(self, message):
         if message.channel.id == self.context.channel_id:
             last_message = self._message_listbox.get_children()[-1]
+            should_be_merged = False
             if isinstance(last_message, MirdorphMessage):
                 should_be_merged = (message.author == last_message.author)
-            else:
-                should_be_merged = False
+
             message_wid = MirdorphMessage(
                 message,
                 merged=should_be_merged
@@ -181,35 +179,40 @@ class MessageView(Gtk.Overlay, EventReceiver):
             # We unset it here since currently it always intended for one message - the next one
             # And it is extremely unlikely that the next on_message isn't the one that has been sent.
             # This isnt called in the async send msg function with GLib.idle_add because it for some
-            # reason executes in the wrong order then and misses the message
+            # reason executes in the wrong order then and misses the message.
             self.context.scroll_for_msg_send = False
 
-    async def _get_history_messages_to_list(self, channel, amount_to_load):
+    async def _get_history_messages_to_list(self, channel: discord.TextChannel, amount_to_load: int) -> list:
         """
         Return a list of Discord messages in current history,
         useful to call in other thread and use the list to build
-        message objects
+        message widgets.
+
+        param:
+            channel: the discord channel
+            amount_to_load: how many messages you want to get (from history start)
         """
-        tmp_list = []
-        async for message in channel.history(limit=amount_to_load):
-            tmp_list.append(message)
-        return tmp_list
+        return [message async for message in channel.history(limit=amount_to_load)]
 
     def _history_loading_gtk_target(self, messages: list):
         previous_message_author = None
 
         for message in messages:
-            # We need to check for duplicates and not add it if it is one
+            # We need to check for duplicates and not add create widgets if it is
             # because load_history will often be called multiple times
             duplicate = False
-            # The message listbox currently just has messages directly as children
-            # so this work fine
-            for already_existing_message in self._message_listbox.get_children():
-                if (isinstance(already_existing_message, MirdorphMessage) and
-                    message.id == already_existing_message.uniq_id):
+            for existing_message in self._message_listbox.get_children():
+                # We only care about mirdorphmessages for now,
+                # and this is a lot simpler as we know the uniq_id
+                # **is** the discord id.
+                if isinstance(existing_message, MirdorphMessage):
+                    if message.id == existing_message.uniq_id:
                         duplicate = True
                         break
             if not duplicate:
+                # Workaround: https://gitlab.gnome.org/GNOME/gtk/merge_requests/395
+                self.scroller.set_kinetic_scrolling(False)
+                self._inserting_message = True
 
                 message_wid = MirdorphMessage(
                     message,
@@ -217,7 +220,6 @@ class MessageView(Gtk.Overlay, EventReceiver):
                 )
                 previous_message_author = message.author
                 message_wid.show()
-                self.set_balance_top()
                 self._message_listbox.add(message_wid)
 
         self._history_loading_spinner.stop()
@@ -226,17 +228,17 @@ class MessageView(Gtk.Overlay, EventReceiver):
     def _history_loading_target(self, additional):
         amount_to_load = self._STANDARD_HISTORY_LOADING
         if additional is not None:
-            amount_to_load = len(self._message_listbox.get_children()) + additional
+            amount_to_load = len(
+                [wid for wid in self._message_listbox.get_children() if isinstance(wid, MirdorphMessage)]
+            ) + additional
 
-        messages = list(
-            asyncio.run_coroutine_threadsafe(
-                self._get_history_messages_to_list(
-                    self.context.channel_disc,
-                    amount_to_load
-                ),
-                Gio.Application.get_default().discord_loop
-            ).result()
-        )
+        messages = asyncio.run_coroutine_threadsafe(
+            self._get_history_messages_to_list(
+                self.context.channel_disc,
+                amount_to_load
+            ),
+            self.app.discord_loop
+        ).result()
 
         GLib.idle_add(self._history_loading_gtk_target, messages)
 
@@ -244,22 +246,15 @@ class MessageView(Gtk.Overlay, EventReceiver):
         """
         Load the history of the view and it's channel
 
-        You can only load once at a time, async operation
+        You can only load once at a time, async operation.
 
         param:
             additional - additional ammount of messages to load, useful
-            only if previously loaded
+            only if previously loaded, for example more history when scrolling.
         """
         if self._loading_history:
             logging.warning("attempted to load history even if already loading")
             return
         self._loading_history = True
         self._history_loading_spinner.start()
-        message_loading_thread = threading.Thread(target=self._history_loading_target, args=(additional,))
-        message_loading_thread.start()
-
-    @Gtk.Template.Callback()
-    def _on_scroll_btn_clicked(self, button):
-        self._scroll_btn_revealer.set_reveal_child(False)
-        self._scroll_down_animated()
-
+        threading.Thread(target=self._history_loading_target, args=(additional,)).start()
