@@ -22,15 +22,15 @@ import copy
 from pathlib import Path
 from gi.repository import GObject
 
+
 class ConfManager(GObject.GObject):
     """
     The ConfManager is a system that helps manage the configuration
     of the application.
 
-    It is recommended to ever only have one instane, and add it to 
+    It is recommended to ever only have one instance, and add it to
     your application class
     """
-
     __gsignals__ = {
         "setting_changed": (GObject.SignalFlags.RUN_FIRST, None,
                             (str,))
@@ -39,10 +39,6 @@ class ConfManager(GObject.GObject):
     BASE_SCHEMA = {
         # Example and for testing
         "example": 0,
-        "added_channels": [
-        ],
-        # For atkpicture, not relevant yet
-        "max_image_content_width": 550,
         "tos_notice_accepted": False,
         "send_typing_events": True
     }
@@ -56,15 +52,16 @@ class ConfManager(GObject.GObject):
         """
         GObject.GObject.__init__(self)
         if path is None:
-            self.path = Path(os.environ["XDG_CONFIG_HOME"] + "/" + "mirdorph.conf.json")
+            self.path = Path(
+                os.environ["XDG_CONFIG_HOME"] + "/" + "mirdorph.conf.json")
         else:
             self.path = path
-            
+
         if self.path.is_file():
             try:
                 with open(str(self.path)) as fd:
-                    self._conf = json.loads(fd.read())
-                # verify thatfor k in ConfManager.BASE_SCHEMA:
+                    self._conf = json.load(fd)
+                # All keys should be known to exist
                 for k in ConfManager.BASE_SCHEMA:
                     if k not in self._conf.keys():
                         if isinstance(
@@ -73,7 +70,7 @@ class ConfManager(GObject.GObject):
                             self._conf[k] = ConfManager.BASE_SCHEMA[k].copy()
                         else:
                             self._conf[k] = ConfManager.BASE_SCHEMA[k]
-            except Exception as e:
+            except:
                 logging.warning("unknown conf error, resetting conf")
                 self._conf = ConfManager.BASE_SCHEMA.copy()
                 self.save_conf()
@@ -95,12 +92,11 @@ class ConfManager(GObject.GObject):
 
         You do not need to use save_conf after this
         as it is done automatically.
-        
 
         param:
             name: str name of the key, can be any json
             serializable object
-            vaL: any json serializable value
+            val: any json serializable value
         """
         self._conf[name] = copy.deepcopy(val)
         self.save_conf()
