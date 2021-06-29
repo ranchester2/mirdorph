@@ -2,9 +2,10 @@ import sys
 # Workaround from stackoverflow to allow importing from src
 sys.path.append("..")
 
-# Message parsing has gresource templates
-import tests.load_gresource
-from src.message_parsing import _process_links, _create_pango_markup, calculate_msg_parts, ComponentType
+# Message parsing has gresource templates, and linkpreview uses handy
+import tests.load_gtk
+from src.link_preview import LinkPreviewExport
+from src.message_parsing import _process_links, _create_pango_markup, calculate_msg_parts, _generate_exports, ComponentType
 
 def test_process_links():
     test_text = """\
