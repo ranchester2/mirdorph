@@ -200,6 +200,7 @@ class ImageViewer(Handy.Flap):
                     Gtk.IconSize.BUTTON
                 )
 
+                self._headerbar.set_show_close_button(True)
                 self.set_fold_policy(Handy.FlapFoldPolicy.NEVER)
                 self.set_reveal_flap(True)
 
@@ -211,6 +212,7 @@ class ImageViewer(Handy.Flap):
                     Gtk.IconSize.BUTTON
                 )
 
+                self._headerbar.set_show_close_button(False)
                 self.set_fold_policy(Handy.FlapFoldPolicy.ALWAYS)
                 self.set_reveal_flap(True)
 
