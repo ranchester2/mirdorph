@@ -257,18 +257,15 @@ def get_attachment_type(attachment: discord.Attachment) -> str:
 
 
 @Gtk.Template(resource_path="/org/gnome/gitlab/ranchester/Mirdorph/ui/message_entry_bar_attachment.ui")
-# Should be Gtk.bin but then padding and margin don't work?
 class MessageEntryBarAttachment(Gtk.Button):
     __gtype_name__ = "MessageEntryBarAttachment"
 
     _mode_stack: Gtk.Stack = Gtk.Template.Child()
     _mode_content_box: Gtk.Box = Gtk.Template.Child()
-    _mode_add_image: Gtk.Image = Gtk.Template.Child()
     _filename_label: Gtk.Label = Gtk.Template.Child()
 
-    # Ugly passing this when adding this because we need to be able to signify when
-    # we added a new attachment to update send button
-    # Gtk Box doesn't emit add signal
+    # Passing the attachment bar here as parent_for_sign as GtkBox doesn't work correctly
+    # with the ::add signal.
     def __init__(self, parent_for_sign=None, add_mode=True, filename=None, *args, **kwargs):
         Gtk.Button.__init__(self, *args, **kwargs)
         self.add_mode = add_mode
@@ -278,11 +275,11 @@ class MessageEntryBarAttachment(Gtk.Button):
             self.add_mode = False
             self.set_sensitive(False)
             self._mode_stack.set_visible_child(self._mode_content_box)
-            load_details_thread = threading.Thread(target=self._load_details_target)
-            load_details_thread.start()
+            threading.Thread(target=self._load_details_target).start()
 
     def _load_details_target(self):
-        # Not really useful to have separate thread with only name
+        # Not really useful to have separate thread with only name,
+        # However with images this would be very useful
         file_object_call = Path(self.full_filename).name
         GLib.idle_add(self._load_details_gtk_target, file_object_call)
 
@@ -308,6 +305,4 @@ class MessageEntryBarAttachment(Gtk.Button):
                     False,
                     0
                 )
-                # Ugly hack since gtk box doesn't emit add
-                assert self._parent_for_sign is not None
                 self._parent_for_sign.emulate_attachment_container_change()

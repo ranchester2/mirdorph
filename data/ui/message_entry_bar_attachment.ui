@@ -2,10 +2,9 @@
 <interface>
   <requires lib="gtk+" version="3.24" />
   <template class="MessageEntryBarAttachment" parent="GtkButton">
-    <signal name="clicked" handler="_on_add_clicked"/>
-    <!-- not css -->
     <property name="width-request">115</property>
     <property name="height-request">115</property>
+    <signal name="clicked" handler="_on_add_clicked"/>
     <child>
       <object class="GtkStack" id="_mode_stack">
         <property name="visible">True</property>
@@ -20,7 +19,6 @@
         <child>
           <object class="GtkBox" id="_mode_content_box">
             <property name="visible">True</property>
-            <property name="orientation">vertical</property>
             <child>
               <object class="GtkOverlay">
                 <property name="visible">True</property>

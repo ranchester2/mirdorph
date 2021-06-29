@@ -14,11 +14,10 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import asyncio
-import logging
 import threading
 import discord
 from pathlib import Path
-from gi.repository import Gtk, Gio, GLib, Gdk, Handy
+from gi.repository import Gtk, Gio, GLib, Handy
 from .confman import ConfManager
 from .attachment import MessageEntryBarAttachment
 from .event_receiver import EventReceiver
@@ -28,32 +27,30 @@ from .event_receiver import EventReceiver
 class MessageEntryBar(Gtk.Box, EventReceiver):
     __gtype_name__ = "MessageEntryBar"
 
-    _message_entry = Gtk.Template.Child()
-    _send_button = Gtk.Template.Child()
+    _message_entry: Gtk.Entry = Gtk.Template.Child()
+    _send_button: Gtk.Button = Gtk.Template.Child()
 
-    _attachment_togglebutton = Gtk.Template.Child()
-    _attachment_area_revealer = Gtk.Template.Child()
-    _attachment_container = Gtk.Template.Child()
+    _attachment_togglebutton: Gtk.ToggleButton = Gtk.Template.Child()
+    _attachment_area_revealer: Gtk.Revealer = Gtk.Template.Child()
+    _attachment_container: Gtk.Box = Gtk.Template.Child()
 
     def __init__(self, context, *args, **kwargs):
         Gtk.Box.__init__(self, *args, **kwargs)
         EventReceiver.__init__(self)
-
         self.context = context
         self.app = Gio.Application.get_default()
 
         self._already_displaying_user_currently_typing = False
 
-        # Read comment there about why parent_for_sign
-        self._add_extra_attachment_button = MessageEntryBarAttachment(parent_for_sign=self, add_mode=True)
+        self._add_extra_attachment_button = MessageEntryBarAttachment(
+            parent_for_sign=self, add_mode=True)
         self._add_extra_attachment_button.show()
         self._attachment_container.pack_start(self._add_extra_attachment_button, False, False, 0)
 
         self.app.confman.connect("setting-changed", self._on_confman_setting_changed)
         self._should_send_typing_events = self.app.confman.get_value("send_typing_events")
 
-        check_if_can_send_thread = threading.Thread(target=self._check_if_can_send_target)
-        check_if_can_send_thread.start()
+        threading.Thread(target=self._check_if_can_send_target).start()
 
     def _on_confman_setting_changed(self, confman: ConfManager, setting: str):
         self._should_send_typing_events = self.app.confman.get_value("send_typing_events")
@@ -66,6 +63,12 @@ class MessageEntryBar(Gtk.Box, EventReceiver):
         """
         self._message_entry.grab_focus()
 
+    async def _channel_is_sendable_to_you(self, channel: discord.abc.GuildChannel) -> bool:
+        our_permissions = channel.permissions_for(
+            await channel.guild.fetch_member(self.app.discord_client.user.id)
+        )
+        return our_permissions.send_messages
+
     def _check_if_can_send_target(self):
         can_send = asyncio.run_coroutine_threadsafe(
             self._channel_is_sendable_to_you(self.context.channel_disc),
@@ -76,25 +79,20 @@ class MessageEntryBar(Gtk.Box, EventReceiver):
     def _check_if_can_send_gtk_target(self, can_send: bool):
         if not can_send:
             self.set_sensitive(can_send)
-            self._message_entry.set_placeholder_text("Insufficient permissions")
-
-    async def _channel_is_sendable_to_you(self, channel: discord.abc.GuildChannel) -> bool:
-        our_permissions = channel.permissions_for(
-            await channel.guild.fetch_member(self.app.discord_client.user.id)
-        )
-        return our_permissions.send_messages
+            self._message_entry.set_placeholder_text(
+                "Insufficient permissions")
 
     async def _message_send_wrapper(self, message: str, files: list):
         try:
             await self.context.channel_disc.send(message, files=files)
         except Exception as e:
-            GLib.idle_add(lambda msg_error : self.app.do_error("Failure sending message", str(msg_error)), e)
+            GLib.idle_add(lambda msg_error: self.app.do_error("Failure sending message", str(msg_error)), e)
 
     def _do_attempt_send(self):
         message = self._message_entry.get_text()
         # Done here, not with a separate async wrapper with idle_add
-        # because it doesn't help because if we do it from that
-        # it executes in the wrong order.
+        # because it doesn't help because if we do it like that
+        # and it executes in the wrong order.
         # Unsetting happens in on_message due to similar reasons
         self.context.scroll_for_msg_send = True
 
@@ -125,15 +123,13 @@ class MessageEntryBar(Gtk.Box, EventReceiver):
         self._attachment_togglebutton.set_active(False)
         self._message_entry.set_text("")
 
-        # This doesn't really work with when attachments are sent too,
-        # so we do this again manually here
         self._send_button.set_sensitive(False)
         self._send_button.get_style_context().remove_class("suggested-action")
 
     @Gtk.Template.Callback()
     def _on_send_button_clicked(self, entry):
         self._do_attempt_send()
-        
+
     @Gtk.Template.Callback()
     def _on_message_entry_activate(self, entry):
         self._do_attempt_send()
@@ -146,13 +142,13 @@ class MessageEntryBar(Gtk.Box, EventReceiver):
 
         self._already_displaying_user_currently_typing = True
         await self.context.channel_disc.trigger_typing()
-        await asyncio.sleep(9)
+        await asyncio.sleep(9) # Value 10 seems to be about how long it lasts
         self._already_displaying_user_currently_typing = False
 
     # When we send a message, the typing trigger is automatically cancelled,
-    # however then we don't reset currently_typing immediately, but instead
+    # however we don't reset currently_typing immediately, but instead
     # continue to wait the full 9 seconds. This gives a weird delay
-    # for the next message
+    # for the next message.
     def disc_on_message(self, message):
         if message.author == self.context.channel_disc.guild.me:
             self._already_displaying_user_currently_typing = False
@@ -174,7 +170,8 @@ class MessageEntryBar(Gtk.Box, EventReceiver):
     @Gtk.Template.Callback()
     def _on_revealer_reveal_child(self, revealer, param):
         self.context.attachment_tray_scroll_mode = (
-            not self._attachment_area_revealer.get_child_revealed() and self.context.is_scroll_at_bottom
+            not self._attachment_area_revealer.get_child_revealed(
+            ) and self.context.is_scroll_at_bottom
         )
 
     @Gtk.Template.Callback()
@@ -182,7 +179,7 @@ class MessageEntryBar(Gtk.Box, EventReceiver):
         if self._attachment_area_revealer.get_child_revealed():
             self.context.attachment_tray_scroll_mode = False
 
-    # Gtk Box does not support this, so we will do it manually when we add
+    # Gtk Box does not support Gtk.Container::add
     def emulate_attachment_container_change(self):
         if len(self._attachment_container.get_children()) > 1:
             self._send_button.set_sensitive(True)
