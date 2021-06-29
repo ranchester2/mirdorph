@@ -21,10 +21,6 @@ from enum import Enum
 from xml.sax.saxutils import escape as escape_xml
 from .link_preview import LinkPreviewExport
 
-# Why a separate file?
-# Because I want to test the parsing, but I can't really get pytest
-# to import a python file with Gresource magic, so this must be generic.
-
 LINK_REGEX = r"(?P<url>https?://[^\s]+)"
 
 class ComponentType(Enum):
@@ -34,25 +30,25 @@ class ComponentType(Enum):
 
 def calculate_msg_parts(original_content: str) -> list:
     """
-    Calculate and separate a list of types of components in a str message
+    Calculate and separate a list of types of components in a str message.
 
-    `returns:
+    This isn't low-level formatting stuff, and discord mentions for example,
+    but top-level stuff like separating quotes out, and probably in the future
+    codeblocks.
+
+    returns:
         `list` of `tuple` where each tupple is (ComponentType, text: str)
     """
-
     components = []
 
-    def rem_end_line_for_quote_start(text: str) -> str:
-        if text.endswith("\n"):
-            return text[:-1]
-
-    # Maybe a bit bad to pass the mutable components list to this, with side affects...
+    # NOTE: components is a mutable list
     def reset_last_component(current_component_type: ComponentType, current_component_text: str,
                              new_component_type: ComponentType, components: list) -> bool:
         if current_component_text and current_component_type != new_component_type:
             # Without this, before other parts we have a stupid blank line, (for example quotes)
             # For now for all types, and probably for all future ones we also will need this
-            current_component_text = rem_end_line_for_quote_start(current_component_text)
+            if current_component_text.endswith("\n"):
+                current_component_text = current_component_text[:-1]
             components.append(
                 (
                     copy.deepcopy(current_component_type),
@@ -75,9 +71,9 @@ def calculate_msg_parts(original_content: str) -> list:
 
             # We don't put the > into the output, because
             # it is expected to handle that manually after the fact
-            amount = 2
+            amount = len("> ")
             if line.startswith(">>>"):
-                amount += 2
+                amount = len(">>> ")
             current_component_text += line[amount:]
         else:
             if reset_last_component(current_component_type, current_component_text, ComponentType.STANDARD, components):
@@ -109,7 +105,7 @@ def _extract_discord_components(message_string) -> list:
 
     List empty if none exist
     """
-    # Not immplemented for now
+    # Not immplemented for now, need to figure out embeding widgets in labels.
     return []
 
 
@@ -173,7 +169,7 @@ class MessageComponent(Gtk.Bin):
         if self.component_type in [ComponentType.STANDARD, ComponentType.QUOTE]:
             self._text_label = Gtk.Label(
                 wrap=True,
-                wrap_mode=2,
+                wrap_mode=Pango.WrapMode.WORD_CHAR,
                 selectable=True,
                 xalign=0.0
             )
