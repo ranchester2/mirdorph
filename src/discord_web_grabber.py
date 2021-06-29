@@ -62,7 +62,7 @@ class DiscordGrabber(WebKit2.WebView):
 
         # The js file can't immediately contain the scheme id, as it is unique
         with open(os.path.join(os.path.dirname(__file__), "get_token.js"), "r") as f:
-            self._injection_code = f"var scheme_id = {self._scheme}\n{f.read()}"
+            self._injection_code = f"var scheme_id = {self.SCHEME_ID}\n{f.read()}"
 
         self.connect("resource-load-started", self._on_resource_load_started)
 
