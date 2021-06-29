@@ -28,7 +28,7 @@ with a link <a href="https://google.com">https://google.com</a>
 and other <a href="http://example.com">http://example.com</a>"""
 
     assert _create_pango_markup(test_text) == expected_text
-    
+
 def test_calculate_message_parts():
     example_message = """\
 Hello, this is a test message
@@ -62,3 +62,20 @@ However the bot said that:
     components = calculate_msg_parts(example_message)
 
     assert correct_components == components
+
+# NOTE: this is also half a link preview test as a whole
+
+def test_generate_exports():
+    example_message = """\
+a link https://gitlab.gnome.org
+and other https://reddit.com
+"""
+    exports = _generate_exports(example_message)
+
+    assert len(exports) == 2
+
+    assert isinstance(exports[0], LinkPreviewExport)
+    assert isinstance(exports[1], LinkPreviewExport)
+
+    assert exports[0].link == "https://gitlab.gnome.org"
+    assert exports[1].link == "https://reddit.com"
