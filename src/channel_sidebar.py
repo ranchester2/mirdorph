@@ -19,7 +19,7 @@ import logging
 import discord
 import os
 from pathlib import Path
-from gi.repository import Gtk, Handy, Gio, GObject, GLib, Pango, GdkPixbuf
+from gi.repository import Gtk, Gio, GLib, GdkPixbuf, Handy
 from .event_receiver import EventReceiver
 
 @Gtk.Template(resource_path="/org/gnome/gitlab/ranchester/Mirdorph/ui/channel_list_entry.ui")
@@ -39,22 +39,28 @@ class MirdorphGuildEntry(Handy.ExpanderRow):
 
     _guild_icon_dir_path = Path(os.environ["XDG_CACHE_HOME"] / Path("mirdorph"))
 
-    def __init__(self, guild_id, *args, **kwargs):
+    def __init__(self, disc_guild: discord.Guild, *args, **kwargs):
         Gtk.ListBoxRow.__init__(self, *args, **kwargs)
+        self.app = Gio.Application.get_default()
+        self._disc_guild = disc_guild
+        self.set_title(self._disc_guild.name)
+        # For filtering by search
+        self.guild_name = self._disc_guild.name
 
         self._loading_state_spinner = Gtk.Spinner()
         self._loading_state_spinner.show()
         self.add_prefix(self._loading_state_spinner)
         self._loading_state_spinner.start()
 
-        # For whatever reason it is needed
+        # Channel sidebar should always take up the smallest amount of
+        # horizontal space.
         self.set_hexpand(False)
 
         # Public because keeping track of which listbox is the current one is the job of the channel
         # sidebar, not the entry.
         self.channel_listbox = Gtk.ListBox()
         self.channel_listbox.show()
-
+        # Nice separators between rows
         def channel_listbox_header_func(row, before):
             if before is None:
                 row.set_header(None)
@@ -65,15 +71,12 @@ class MirdorphGuildEntry(Handy.ExpanderRow):
                 current.show()
                 row.set_header(current)
         self.channel_listbox.set_header_func(channel_listbox_header_func)
-
         self.channel_listbox.connect("row-activated", self._on_channel_list_entry_activated)
         self.add(self.channel_listbox)
 
-        fetching_guild_thread = threading.Thread(
-            target=self._fetching_guild_threaded_target,
-            args=(guild_id,)
-        )
-        fetching_guild_thread.start()
+        threading.Thread(
+            target=self._fetching_guild_threaded_target
+        ).start()
 
     def do_search_display(self, search_string: str) -> MirdorphChannelListEntry:
         """
@@ -85,7 +88,6 @@ class MirdorphGuildEntry(Handy.ExpanderRow):
             `MirdorphChannelListEntry` of the first match if a search was found at all,
             `None` if no viable row was found
         """
-
         row_match = None
         for channel_row in self.channel_listbox:
             if search_string.lower() in channel_row.name.lower():
@@ -105,81 +107,36 @@ class MirdorphGuildEntry(Handy.ExpanderRow):
                 return True
         return False
 
-    def _get_icon_path_from_guild_id(self, guild_id) -> Path:
-        return Path(self._guild_icon_dir_path / Path("icon" + "_" + str(guild_id) + ".png"))
-
-    async def _get_guild_advanced_wrapper(self, client, guild_id):
-        tmp_guild = await client.fetch_guild(guild_id)
-
-        await asyncio.sleep(0.1)
-        while client.get_guild(guild_id) is None:
-            logging.info("couldnt get channel, sleeping for additional second")
-            await asyncio.sleep(1)
-
-        return client.get_guild(guild_id)
-
-    async def _channel_is_private_to_you(self, self_member, channel):
-        our_permissions = channel.permissions_for(self_member)
-        return not our_permissions.view_channel
-
-    async def _get_self_member(self, client):
-        return await self._guild_disc.fetch_member(client.user.id)
+    @staticmethod
+    def _get_icon_path_from_guild_id(guild_id: int) -> Path:
+        return Path(
+            MirdorphGuildEntry._guild_icon_dir_path / Path("icon" + "_" + str(guild_id) + ".png")
+        )
 
     async def _save_guild_icon(self, asset):
         try:
-            await asset.save(self._get_icon_path_from_guild_id(self._guild_disc.id))
+            await asset.save(self._get_icon_path_from_guild_id(self._disc_guild.id))
         except discord.errors.DiscordException:
             logging.warning("guild does not have icon, not saving")
 
-    def _fetching_guild_threaded_target(self, guild_id):
-        self._guild_disc = asyncio.run_coroutine_threadsafe(
-            self._get_guild_advanced_wrapper(
-                Gio.Application.get_default().discord_client,
-                guild_id
-            ),
-            Gio.Application.get_default().discord_loop
-        ).result()
-
-        # So that we could query our permissions, not in loop for rate limit
-        self_member = asyncio.run_coroutine_threadsafe(
-            self._get_self_member(
-                Gio.Application.get_default().discord_client
-            ),
-            Gio.Application.get_default().discord_loop
-        ).result()
-        self._private_guild_channel_ids = []
-        for channel in self._guild_disc.channels:
-            is_private = asyncio.run_coroutine_threadsafe(
-                self._channel_is_private_to_you(
-                    self_member,
-                    channel
-                ),
-                Gio.Application.get_default().discord_loop
-            ).result()
-            if is_private:
-                self._private_guild_channel_ids.append(channel.id)
-
-        # They are saved in the cache path /
-        # icon+guild_id+.png
-        icon_asset = self._guild_disc.icon_url_as(size=4096, format="png")
+    def _fetching_guild_threaded_target(self):
+        # Originally this was also for the guild itself, however now
+        # just for the image
+        icon_asset = self._disc_guild.icon_url_as(size=4096, format="png")
         asyncio.run_coroutine_threadsafe(
             self._save_guild_icon(
                 icon_asset
             ),
-            Gio.Application.get_default().discord_loop
+            self.app.discord_loop
         ).result()
 
         GLib.idle_add(self._build_guild_gtk_target)
 
     def _build_guild_gtk_target(self):
-        self.set_title(self._guild_disc.name)
-        # For filtering by search
-        self.guild_name = self._guild_disc.name
-
-        guild_image_path = self._get_icon_path_from_guild_id(self._guild_disc.id)
+        guild_image_path = self._get_icon_path_from_guild_id(self._disc_guild.id)
         if guild_image_path.is_file():
             guild_image = Handy.Avatar(size=32)
-            def load_image(size, guild_image_path):
+            def load_image(size, guild_image_path: Path):
                 pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(
                     str(guild_image_path),
                     width=size,
@@ -190,17 +147,19 @@ class MirdorphGuildEntry(Handy.ExpanderRow):
             guild_image.set_image_load_func(load_image, guild_image_path)
             guild_image.show()
             self.add_prefix(guild_image)
+        # The image isn't downloaded if the guild doesn't have one
         else:
             guild_image = Handy.Avatar(size=32, show_initials=True)
-            guild_image.set_text(self._guild_disc.name)
+            guild_image.set_text(self._disc_guild.name)
             guild_image.show()
             self.add_prefix(guild_image)
 
-        for channel in self._guild_disc.channels:
+        for channel in self._disc_guild.channels:
+            # These channels aren't supported yet
             if isinstance(channel, (discord.VoiceChannel, discord.StageChannel, discord.CategoryChannel)):
                 continue
 
-            if channel.id in self._private_guild_channel_ids:
+            if not channel.permissions_for(self._disc_guild.me).view_channel:
                 continue
 
             channel_entry = MirdorphChannelListEntry(channel)
@@ -210,27 +169,27 @@ class MirdorphGuildEntry(Handy.ExpanderRow):
         self.remove(self._loading_state_spinner)
 
     def _on_channel_list_entry_activated(self, listbox, row):
-        Gio.Application.get_default().main_win.show_active_channel(row.id)
+        self.app.main_win.show_active_channel(row.id)
         # Most mobile sidebar switching implementations work like this
-        if Gio.Application.get_default().main_win.main_flap.get_folded():
-            Gio.Application.get_default().main_win.main_flap.set_reveal_flap(False)
+        if self.app.main_win.main_flap.get_folded():
+            self.app.main_win.main_flap.set_reveal_flap(False)
 
 @Gtk.Template(resource_path='/org/gnome/gitlab/ranchester/Mirdorph/ui/channel_sidebar.ui')
 class MirdorphChannelSidebar(Gtk.Box):
     __gtype_name__ = "MirdorphChannelSidebar"
 
-    _view_switcher: Handy.ViewSwitcherBar = Gtk.Template.Child()
     _guild_list_search_entry: Gtk.SearchEntry = Gtk.Template.Child()
     guild_list_search_bar: Handy.SearchBar = Gtk.Template.Child()
     _channel_guild_list: Gtk.ListBox = Gtk.Template.Child()
 
     _channel_guild_loading_stack: Gtk.Stack = Gtk.Template.Child()
     _channel_guild_list_container: Gtk.Box = Gtk.Template.Child()
-    _channel_guild_loading_spinner_page: Gtk.Spinner = Gtk.Template.Child()
+    _guild_loading_page: Gtk.Spinner = Gtk.Template.Child()
 
     def __init__(self, channel_search_button: Gtk.ToggleButton, *args, **kwargs):
         Gtk.Box.__init__(self, *args, **kwargs)
-        self._channel_guild_loading_stack.set_visible_child(self._channel_guild_loading_spinner_page)
+        self.app = Gio.Application.get_default()
+        self._channel_guild_loading_stack.set_visible_child(self._guild_loading_page)
         self._channel_search_button = channel_search_button
 
         self.guild_list_search_bar.connect_entry(self._guild_list_search_entry)
@@ -240,8 +199,7 @@ class MirdorphChannelSidebar(Gtk.Box):
         # the most likely search result.
         self._most_wanted_search_channel = None
 
-        build_guilds_thread = threading.Thread(target=self._build_guilds_target)
-        build_guilds_thread.start()
+        threading.Thread(target=self._build_guilds_target).start()
 
     def _on_channel_search_button_toggled(self, button, param):
         self.guild_list_search_bar.set_search_mode(self._channel_search_button.get_active())
@@ -300,34 +258,29 @@ class MirdorphChannelSidebar(Gtk.Box):
             self._most_wanted_search_channel.emit("activate")
             self.guild_list_search_bar.set_search_mode(False)
 
-    async def _get_guild_ids_list(self, client):
+    async def _get_guilds_list(self) -> list:
         # Why the waiting?
-        # We can't get guilds with all the feauters with fetching
-        # So we wait here for the cache to get built up so that we
-        # could get guild objects
-        await asyncio.sleep(0.25)
-        while not client.guilds:
-            logging.info("couldnt get list, sleeping for additional quarter second")
+        # This is often loaded before our client is fully connected.
+        # This also then serves as the entire application's "loading" state.
+        # TODO: I might think about having a separate toplevel loading page for the app
+        # in the future.
+        while not self.app.discord_client.guilds:
+            logging.info("guilds not synced, sleeping for additional quarter second")
             await asyncio.sleep(0.25)
 
-        guild_ids_list = [guild.id for guild in client.guilds]
-        return guild_ids_list
+        return self.app.discord_client.guilds
 
     def _build_guilds_target(self):
-        guild_ids = asyncio.run_coroutine_threadsafe(
-            self._get_guild_ids_list(
-                Gio.Application.get_default().discord_client
-            ),
-            Gio.Application.get_default().discord_loop
+        guilds = asyncio.run_coroutine_threadsafe(
+            self._get_guilds_list(),
+            self.app.discord_loop
         ).result()
 
-        GLib.idle_add(self._build_guilds_gtk_target, guild_ids)
+        GLib.idle_add(self._build_guilds_gtk_target, guilds)
 
-    def _build_guilds_gtk_target(self, guild_ids):
-        for guild_id in guild_ids:
-            guild_entry = MirdorphGuildEntry(guild_id)
-            # Why? Because it is hard to access the listox manager from the event
-            # in the guild_entry itself
+    def _build_guilds_gtk_target(self, guilds: list):
+        for guild in guilds:
+            guild_entry = MirdorphGuildEntry(guild)
             guild_entry.channel_listbox.connect("row-activated", self._on_guild_entry_channel_list_activate)
             guild_entry.show()
             self._channel_guild_list.add(guild_entry)
@@ -351,6 +304,7 @@ class MirdorphChannelSidebar(Gtk.Box):
                     if guild_row.channel_listbox == active_listbox:
                         guild_row.set_expanded(True)
             else:
+                # Setting to none and back removes the selection
                 listbox.set_selection_mode(Gtk.SelectionMode.NONE)
                 listbox.set_selection_mode(Gtk.SelectionMode.SINGLE)
 
