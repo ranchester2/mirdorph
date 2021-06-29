@@ -16,8 +16,7 @@
 import copy
 import re
 import gi
-gi.require_version("Gtk", "3.0")
-from gi.repository import Gtk
+from gi.repository import Gtk, Pango
 from enum import Enum
 from xml.sax.saxutils import escape as escape_xml
 from .link_preview import LinkPreviewExport
