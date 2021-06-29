@@ -40,7 +40,9 @@ class LinkPreviewExport(Gtk.ListBox):
         self.image_path = None
         self._link_label.set_label(link)
 
-        threading.Thread(target=self._fetch_preview).start()
+        # Daemon thread is useful for CI, as it causes it to cancel
+        # when test finishes
+        threading.Thread(target=self._fetch_preview, daemon=True).start()
 
     def _fetch_preview(self):
         # NOTE: this seems to cause slowdown with lots of previews,
