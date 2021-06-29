@@ -150,6 +150,9 @@ class ImageViewer(Handy.Flap):
                 if attachment == self._current_attachment:
                     return previous_processed_att
                 previous_processed_att = attachment
+        # Was triggered before disabling the back navigation button,
+        # if this is the first one.
+        return None
 
     def _setup_new_imge(self, new_attachment: discord.Attachment):
         new_image_wid = ImageAttachment(

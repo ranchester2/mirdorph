@@ -28,7 +28,6 @@
       <object class="HdyHeaderBar" id="_headerbar">
         <property name="visible">True</property>
         <property name="show-close-button">True</property>
-        <property name="title">media.bin</property>
         <child>
           <object class="GtkButton">
             <property name="visible">True</property>
@@ -39,6 +38,9 @@
               </object>
             </child>
             <signal name="clicked" handler="_on_back_button_clicked" />
+            <style>
+              <class name="image-button" />
+            </style>
           </object>
         </child>
         <child>
@@ -51,6 +53,9 @@
                 <property name="icon-name">view-fullscreen-symbolic</property>
               </object>
             </child>
+            <style>
+              <class name="image-button" />
+            </style>
           </object>
           <packing>
             <property name="pack-type">end</property>
@@ -67,6 +72,9 @@
                 <property name="icon-name">view-more-symbolic</property>
               </object>
             </child>
+            <style>
+              <class name="image-button" />
+            </style>
           </object>
           <packing>
             <property name="pack-type">end</property>
@@ -114,6 +122,9 @@
           <object class="GtkOverlay">
             <property name="visible">True</property>
             <child>
+              <!-- Scrolled Window works as a "buffer zone", as AtkPicture doesn't really -->
+              <!-- work all that well. However AtkPicture bases it's size on it's container's size -->
+              <!-- so this does not change the user experience -->
               <object class="GtkScrolledWindow" id="_picture_container">
                 <property name="visible">True</property>
               </object>
