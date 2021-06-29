@@ -22,7 +22,7 @@ import hashlib
 import os
 import gi
 from pathlib import Path
-from gi.repository import Gtk, Gdk, GdkPixbuf, GLib, Gio
+from gi.repository import Gtk, Gdk, GdkPixbuf, GLib
 
 
 @Gtk.Template(resource_path="/org/gnome/gitlab/ranchester/Mirdorph/ui/link_preview.ui")
@@ -38,12 +38,15 @@ class LinkPreviewExport(Gtk.ListBox):
         Gtk.ListBox.__init__(self, *args, **kwargs)
         self.link = link
         self.image_path = None
-
         self._link_label.set_label(link)
 
         threading.Thread(target=self._fetch_preview).start()
 
     def _fetch_preview(self):
+        # NOTE: this seems to cause slowdown with lots of previews,
+        # however it doesn't make much sense as this should be all in
+        # this thread. Maybe lazy loading?
+        # TODO: profile Gtk main thread
         try:
             preview = linkpreview.link_preview(self.link)
         except:
@@ -72,7 +75,7 @@ class LinkPreviewExport(Gtk.ListBox):
         file_hash = hashlib.sha256(url.encode("utf-8")).hexdigest()
 
         self.image_path = self._image_dir_path / \
-            Path(f"link_image{file_hash}.{ext}")
+            Path(f"link_image_{file_hash}.{ext}")
 
         with open(self.image_path, "wb") as f:
             f.write(r.content)
@@ -83,7 +86,7 @@ class LinkPreviewExport(Gtk.ListBox):
         try:
             image_pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(
                 str(self.image_path),
-                # 120 = request(140) - some phantom 20?? - the padding (optional??)
+                # 120 = request(140) - some phantom 20 - the padding (optional??)
                 120,
                 120,
                 False
