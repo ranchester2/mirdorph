@@ -292,17 +292,18 @@ class MessageEntryBarAttachment(Gtk.Button):
     @Gtk.Template.Callback()
     def _on_add_clicked(self, button):
         if self.add_mode:
-            native_dialog = Gtk.FileChooserNative.new(
+            window = self.get_toplevel()
+            filechooser = Gtk.FileChooserNative.new(
                 "Select File to Upload",
-                Gio.Application.get_default().main_win,
+                window if window.is_toplevel() else None,
                 Gtk.FileChooserAction.OPEN,
                 None,
                 None
             )
-            response = native_dialog.run()
+            response = filechooser.run()
             if response == Gtk.ResponseType.ACCEPT:
                 self.get_parent().pack_start(
-                    MessageEntryBarAttachment(visible=True, add_mode=False, filename=native_dialog.get_filename()),
+                    MessageEntryBarAttachment(visible=True, add_mode=False, filename=filechooser.get_filename()),
                     False,
                     False,
                     0
