@@ -229,17 +229,13 @@ class ImageViewer(Handy.Flap):
         self._current_attachment = attachment
         # It is safe to assume that the picture exists, because the click to open the ImagePreview
         # can only happen after the image is downloaded
-        self._current_image_path = Path(
-            Path(os.environ["XDG_CACHE_HOME"]) \
-            / Path("mirdorph") \
-            / Path(
-                "attachment_image_" \
-                + str(self._current_attachment.id) \
-                + os.path.splitext(self._current_attachment.filename)[1]
-            )
-        )
         picture_wid = AtkPicture(
-            str(self._current_image_path),
+            str(
+                ImageAttachment.get_image_save_path(
+                    self._current_attachment.id,
+                    self._current_attachment.filename
+                )
+            ),
             self._picture_container,
             max_width=self._current_attachment.width if self._current_attachment.width else 0,
             vexpand=True,

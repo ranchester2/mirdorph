@@ -19,11 +19,9 @@ import threading
 import subprocess
 import discord
 import os
-import time
-import random
 from enum import Enum
 from pathlib import Path
-from gi.repository import Gtk, Gio, GObject, GLib, Gdk, GdkPixbuf, Handy
+from gi.repository import Gtk, Gio, GObject, GLib, GdkPixbuf
 
 
 class AttachmentType(Enum):
@@ -61,26 +59,24 @@ class GenericAttachment(Gtk.ListBox, MirdorphAttachment):
     _download_progress_bar: Gtk.ProgressBar = Gtk.Template.Child()
     _download_button_image: Gtk.Image = Gtk.Template.Child()
 
-    # Capture attachment and channel_id to not pass it on to the widget
     def __init__(self, attachment, channel_id: int, *args, **kwargs):
         MirdorphAttachment.__init__(self, attachment, channel_id)
         Gtk.ListBox.__init__(self, *args, **kwargs)
+        self.app = Gio.Application.get_default()
+        self._finished_download = False
 
         self._do_template_render()
         self._do_full_render_at()
-        self._finished_download = False
 
     def _do_template_render(self):
         pass
 
     def _do_full_render_at(self):
-        # We don't actually need a separate thread for this
         self._filename_label.set_label(self._attachment_disc.filename)
         self._download_button.set_sensitive(True)
 
     @Gtk.Template.Callback()
     def _on_listbox_row_activated(self, list_box, row):
-        # We only have one row, so this is the main row
         if not self._finished_download:
             self._download_button.clicked()
 
@@ -88,44 +84,43 @@ class GenericAttachment(Gtk.ListBox, MirdorphAttachment):
     def _on_download_button_clicked(self, button):
         logging.info(f"saving attachment {self._attachment_disc.url}")
         self._download_button.set_sensitive(False)
-        self._download_progress_bar.pulse()
-        save_attachment_thread = threading.Thread(target=self._save_attachment_target)
-        save_attachment_thread.start()
+        GLib.timeout_add(250, self._pulse_target)
+        threading.Thread(target=self._save_attachment_target).start()
 
     def _pulse_target(self):
-        while not self._finished_download:
-            time.sleep(0.5)
-            GLib.idle_add(lambda _ : self._download_progress_bar.pulse(), None)
+        if not self._finished_download:
+            self._download_progress_bar.pulse()
         else:
-            GLib.idle_add(lambda _ : self._download_progress_bar.set_fraction(1.0), None)
+            self._download_progress_bar.set_fraction(1.0)
+            return False
 
     async def _do_save(self, download_dir):
         save_path = Path(download_dir + "/" + self._attachment_disc.filename)
         await self._attachment_disc.save(str(save_path))
 
     def _save_attachment_target(self):
-        # Magic string editing required because xdg-user-dir output isn't completely clean
-        download_dir = str(subprocess.check_output("xdg-user-dir DOWNLOAD", shell=True, text=True))[:-1]
-
-        pulse_thread = threading.Thread(target=self._pulse_target)
-        pulse_thread.start()
+        # Output adds trailing new line
+        download_dir = subprocess.check_output("xdg-user-dir DOWNLOAD", shell=True, text=True).rstrip()
 
         asyncio.run_coroutine_threadsafe(
             self._do_save(download_dir),
-            Gio.Application.get_default().discord_loop
+            self.app.discord_loop
         ).result()
 
         self._finished_download = True
-
-        GLib.idle_add(lambda _ : self._download_button_image.set_from_icon_name("emblem-ok-symbolic", 4), None)
-
+        GLib.idle_add(lambda *_ : self._download_button_image.set_from_icon_name("emblem-ok-symbolic", 4))
 
 class ImageAttachmentLoadingTemplate(Gtk.Bin):
+    """
+    Template of a still "loading" image, it is designed
+    in this way because the template and the final result
+    MUST be of the exact same size for scrolling to be smooth.
+    Luckily Discord automatically gives us image width/height info.
+    """
     __gtype_name__ = "ImageAttachmentLoadingTemplate"
 
     def __init__(self, width: int, height: int, *args, **kwargs):
         Gtk.Bin.__init__(self, width_request=width, height_request=height, *args, **kwargs)
-
         self.get_style_context().add_class("image-attachment-template")
         self._spinner = Gtk.Spinner(halign=Gtk.Align.CENTER, valign=Gtk.Align.CENTER, 
             width_request=48, height_request=48)
@@ -148,6 +143,11 @@ class ImageAttachment(MirdorphAttachment, Gtk.Bin):
     def __init__(self, attachment, channel_id: int, *args, **kwargs):
         MirdorphAttachment.__init__(self, attachment, channel_id)
         Gtk.Bin.__init__(self, *args, **kwargs)
+        self.app = Gio.Application.get_default()
+        self.image_save_path = self.get_image_save_path(
+            self._attachment_disc.id,
+            self._attachment_disc.filename
+        )
 
         self._image_stack = Gtk.Stack()
         self._image_stack.show()
@@ -159,25 +159,38 @@ class ImageAttachment(MirdorphAttachment, Gtk.Bin):
         self._do_template_render()
         self._do_full_render_at()
 
+    # Useful function for image viewer, image_save_path not sufficient because
+    # requires instance.
+    @staticmethod
+    def get_image_save_path(image_id: int, attachment_filename: str):
+        return (ImageAttachment._image_cache_dir_path
+            / Path(
+                "attachment_image_"
+                + str(image_id)
+                + os.path.splitext(attachment_filename)[1]
+            )
+        )
+
     def _on_clicked(self, guesture: Gtk.GestureSingle, sequence):
-        context = Gio.Application.get_default().retrieve_inner_window_context(
+        context = self.app.retrieve_inner_window_context(
             self._channel_id
         )
         context.show_image_viewer(self._attachment_disc)
 
-    def _get_image_path_from_id(self, image_id: int):
-        return Path(self._image_cache_dir_path / Path(
-            "attachment_image_" + str(image_id) + os.path.splitext(self._attachment_disc.filename)[1]))
-
     def _calculate_required_size(self) -> tuple:
         """
-        Calculate the best size for the image,
+        Calculate the best size for the image.
+
+        NOTE: this is a temporary solution unil a resizable image
+        is implemented, however AtkPicture last time I tried was
+        very buggy in this configuration.
 
         returns: tuple(width, height)
         """
         DESIRED_WIDTH_STANDARD = 290
 
         try:
+            # Very high attachments should be less wide to look more natural.
             if self._attachment_disc.height > DESIRED_WIDTH_STANDARD:
                 DESIRED_WIDTH_STANDARD -= 30
         except TypeError:
@@ -187,12 +200,10 @@ class ImageAttachment(MirdorphAttachment, Gtk.Bin):
             logging.warning(f"could not get dimentions of {self._attachment_disc}")
             return (DESIRED_WIDTH_STANDARD, DESIRED_WIDTH_STANDARD)
 
-        size_allocation = (
+        return (
             DESIRED_WIDTH_STANDARD,
             (DESIRED_WIDTH_STANDARD*self._attachment_disc.height/self._attachment_disc.width)
         )
-
-        return size_allocation
 
     def _do_template_render(self):
         self._template_image = ImageAttachmentLoadingTemplate(
@@ -201,38 +212,35 @@ class ImageAttachment(MirdorphAttachment, Gtk.Bin):
         )
         self._template_image.show()
         self._image_stack.add(self._template_image)
-        self._image_stack.set_visible_child(self._template_image)
 
     def _do_full_render_at(self):
-        fetch_image_thread = threading.Thread(target=self._fetch_image_target)
-        fetch_image_thread.start()
-
-    async def _save_image(self):
-        await self._attachment_disc.save(str(self._get_image_path_from_id(self._attachment_disc.id)))
+        threading.Thread(target=self._fetch_image_target).start()
 
     def _fetch_image_target(self):
         asyncio.run_coroutine_threadsafe(
-            self._save_image(),
-            Gio.Application.get_default().discord_loop
+            self._attachment_disc.save(str(self.image_save_path)),
+            self.app.discord_loop
         ).result()
 
         GLib.idle_add(self._load_image_gtk_target)
 
     def _load_image_gtk_target(self):
-        if self._get_image_path_from_id(self._attachment_disc.id).is_file():
-            real_pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(
-                str(self._get_image_path_from_id(self._attachment_disc.id)),
+        if self.image_save_path.is_file():
+            pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(
+                str(self.image_save_path),
                 self._calculate_required_size()[0],
                 self._calculate_required_size()[1],
                 preserve_aspect_ratio=True
             )
-            self._real_image = Gtk.Image.new_from_pixbuf(real_pixbuf)
+            self._real_image = Gtk.Image.new_from_pixbuf(pixbuf)
             self._real_image.show()
 
             # This seems really weird, but for ::button-press-event to work
             # we need to create a gesture for this widget. It is completely
             # unrelated.
-            self.guesture = Gtk.GestureSingle(widget=self._real_image)
+            # However this is still quite useful as we can no that on_click
+            # only happens after the image has been downloaded.
+            self._gesture = Gtk.GestureSingle(widget=self._real_image)
 
             self._image_stack.add(self._real_image)
             self._image_stack.set_visible_child(self._real_image)
@@ -243,9 +251,8 @@ def get_attachment_type(attachment: discord.Attachment) -> str:
     """
     Get the attachment type of the att
 
-    available_types = AttachmentType.IMAGE
+    available_types = AttachmentType.IMAGE, AttachmentType.GENERIC
     """
-
     data_format = os.path.splitext(attachment.filename)
     if data_format[1][1:].lower() in ["jpg", "jpeg", "bmp", "png", "webp"]:
         return AttachmentType.IMAGE
