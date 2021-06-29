@@ -216,9 +216,6 @@ class ImageAttachment(MirdorphAttachment, Gtk.Bin):
             Gio.Application.get_default().discord_loop
         ).result()
 
-        # So that they don't try to load all at the same time
-        time.sleep(random.uniform(1.25, 3.5)),
-
         GLib.idle_add(self._load_image_gtk_target)
 
     def _load_image_gtk_target(self):
