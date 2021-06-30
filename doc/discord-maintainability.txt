@@ -1,0 +1,17 @@
+We are in quite a bad state with the maintainability of our connection to Discord
+
+First, self bots aren't allowed and the API may change under our feet, and
+they can try to prevent it.
+
+We use `discord.py` which has deprecated self bot support in 1.7 and is removing it in 2.0.
+
+This is quite a bad state for us, I am currently applying patches on top of 1.7, however I
+will have to eventually somehow replace on top of v2.0. discord.py-self fork seems promising,
+I think I can work together with them and allows for good communication.
+
+However there is some community for self bots it seems, and the most real place I found is
+r/discord_selfbots. However it seems like many of the community have turned against you,
+you can't get help on this in the most popular communication channels like official Discords API
+or r/discordapp. Posting a question about self bots on stackoverflow gets you absolutely hated
+by morrons trying to mark your issue as a duplicate of an unrelated issue and saying that
+"noone will help you here" because it is against the TOS.
