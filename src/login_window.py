@@ -73,8 +73,9 @@ class MirdorphLoginWindow(Handy.ApplicationWindow):
     _login_password_page: Gtk.Box = Gtk.Template.Child()
     _email_entry: Gtk.Entry = Gtk.Template.Child()
     _password_entry: Gtk.Entry = Gtk.Template.Child()
-    _finish_password_login_button = Gtk.Template.Child()
+    _login_password_submit_button = Gtk.Template.Child()
 
+    _graphical_login_button: Gtk.Button = Gtk.Template.Child()
     _login_graphical_page: Gtk.Box = Gtk.Template.Child()
     _login_graphical_page_webview_container: Gtk.Box = Gtk.Template.Child()
 
@@ -85,6 +86,43 @@ class MirdorphLoginWindow(Handy.ApplicationWindow):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self._build_token_grabber()
+
+        login_action_group = Gio.SimpleActionGroup()
+
+        self._action_cancel = Gio.SimpleAction.new("cancel", None)
+        self._action_cancel.connect("activate", lambda *_ : self.props.application.quit())
+        login_action_group.add_action(self._action_cancel)
+
+        self._action_back = Gio.SimpleAction.new("back", None)
+        self._action_back.connect("activate", self._on_back)
+        login_action_group.add_action(self._action_back)
+
+        self._action_graphical_login = Gio.SimpleAction.new("with-graphical", None)
+        self._action_graphical_login.connect("activate", self._on_graphical_login)
+        login_action_group.add_action(self._action_graphical_login)
+
+        self._action_token_login = Gio.SimpleAction.new("with-token", None)
+        self._action_token_login.connect("activate", self._on_token_login)
+        login_action_group.add_action(self._action_token_login)
+
+        self._action_token_submit = Gio.SimpleAction.new("submit-token", None)
+        self._action_token_submit.set_enabled(False)
+        self._action_token_submit.connect("activate", self._on_token_login_submit)
+        login_action_group.add_action(self._action_token_submit)
+
+        self._action_password_login = Gio.SimpleAction.new("with-password", None)
+        self._action_password_login.connect("activate", self._on_password_login)
+        login_action_group.add_action(self._action_password_login)
+
+        self._action_submit_password = Gio.SimpleAction.new("submit-password", None)
+        self._action_submit_password.set_enabled(False)
+        self._action_submit_password.connect("activate", self._on_password_login_submit)
+        login_action_group.add_action(self._action_submit_password)
+
+        self.insert_action_group("login", login_action_group)
+
+        # UI file isn't enough with action-name
+        self._graphical_login_button.grab_focus()
 
         if not self.props.application.confman.get_value("tos_notice_accepted"):
             # If directly shown in __init__, the login window would not be displayed yet.
@@ -112,27 +150,37 @@ class MirdorphLoginWindow(Handy.ApplicationWindow):
                 "tos_notice_accepted", True)
             notice.destroy()
         else:
-            os._exit(0)
+            self.props.application.quit()
 
-    @Gtk.Template.Callback()
-    def _on_token_button_clicked(self, button):
+    def _on_token_login(self, *args):
         self._toplevel_deck.set_visible_child(self._second_stage_stack)
         self._second_stage_stack.set_visible_child(self._login_token_page)
         self._login_token_entry.grab_focus()
         self._login_token_entry_button.grab_default()
 
-    @Gtk.Template.Callback()
-    def _on_password_button_clicked(self, button):
+    def _on_password_login(self, *args):
         self._toplevel_deck.set_visible_child(self._second_stage_stack)
         self._second_stage_stack.set_visible_child(self._login_password_page)
+        self._login_password_submit_button.grab_default()
 
-    @Gtk.Template.Callback()
-    def _on_second_stage_back_buttons_clicked(self, button):
+    def _on_graphical_login(self, *args):
+        self._toplevel_deck.set_visible_child(self._second_stage_stack)
+        self._second_stage_stack.set_visible_child(self._login_graphical_page)
+
+    def _on_back(self, *args):
         self._toplevel_deck.set_visible_child(self._login_welcome_page)
 
     @Gtk.Template.Callback()
-    def _on_main_cancel_button_clicked(self, button):
-        os._exit(1)
+    def _on_login_token_entry_changed(self, entry):
+        self._action_token_submit.set_enabled(
+            self._login_token_entry.get_text()
+        )
+
+    def _on_token_login_submit(self, *args):
+        token = self._login_token_entry.get_text()
+        self._login_token_entry.set_text("")
+        self._save_token(token)
+        self.props.application.relaunch()
 
     @Gtk.Template.Callback()
     def _on_password_warning_bar_response(self, bar: Gtk.InfoBar, response_id: int):
@@ -140,51 +188,19 @@ class MirdorphLoginWindow(Handy.ApplicationWindow):
             bar.hide()
 
     @Gtk.Template.Callback()
-    def _on_password_entries_changed(self, entry):
-        self._finish_password_login_button.set_sensitive(
-            self._email_entry.get_text() and self._password_entry.get_text()
-        )
-
-    def _do_init_password_login(self):
-        self.set_sensitive(False)
-        threading.Thread(target=self._token_password_retrieval_target).start()
-
-    @Gtk.Template.Callback()
     def _on_email_entry_activate(self, entry):
         if self._email_entry.get_text():
             self._password_entry.grab_focus()
 
     @Gtk.Template.Callback()
-    def _on_password_entry_activate(self, entry):
-        if self._email_entry.get_text() and self._password_entry.get_text():
-            self._do_init_password_login()
+    def _on_password_entries_changed(self, entry):
+        self._action_submit_password.set_enabled(
+            self._email_entry.get_text() and self._password_entry.get_text()
+        )
 
-    @Gtk.Template.Callback()
-    def _on_finish_password_login_button_clicked(self, button):
-        self._do_init_password_login()
-
-    @Gtk.Template.Callback()
-    def _on_login_token_entry_changed(self, entry):
-        self._login_token_entry_button.get_style_context().add_class("suggested-action")
-
-    @Gtk.Template.Callback()
-    def _on_main_login_button_clicked(self, button):
-        self._toplevel_deck.set_visible_child(self._second_stage_stack)
-        self._second_stage_stack.set_visible_child(self._login_graphical_page)
-
-    def _on_web_login_complete(self, grabber, token: str):
-        self._token_generic_retrieval_gtk_target(token)
-
-    def _on_web_login_failed(self, grabber, help: str):
-        self._build_token_grabber()
-        self._notification_label.set_label(help)
-        self._notification_title_label.set_label("Error")
-        self._notification_revealer.set_reveal_child(True)
-
-        def notification_waiting_gtk_target():
-            self._notification_revealer.set_reveal_child(False)
-            return False
-        GLib.timeout_add_seconds(5, notification_waiting_gtk_target)
+    def _on_password_login_submit(self, *args):
+        self.set_sensitive(False)
+        threading.Thread(target=self._token_password_retrieval_target).start()
 
     def _token_password_retrieval_target(self):
         email = self._email_entry.get_text()
@@ -203,16 +219,23 @@ class MirdorphLoginWindow(Handy.ApplicationWindow):
                 "Token not found in Discord Password login response, login failed. Incorrect password?")
             self.props.application.relaunch()
 
+    def _on_web_login_complete(self, grabber, token: str):
+        self._token_generic_retrieval_gtk_target(token)
+
+    def _on_web_login_failed(self, grabber, help: str):
+        self._build_token_grabber()
+        self._notification_label.set_label(help)
+        self._notification_title_label.set_label("Error")
+        self._notification_revealer.set_reveal_child(True)
+
+        def notification_waiting_gtk_target():
+            self._notification_revealer.set_reveal_child(False)
+            return False
+        GLib.timeout_add_seconds(5, notification_waiting_gtk_target)
+
     def _token_generic_retrieval_gtk_target(self, token):
         if token:
             self._save_token(token)
-        self.props.application.relaunch()
-
-    @Gtk.Template.Callback()
-    def _on_login_token_entry_inserted(self, *args):
-        token = self._login_token_entry.get_text()
-        self._login_token_entry.set_text("")
-        self._save_token(token)
         self.props.application.relaunch()
 
     @Gtk.Template.Callback()

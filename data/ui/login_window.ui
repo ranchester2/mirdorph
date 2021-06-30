@@ -29,8 +29,8 @@
                     <child>
                       <object class="GtkButton">
                         <property name="visible">True</property>
+                        <property name="action-name">login.cancel</property>
                         <property name="label">Cancel</property>
-                        <signal name="clicked" handler="_on_main_cancel_button_clicked" />
                       </object>
                     </child>
                   </object>
@@ -73,13 +73,12 @@
                     <property name="margin-top">10</property>
                     <property name="orientation">vertical</property>
                     <child>
-                      <object class="GtkButton">
+                      <object class="GtkButton" id="_graphical_login_button">
                         <property name="visible">True</property>
-                        <property name="has-focus">True</property>
-                        <property name="label">Log In</property>
-                        <property name="halign">GTK_ALIGN_CENTER</property>
                         <property name="width-request">250</property>
-                        <signal name="clicked" handler="_on_main_login_button_clicked" />
+                        <property name="halign">GTK_ALIGN_CENTER</property>
+                        <property name="action-name">login.with-graphical</property>
+                        <property name="label">Log In</property>
                         <style>
                           <class name="suggested-action" />
                           <class name="login-button" />
@@ -102,10 +101,10 @@
                             <child>
                               <object class="GtkButton">
                                 <property name="visible">True</property>
-                                <property name="label">Manual Token</property>
                                 <property name="halign">GTK_ALIGN_CENTER</property>
                                 <property name="width-request">250</property>
-                                <signal name="clicked" handler="_on_token_button_clicked" />
+                                <property name="action-name">login.with-token</property>
+                                <property name="label">Manual Token</property>
                                 <style>
                                   <class name="circular" />
                                   <class name="login-button" />
@@ -115,10 +114,10 @@
                             <child>
                               <object class="GtkButton">
                                 <property name="visible">True</property>
-                                <property name="label">Username and Password</property>
-                                <property name="halign">GTK_ALIGN_CENTER</property>
                                 <property name="width-request">250</property>
-                                <signal name="clicked" handler="_on_password_button_clicked" />
+                                <property name="halign">GTK_ALIGN_CENTER</property>
+                                <property name="action-name">login.with-password</property>
+                                <property name="label">Username and Password</property>
                                 <style>
                                   <class name="circular" />
                                   <class name="login-button" />
@@ -154,7 +153,7 @@
                     <child>
                       <object class="GtkButton">
                         <property name="visible">True</property>
-                        <signal name="clicked" handler="_on_second_stage_back_buttons_clicked" />
+                        <property name="action-name">login.back</property>
                         <child>
                           <object class="GtkImage">
                             <property name="visible">True</property>
@@ -204,8 +203,11 @@
                               <object class="GtkButton" id="_login_token_entry_button">
                                 <property name="visible">True</property>
                                 <property name="can-default">True</property>
+                                <property name="action-name">login.submit-token</property>
                                 <property name="label">Insert</property>
-                                <signal name="activate" handler="_on_login_token_entry_inserted" />
+                                <style>
+                                  <class name="suggested-action" />
+                                </style>
                               </object>
                             </child>
                             <style>
@@ -235,7 +237,7 @@
                     <child>
                       <object class="GtkButton">
                         <property name="visible">True</property>
-                        <signal name="clicked" handler="_on_second_stage_back_buttons_clicked" />
+                        <property name="action-name">login.back</property>
                         <child>
                           <object class="GtkImage">
                             <property name="visible">True</property>
@@ -248,11 +250,11 @@
                       </object>
                     </child>
                     <child>
-                      <object class="GtkButton" id="_finish_password_login_button">
+                      <object class="GtkButton" id="_login_password_submit_button">
                         <property name="visible">True</property>
-                        <property name="sensitive">False</property>
+                        <property name="can-default">True</property>
+                        <property name="action-name">login.submit-password</property>
                         <property name="label">Submit</property>
-                        <signal name="clicked" handler="_on_finish_password_login_button_clicked" />
                         <style>
                           <class name="suggested-action" />
                         </style>
@@ -358,8 +360,8 @@
                                         <property name="visible">True</property>
                                         <property name="placeholder-text">Password</property>
                                         <property name="visibility">False</property>
+                                        <property name="activates-default">True</property>
                                         <signal name="changed" handler="_on_password_entries_changed" />
-                                        <signal name="activate" handler="_on_password_entry_activate" />
                                       </object>
                                     </child>
                                     <style>
@@ -396,7 +398,7 @@
                     <child>
                       <object class="GtkButton">
                         <property name="visible">True</property>
-                        <signal name="clicked" handler="_on_second_stage_back_buttons_clicked" />
+                        <property name="action-name">login.back</property>
                         <child>
                           <object class="GtkImage">
                             <property name="visible">True</property>
