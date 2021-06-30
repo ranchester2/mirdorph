@@ -232,13 +232,12 @@ class ImageViewer(Handy.Flap):
         self._current_attachment = attachment
         # It is safe to assume that the picture exists, because the click to open the ImagePreview
         # can only happen after the image is downloaded
+        self._current_image_path = ImageAttachment.get_image_save_path(
+            self._current_attachment.id,
+            self._current_attachment.filename
+        )
         picture_wid = AtkPicture(
-            str(
-                ImageAttachment.get_image_save_path(
-                    self._current_attachment.id,
-                    self._current_attachment.filename
-                )
-            ),
+            str(self._current_image_path),
             self._picture_container,
             max_width=self._current_attachment.width if self._current_attachment.width else 0,
             vexpand=True,
