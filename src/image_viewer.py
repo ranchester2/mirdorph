@@ -128,28 +128,25 @@ class ImageViewer(Handy.Flap):
         self._catalog_back.set_sensitive(True)
 
     async def _get_next_attachment(self) -> discord.Attachment:
-        current_attachment_found = False
-        async for message in self.context.channel_disc.history(limit=None):
+        async for message in self.context.channel_disc.history(limit=None, before=self._current_attachment):
             for attachment in message.attachments:
-                if get_attachment_type(attachment) != AttachmentType.IMAGE:
-                    continue
-                if attachment == self._current_attachment:
-                    current_attachment_found = True
-                    continue
-                if current_attachment_found:
+                if get_attachment_type(attachment) == AttachmentType.IMAGE:
                     return attachment
-        # There are no further attachment
+                else:
+                    continue
+        # There are no further attachments
         return None
 
     async def _get_previous_attachment(self) -> discord.Attachment:
-        previous_processed_att = None
-        async for message in self.context.channel_disc.history(limit=None):
+        # Even though we use after, the current message seems to still be included often
+        # but not always, which is why if we encounter our attachment we skip it.
+        async for message in self.context.channel_disc.history(limit=None, after=self._current_attachment):
             for attachment in message.attachments:
-                if get_attachment_type(attachment) != AttachmentType.IMAGE:
+                if get_attachment_type(attachment) == AttachmentType.IMAGE:
+                    if attachment != self._current_attachment:
+                        return attachment
+                else:
                     continue
-                if attachment == self._current_attachment:
-                    return previous_processed_att
-                previous_processed_att = attachment
         # Was triggered before disabling the back navigation button,
         # if this is the first one.
         return None
