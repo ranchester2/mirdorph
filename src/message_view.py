@@ -102,6 +102,115 @@ class MessageView(Gtk.Overlay, EventReceiver):
 
         self._message_listbox.set_focus_vadjustment(self._adj)
 
+    def _fix_merges(self):
+        """
+        Attempt to efficiently fix incorrect message merging,
+        this only affects in correct rows and only itterates
+        through the listbox once.
+
+        It is needed because it is extremely hard to handle cross-load
+        merging in `self._load_messages`, and this was the best solution
+        that I found.
+        """
+        previous_row = None
+        for row in self._message_listbox.get_children():
+            if hasattr(row, "author") and hasattr(row, "merged"):
+                if not previous_row:
+                    if row.merged:
+                        row.unmerge()
+                elif previous_row.author == row.author:
+                    if not row.merged:
+                        row.merge()
+                previous_row = row
+
+    def remove_ad(self, row: Gtk.Widget):
+        """
+        Remove a row, advanced helper function
+        """
+        self._message_listbox.remove(row)
+
+    def add_ad(self, row: Gtk.Widget):
+        """
+        Add a row, advanced helper function.
+
+        The main reason is for there to be a unified function
+        for updating the contents, and this is useful to
+        for example automatically handle scorlling.
+
+        param:
+            row - the row to add.
+        """
+        # Workaround: https://gitlab.gnome.org/GNOME/gtk/merge_requests/395
+        self.scroller.set_kinetic_scrolling(False)
+        # The added widget is expected to change the size of the listbox,
+        # causing the handling of the ::notify::upper signal to revert this
+        # when needed.
+        self._inserting_message = True
+
+        self._message_listbox.add(row)
+
+    def object_is_dupe(self, new_id: int) -> bool:
+        """
+        Figure out if adding a row based on this object will be
+        a dupe.
+        param:
+            new_id - the unique discord event id for what is being added.
+        """
+        for row in self._message_listbox.get_children():
+            if hasattr(row, "disc_id"):
+                if new_id == row.disc_id:
+                    return True
+        return False
+
+    def _load_messages(self, messages: list):
+        """
+        Load messages and create their widgets into the view
+        from a list of discord message objects.
+
+        param:
+            messages - list of `discord.Message`. NOTE: all messages
+            must be in a row as they actually are, you can't leave some out.
+        """
+        # Fallback, sorting errors more likely than unhandled holes.
+        messages.sort(key=lambda x : x.created_at)
+
+        previous_author = None
+        for message in messages:
+            if not self.object_is_dupe(message.id):
+                if previous_author:
+                    should_be_merged = (previous_author == message.author)
+                # When adding only a single message, for example on send,
+                # we really want to avoid merging/unmerging the message
+                # after it is already displayed, as that will be needed
+                # 100% of the time.
+                # Fractal has an issue about this:
+                # https://gitlab.gnome.org/GNOME/fractal/-/issues/231
+                # we work around it ;)
+                elif len(messages) == 1:
+                    last_row = self._message_listbox.get_children()[-1]
+                    if hasattr(last_row, "timestamp") and hasattr(last_row, "author"):
+                        # The message here can be from anywhere, we want to avoid
+                        # blindly assuming it will be the latest message.
+                        if message.created_at.timestamp() > last_row.timestamp:
+                            should_be_merged = (last_row.author == message.author)
+                else:
+                    should_be_merged = False
+
+                message_wid = MirdorphMessage(
+                    message,
+                    merged=should_be_merged
+                )
+                message_wid.show()
+                self.add_ad(message_wid)
+                previous_author = message.author
+
+        if messages:
+            # This can change the size of the listbox,
+            # however no time for the GLib loop to process idle events
+            # (update the scroll position) is between adding the rows
+            # and fixing the merges.
+            self._fix_merges()
+
     def _on_upper_changed(self, upper: float, adjparam):
         new_upper = self._adj.get_upper()
         diff = new_upper - self._orig_upper
@@ -159,19 +268,7 @@ class MessageView(Gtk.Overlay, EventReceiver):
 
     def disc_on_message(self, message):
         if message.channel.id == self.context.channel_id:
-            last_message = self._message_listbox.get_children()[-1]
-            should_be_merged = False
-            if isinstance(last_message, MirdorphMessage):
-                should_be_merged = (message.author == last_message.author)
-
-            message_wid = MirdorphMessage(
-                message,
-                merged=should_be_merged
-            )
-            message_wid.show()
-
-            # No risk of this being a duplicate as this event never happens twice
-            self._message_listbox.add(message_wid)
+            self._load_messages([message])
 
             if self.context.scroll_for_msg_send:
                 GLib.idle_add(self.context.scroll_messages_to_bottom)
@@ -195,32 +292,7 @@ class MessageView(Gtk.Overlay, EventReceiver):
         return [message async for message in channel.history(limit=amount_to_load)]
 
     def _history_loading_gtk_target(self, messages: list):
-        previous_message_author = None
-
-        for message in messages:
-            # We need to check for duplicates and not add create widgets if it is
-            # because load_history will often be called multiple times
-            duplicate = False
-            for existing_message in self._message_listbox.get_children():
-                # We only care about mirdorphmessages for now,
-                # and this is a lot simpler as we know the uniq_id
-                # **is** the discord id.
-                if isinstance(existing_message, MirdorphMessage):
-                    if message.id == existing_message.uniq_id:
-                        duplicate = True
-                        break
-            if not duplicate:
-                # Workaround: https://gitlab.gnome.org/GNOME/gtk/merge_requests/395
-                self.scroller.set_kinetic_scrolling(False)
-                self._inserting_message = True
-
-                message_wid = MirdorphMessage(
-                    message,
-                    merged=(previous_message_author == message.author)
-                )
-                previous_message_author = message.author
-                message_wid.show()
-                self._message_listbox.add(message_wid)
+        self._load_messages(messages)
 
         self._history_loading_spinner.stop()
         self._loading_history = False

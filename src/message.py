@@ -188,14 +188,17 @@ class MirdorphMessage(Gtk.ListBoxRow):
         Gtk.ListBoxRow.__init__(self, *args, **kwargs)
         self.app = Gio.Application.get_default()
         self._disc_message = disc_message
+        self.merged = merged
         # It can be needed to check the author of already existing
         # messages. For example, when adding a message to check
         # if the previous message is from the same user.
         self.author: discord.abc.User = self._disc_message.author
 
-        # Overall unique identifier to tell duplicates apart
-        # here it is a message id, however other ways are possible.
-        self.uniq_id = disc_message.id
+        # Basically shows that this corresponds to a specific
+        # Discord event. Can be used to avoid constructing duplicates,
+        # for example check if a widget based on a message is already created.
+        self.disc_id = disc_message.id
+
         # Very useful for sorting
         self.timestamp = disc_message.created_at.timestamp()
 
@@ -203,18 +206,12 @@ class MirdorphMessage(Gtk.ListBoxRow):
         self._message_content_wid.show()
         self._message_content_container.pack_start(self._message_content_wid, True, True, 0)
 
-        if merged:
-            # Width = Avatar Size (32)
-            self._avatar_box.props.width_request = 32
-            self.get_style_context().add_class("merged-discord-message")
+        if self.merged:
+            self.merge()
         else:
-            self._username_label = UsernameLabel(self.author, self._disc_message.guild)
-            self._username_label.show()
-            self._username_container.add(self._username_label)
-
-            avatar = UserMessageAvatar(self.author, margin_top=3)
-            avatar.show()
-            self._avatar_box.pack_start(avatar, False, False, 0)
+            # Unmerging also builds all of the widgets that are only constructed
+            # if the message isn't merged.
+            self.unmerge()
 
         for att in self._disc_message.attachments:
             if get_attachment_type(att) == AttachmentType.IMAGE:
@@ -236,3 +233,31 @@ class MirdorphMessage(Gtk.ListBoxRow):
         for export in self._message_content_wid.exports:
             export.show()
             self._attachment_box.pack_start(export, True, True, 0)
+
+    def merge(self):
+        # Width = Avatar Size (32)
+        self._avatar_box.props.width_request = 32
+        self.get_style_context().add_class("merged-discord-message")
+
+        if hasattr(self, "_username_label"):
+            self._username_label.destroy()
+            del(self._username_label)
+        if hasattr(self, "_avatar"):
+            self._avatar.destroy()
+            del(self._avatar)
+        self.merged = True
+
+    def unmerge(self):
+        self._avatar_box.props.width_request = -1
+        self.get_style_context().remove_class("merged-discord-message")
+
+        if not hasattr(self, "_username_label"):
+            self._username_label = UsernameLabel(self.author, self._disc_message.guild)
+            self._username_label.show()
+            self._username_container.add(self._username_label)
+
+        if not hasattr(self, "_avatar"):
+            self._avatar = UserMessageAvatar(self.author, margin_top=3)
+            self._avatar.show()
+            self._avatar_box.pack_start(self._avatar, False, False, 0)
+        self.merged = False
