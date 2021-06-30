@@ -118,6 +118,8 @@ class MirdorphLoginWindow(Handy.ApplicationWindow):
     def _on_token_button_clicked(self, button):
         self._toplevel_deck.set_visible_child(self._second_stage_stack)
         self._second_stage_stack.set_visible_child(self._login_token_page)
+        self._login_token_entry.grab_focus()
+        self._login_token_entry_button.grab_default()
 
     @Gtk.Template.Callback()
     def _on_password_button_clicked(self, button):

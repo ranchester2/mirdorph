@@ -196,15 +196,16 @@
                                 <property name="visible">True</property>
                                 <!-- width-request cause I cant get it to expand horizontally -->
                                 <property name="width-request">230</property>
+                                <property name="activates-default">True</property>
                                 <signal name="changed" handler="_on_login_token_entry_changed" />
-                                <signal name="activate" handler="_on_login_token_entry_inserted" />
                               </object>
                             </child>
                             <child>
                               <object class="GtkButton" id="_login_token_entry_button">
                                 <property name="visible">True</property>
+                                <property name="can-default">True</property>
                                 <property name="label">Insert</property>
-                                <signal name="clicked" handler="_on_login_token_entry_inserted" />
+                                <signal name="activate" handler="_on_login_token_entry_inserted" />
                               </object>
                             </child>
                             <style>
