@@ -75,6 +75,7 @@
                     <child>
                       <object class="GtkButton">
                         <property name="visible">True</property>
+                        <property name="has-focus">True</property>
                         <property name="label">Log In</property>
                         <property name="halign">GTK_ALIGN_CENTER</property>
                         <property name="width-request">250</property>
