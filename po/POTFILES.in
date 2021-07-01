@@ -1,0 +1,3 @@
+data/org.gnome.gitlab.ranchester.Mirdorph.desktop.in
+data/ui/login_window.ui
+src/typing_indicator.py

@@ -1,1 +1,3 @@
-i18n.gettext('mirdorph', preset: 'glib')
+i18n.gettext(meson.project_name(),
+    preset: 'glib'
+)

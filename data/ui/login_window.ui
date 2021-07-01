@@ -233,7 +233,7 @@
                 <child>
                   <object class="HdyHeaderBar">
                     <property name="visible">True</property>
-                    <property name="title">Enter Credentials</property>
+                    <property name="title" translatable="yes">Enter Credentials</property>
                     <child>
                       <object class="GtkButton">
                         <property name="visible">True</property>

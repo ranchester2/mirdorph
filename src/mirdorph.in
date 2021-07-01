@@ -32,13 +32,19 @@ localedir = '@localedir@'
 
 sys.path.insert(1, pkgdatadir)
 signal.signal(signal.SIGINT, signal.SIG_DFL)
-gettext.install('mirdorph', localedir)
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
 
     def init_gtk(discord_loop, client, keyring_exists):
         logging.info("starting gtk")
+        # Gettext works for the python part, locale for the xml part.
+        import gettext
+        import locale
+        locale.bindtextdomain("mirdorph", localedir)
+        locale.textdomain("mirdorph")
+        gettext.textdomain("mirdorph")
+        gettext.bindtextdomain("mirdorph", localedir)
 
         import gi
         gi.require_version('Gtk', '3.0')

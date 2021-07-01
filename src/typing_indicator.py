@@ -17,6 +17,7 @@ import discord
 import time
 import threading
 import datetime
+from gettext import gettext as _
 from gi.repository import Gtk, GLib
 from xml.sax.saxutils import escape as escape_xml
 from .event_receiver import EventReceiver
@@ -67,6 +68,7 @@ class TypingIndicator(Gtk.Revealer, EventReceiver):
             self._typing_label.set_label("Noone is typing.")
 
     def disc_on_message(self, message: discord.Message):
+        print(_("Hello Translated World"))
         if message.channel == self._channel and message.author in self._currently_typing_users:
             self._currently_typing_users.remove(message.author)
             self._sync_typing_label()
