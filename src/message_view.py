@@ -177,6 +177,7 @@ class MessageView(Gtk.Overlay, EventReceiver):
         previous_author = None
         for message in messages:
             if not self.object_is_dupe(message.id):
+                should_be_merged = False
                 if previous_author:
                     should_be_merged = (previous_author == message.author)
                 # When adding only a single message, for example on send,
@@ -193,8 +194,6 @@ class MessageView(Gtk.Overlay, EventReceiver):
                         # blindly assuming it will be the latest message.
                         if message.created_at.timestamp() > last_row.timestamp:
                             should_be_merged = (last_row.author == message.author)
-                else:
-                    should_be_merged = False
 
                 message_wid = MirdorphMessage(
                     message,
