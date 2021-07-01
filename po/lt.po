@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mirdorph 0.10.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-07-01 12:00+0300\n"
+"POT-Creation-Date: 2021-07-01 12:35+0300\n"
 "PO-Revision-Date: 2021-07-01 12:00+0300\n"
 "Last-Translator: Raidro Manchester <raibo.quadrofus@gmail.com>\n"
 "Language-Team: Lithuanian <komp_lt@konferencijos.lt>\n"
@@ -20,213 +20,226 @@ msgstr ""
 
 #: ../src/attachment.py:299
 msgid "Select File to Upload"
-msgstr ""
+msgstr "Pasirinkite failą įkelimui"
 
 #: ../src/message_entry_bar.py:83
 msgid "Insufficient permissions"
-msgstr ""
+msgstr "Nepakankamos teisės"
 
 #: ../src/message_entry_bar.py:89
-#, python-format
-msgid "Failure sending message %s"
-msgstr ""
+msgid "Failure sending message"
+msgstr "Klaida siunčiant žinutę"
 
 #: ../src/typing_indicator.py:61
 #, python-format
 msgid "%s are typing..."
-msgstr ""
+msgstr "%s rašo..."
 
 #: ../src/typing_indicator.py:63
 #, python-format
 msgid "%s is typing..."
-msgstr ""
+msgstr "%s rašo..."
 
 #: ../src/typing_indicator.py:67
 msgid "Noone is typing."
-msgstr ""
+msgstr "Niekas nerašo."
 
 #: ../src/discord_web_grabber.py:46
 msgid "Login failed, make sure the window isn't narrow."
-msgstr ""
+msgstr "Prisijungimas nepavyko, įsitikinkite, kad langas nėra siauras."
 
 #: ../data/ui/tos_notice.ui:6
 msgid "Critical Warning"
-msgstr ""
+msgstr "Kritinis Įspėjimas"
 
 #: ../data/ui/tos_notice.ui:7
 msgid ""
 "Use of Mirdorph is a direct violation of Discord's terms of service, and may "
 "lead to account termination."
 msgstr ""
+"Mirdorph naudojimasis yra tiesioginis Discord paslaugų teikimo sąlygų "
+"pažeidimas ir gali nulemti paslaugos nutraukimą."
 
 #: ../data/ui/tos_notice.ui:43
 msgid "I have understood the terms."
-msgstr ""
+msgstr "Aš supratau salygas."
 
 #: ../data/ui/tos_notice.ui:60
 msgid "Proceed"
-msgstr ""
+msgstr "Tęsti"
 
 #: ../data/ui/tos_notice.ui:70 ../data/ui/login_window.ui:33
 msgid "Cancel"
-msgstr ""
+msgstr "Atsisakyti"
 
 #: ../data/ui/channel_properties_window.ui:23
 #: ../data/ui/channel_properties_window.ui:31 ../data/ui/context_menu.ui:6
 msgid "Channel Properties"
-msgstr ""
+msgstr "Kanalo Savybės"
 
 #: ../data/ui/channel_properties_window.ui:88
 msgid "Unknown usage"
-msgstr ""
+msgstr "Nežinomas naudojimas"
 
 #: ../data/ui/channel_properties_window.ui:114
 msgid "Activity"
-msgstr ""
+msgstr "Aktyvumas"
 
 #: ../data/ui/channel_properties_window.ui:119
 msgid "Last Activity"
-msgstr ""
+msgstr "Paskutinė Veikla"
 
 #: ../data/ui/channel_properties_window.ui:124
 msgid "Unknown"
-msgstr ""
+msgstr "Nežinoma"
 
 #: ../data/ui/channel_properties_window.ui:138
 msgid "Statistics"
-msgstr ""
+msgstr "Statistika"
 
 #: ../data/ui/channel_sidebar.ui:62
 msgid "Guilds"
-msgstr ""
+msgstr "Serveriai"
 
 #: ../data/ui/channel_sidebar.ui:71
 msgid "People"
-msgstr ""
+msgstr "Žmonės"
 
 #: ../data/ui/settings_window.ui:10
 msgid "Privacy"
-msgstr ""
+msgstr "Privatumas"
 
 #: ../data/ui/settings_window.ui:14
 msgid "Interaction"
-msgstr ""
+msgstr "Bendravimas"
 
 #: ../data/ui/settings_window.ui:18
 msgid "Send typing events"
-msgstr ""
+msgstr "Siųsti rašymo įspėjimus"
 
 #: ../data/ui/login_window.ui:28 ../data/ui/login_window.ui:43
 msgid "Connect your Account"
-msgstr ""
+msgstr "Prijunkite savo paskyrą"
 
 #: ../data/ui/login_window.ui:64
 msgid "Welcome to Mirdorph"
-msgstr ""
+msgstr "Sveiki į Mirdorph"
+
+#: ../data/ui/login_window.ui:81
+msgid "Log In"
+msgstr "Prisijungti"
 
 #: ../data/ui/login_window.ui:94
 msgid "Advanced"
-msgstr ""
+msgstr "Išplėstiniai būdai"
 
 #: ../data/ui/login_window.ui:107
 msgid "Manual Token"
-msgstr ""
+msgstr "Autentikavimo Tokenu"
 
 #: ../data/ui/login_window.ui:120
 msgid "Username and Password"
-msgstr ""
+msgstr "Vartotojo Vardu ir Slaptažodžiu"
 
 #: ../data/ui/login_window.ui:152 ../data/ui/login_window.ui:236
 #: ../data/ui/login_window.ui:397
 msgid "Enter Credentials"
-msgstr ""
+msgstr "Įveskite Prisijungimo Duomenis"
 
 #: ../data/ui/login_window.ui:182
 msgid "Insert Token"
-msgstr ""
+msgstr "Įterpkite Tokeną"
 
 #: ../data/ui/login_window.ui:207
 msgid "Insert"
-msgstr ""
+msgstr "Įterpti"
 
 #: ../data/ui/login_window.ui:257
 msgid "Submit"
-msgstr ""
+msgstr "Pateikti"
 
 #: ../data/ui/login_window.ui:292
 msgid "WARNING: Email and password login not recommended:"
 msgstr ""
+"ĮSPĖJIMAS: Prisijungimas elektroniniu paštu ir slaptažodižiu nėra "
+"rekomenduojamas:"
 
 #: ../data/ui/login_window.ui:301
 msgid ""
 "Will not work with advanced configurations (2FA/Captcha), use Graphical "
 "Login or Manual Token instead."
 msgstr ""
+"Neveiks su sudėtingesnėmis konfiguriacijomis (2FA/Captcha), naudokite "
+"Grafinį Prisijungimą arba Prisijungimą Tokenu"
 
 #: ../data/ui/login_window.ui:329
 msgid "Password Login"
-msgstr ""
+msgstr "Prisijungimas Slaptažodižiu"
 
 #: ../data/ui/login_window.ui:345
 msgid "Email Adress"
-msgstr ""
+msgstr "Elektroninio Pašto Adresas"
 
 #: ../data/ui/login_window.ui:361
 msgid "Password"
-msgstr ""
+msgstr "Slaptažodis"
 
 #: ../data/ui/login_window.ui:442 ../data/ui/main_window.ui:130
 msgid "Default Notification"
-msgstr ""
+msgstr "Standartinis Pranešimas"
+
+#: ../data/ui/about_dialog.ui.in:11
+msgid "This application is not affiliated with or endorsed by Discord, Inc."
+msgstr "Ši programa nėra susijusi su Discord, Inc. ar patvirtinta."
 
 #: ../data/ui/context_menu.ui:10
 msgid "Advanced Search..."
-msgstr ""
+msgstr "Pažangi Paieška..."
 
 #: ../data/ui/general_menu.ui:6
 msgid "Preferences"
-msgstr ""
+msgstr "Nustatymai"
 
 #: ../data/ui/general_menu.ui:10
 msgid "Log Out"
-msgstr ""
+msgstr "Atsijungti"
 
 #: ../data/ui/general_menu.ui:16
 msgid "About Mirdorph"
-msgstr ""
+msgstr "Apie Mirdorph"
 
 #: ../data/ui/message_view.ui:64
 msgid "Scroll to bottom"
-msgstr ""
+msgstr "Nuslinkti į apačią"
 
 #: ../data/ui/channel_inner_window.ui:107
 msgid "Choose a channel"
-msgstr ""
+msgstr "Pasirinkite kanalą"
 
 #: ../data/ui/main_window.ui:68
 msgid "Menu"
-msgstr ""
+msgstr "Meniu"
 
 #: ../data/ui/main_window.ui:121
 msgid "Title"
-msgstr ""
+msgstr "Titulas"
 
 #: ../data/ui/image_viewer.ui:15
 msgid "Open with..."
-msgstr ""
+msgstr "Atverti su..."
 
 #: ../data/ui/image_viewer.ui:102
 msgid "Loading more media..."
-msgstr ""
+msgstr "Kraunama daugiau grafinio turinio..."
 
 #: ../data/org.gnome.gitlab.ranchester.Mirdorph.desktop.in:3
 msgid "Mirdorph"
-msgstr ""
+msgstr "Mirdorph"
 
 #: ../data/org.gnome.gitlab.ranchester.Mirdorph.desktop.in:4
 msgid "Human Interaction System for Discord"
-msgstr ""
+msgstr "Žmonių Interakcijos Sistema Discordui"
 
 #: ../data/org.gnome.gitlab.ranchester.Mirdorph.desktop.in:10
 msgid "Discord;Communicate;Discussions;Client;"
-msgstr ""
+msgstr "Discord;Bendravimas;Komunikacija;Diskusijos;Klientas;"

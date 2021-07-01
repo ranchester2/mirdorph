@@ -1,4 +1,5 @@
 data/org.gnome.gitlab.ranchester.Mirdorph.desktop.in
+data/ui/about_dialog.ui.in
 data/ui/channel_inner_window.ui
 data/ui/channel_properties_window.ui
 data/ui/context_menu.ui
