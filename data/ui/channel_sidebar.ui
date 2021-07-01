@@ -16,10 +16,9 @@
                 <property name="visible">True</property>
                 <property name="orientation">vertical</property>
                 <child>
-                  <object class="HdySearchBar" id="guild_list_search_bar">
+                  <object class="HdySearchBar" id="_guild_list_search_bar">
                     <property name="visible">True</property>
                     <property name="hexpand">False</property>
-                    <signal name="notify::search-mode-enabled" handler="_on_search_bar_search_enabled"/>
                     <child>
                       <object class="GtkSearchEntry" id="_guild_list_search_entry">
                         <property name="visible">True</property>

@@ -56,6 +56,9 @@ class Application(Gtk.Application):
     def do_startup(self):
         Gtk.Application.do_startup(self)
         Handy.init()
+        # These are only the extremely "global" actions,
+        # where it is significantly more convenient, the widget
+        # itself adds the action (for example channel sidebar search)
         actions = [
             {
                 "name": "settings",
@@ -69,11 +72,6 @@ class Application(Gtk.Application):
             {
                 "name": "logout",
                 "func": self.log_out
-            },
-            {
-                "name": "search-guilds",
-                "func": self.search_guilds,
-                "accel": "<Primary>k"
             }
         ]
 
@@ -145,9 +143,6 @@ class Application(Gtk.Application):
         keyring.delete_password("mirdorph", "token")
         self.relaunch()
     
-    def search_guilds(self, *args):
-        self.main_win.channel_sidebar.guild_list_search_bar.set_search_mode(True)
-
     def create_inner_window_context(self, channel: int, flap: Handy.Flap):
         """
         Create  an inner window context, usually this is done automatically

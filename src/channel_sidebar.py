@@ -19,7 +19,7 @@ import logging
 import discord
 import os
 from pathlib import Path
-from gi.repository import Gtk, Gio, GLib, GdkPixbuf, Handy
+from gi.repository import Gtk, Gio, GObject, GLib, GdkPixbuf, Handy
 from .event_receiver import EventReceiver
 
 @Gtk.Template(resource_path="/org/gnome/gitlab/ranchester/Mirdorph/ui/channel_list_entry.ui")
@@ -179,7 +179,7 @@ class MirdorphChannelSidebar(Gtk.Box):
     __gtype_name__ = "MirdorphChannelSidebar"
 
     _guild_list_search_entry: Gtk.SearchEntry = Gtk.Template.Child()
-    guild_list_search_bar: Handy.SearchBar = Gtk.Template.Child()
+    _guild_list_search_bar: Handy.SearchBar = Gtk.Template.Child()
     _channel_guild_list: Gtk.ListBox = Gtk.Template.Child()
 
     _channel_guild_loading_stack: Gtk.Stack = Gtk.Template.Child()
@@ -192,21 +192,23 @@ class MirdorphChannelSidebar(Gtk.Box):
         self._channel_guild_loading_stack.set_visible_child(self._guild_loading_page)
         self._channel_search_button = channel_search_button
 
-        self.guild_list_search_bar.connect_entry(self._guild_list_search_entry)
-        self._channel_search_button.connect("notify::active", self._on_channel_search_button_toggled)
+        self._channel_search_button.bind_property(
+            "active",
+            self._guild_list_search_bar,
+            "search-mode-enabled",
+            GObject.BindingFlags.BIDIRECTIONAL
+        )
+        search_action = Gio.PropertyAction.new("search-guilds", self._guild_list_search_bar, "search-mode-enabled")
+        self.app.add_action(search_action)
+        self.app.set_accels_for_action("app.search-guilds", ["<Primary>k"])
+
+        self._guild_list_search_bar.connect_entry(self._guild_list_search_entry)
 
         # For search, the channel that with the sum of indicators is the one that is
         # the most likely search result.
         self._most_wanted_search_channel = None
 
         threading.Thread(target=self._build_guilds_target).start()
-
-    def _on_channel_search_button_toggled(self, button, param):
-        self.guild_list_search_bar.set_search_mode(self._channel_search_button.get_active())
-
-    @Gtk.Template.Callback()
-    def _on_search_bar_search_enabled(self, search_bar, param):
-        self._channel_search_button.set_active(self.guild_list_search_bar.get_search_mode())
 
     @Gtk.Template.Callback()
     def _on_guild_list_search_entry_changed(self, entry: Gtk.SearchEntry):
@@ -256,7 +258,7 @@ class MirdorphChannelSidebar(Gtk.Box):
     def _on_guild_list_search_entry_activate(self, entry: Gtk.SearchEntry):
         if self._most_wanted_search_channel:
             self._most_wanted_search_channel.emit("activate")
-            self.guild_list_search_bar.set_search_mode(False)
+            self._guild_list_search_bar.set_search_mode(False)
 
     async def _get_guilds_list(self) -> list:
         # Why the waiting?

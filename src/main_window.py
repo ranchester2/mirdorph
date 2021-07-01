@@ -54,12 +54,9 @@ class MirdorphMainWindow(Handy.ApplicationWindow):
         self._empty_inner_window.show()
         self.context_stack.add(self._empty_inner_window)
 
-        # Might be a bit weird to be public.
-        # However we need to toggle the search function from main, I may think about having a method
-        # here for it though.
-        self.channel_sidebar = MirdorphChannelSidebar(channel_search_button=self._channel_search_button)
-        self.channel_sidebar.show()
-        self._flap_box.pack_end(self.channel_sidebar, True, True, 0)
+        self._channel_sidebar = MirdorphChannelSidebar(channel_search_button=self._channel_search_button)
+        self._channel_sidebar.show()
+        self._flap_box.pack_end(self._channel_sidebar, True, True, 0)
 
     def _setting_switching_focus_gtk_target(self, context):
         try:
