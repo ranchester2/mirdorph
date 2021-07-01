@@ -3,17 +3,17 @@
     <menu id="generalMenu">
         <section>
             <item>
-                <attribute name="label">Preferences</attribute>
+                <attribute name="label" translatable="yes">Preferences</attribute>
                 <attribute name="action">app.settings</attribute>
             </item>
             <item>
-                <attribute name="label">Log Out</attribute>
+                <attribute name="label" translatable="yes">Log Out</attribute>
                 <attribute name="action">app.logout</attribute>
             </item>
         </section>
         <section>
             <item>
-                <attribute name="label">About Mirdorph</attribute>
+                <attribute name="label" translatable="yes">About Mirdorph</attribute>
                 <attribute name="action">app.about</attribute>
             </item>
         </section>

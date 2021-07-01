@@ -18,6 +18,7 @@ import random
 import gi
 gi.require_version("WebKit2", "4.0")
 from gi.repository import Gtk, GObject, WebKit2
+from gettext import gettext as _
 
 
 class DiscordGrabber(WebKit2.WebView):
@@ -42,7 +43,7 @@ class DiscordGrabber(WebKit2.WebView):
                       (str,))
     }
 
-    LOGIN_TROUBLESHOOT = "Login failed, make sure the window isn't narrow."
+    LOGIN_TROUBLESHOOT = _("Login failed, make sure the window isn't narrow.")
 
     def __init__(self, *args, **kwargs):
         WebKit2.WebView.__init__(self, is_ephemeral=True, *args, **kwargs)

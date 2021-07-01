@@ -12,7 +12,7 @@
           <object class="GtkModelButton">
             <property name="visible">True</property>
             <property name="action-name">image-viewer.open-in-app</property>
-            <property name="text">Open with...</property>
+            <property name="text" translatable="yes">Open with...</property>
           </object>
         </child>
       </object>
@@ -99,7 +99,7 @@
                 <child>
                   <object class="GtkLabel">
                     <property name="visible">True</property>
-                    <property name="label">Loading more media...</property>
+                    <property name="label" translatable="yes">Loading more media...</property>
                   </object>
                 </child>
                 <child>

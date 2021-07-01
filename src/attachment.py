@@ -19,6 +19,7 @@ import threading
 import subprocess
 import discord
 import os
+from gettext import gettext as _
 from enum import Enum
 from pathlib import Path
 from gi.repository import Gtk, Gio, GObject, GLib, GdkPixbuf
@@ -295,7 +296,7 @@ class MessageEntryBarAttachment(Gtk.Button):
         if self.add_mode:
             window = self.get_toplevel()
             filechooser = Gtk.FileChooserNative.new(
-                "Select File to Upload",
+                _("Select File to Upload"),
                 window if window.is_toplevel() else None,
                 Gtk.FileChooserAction.OPEN,
                 None,

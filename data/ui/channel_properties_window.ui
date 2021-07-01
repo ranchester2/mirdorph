@@ -20,7 +20,7 @@
                 <property name="show-close-button">True</property>
                 <property name="width-request">362</property>
                 <property name="valign">GTK_ALIGN_CENTER</property>
-                <property name="title">Channel Properties</property>
+                <property name="title" translatable="yes">Channel Properties</property>
               </object>
             </child>
             <child>
@@ -28,7 +28,7 @@
                 <property name="visible">True</property>
                 <property name="show-close-button">True</property>
                 <property name="valign">GTK_ALIGN_CENTER</property>
-                <property name="title">Channel Properties</property>
+                <property name="title" translatable="yes">Channel Properties</property>
                 <child>
                   <object class="GtkButton" id="_back_button">
                     <property name="visible">True</property>
@@ -85,7 +85,7 @@
                       <object class="GtkLabel" id="_description_label">
                         <property name="visible">True</property>
                         <property name="xalign">0.0</property>
-                        <property name="label">Unknown usage</property>
+                        <property name="label" translatable="yes">Unknown usage</property>
                         <!-- About enough to not oversize window-->
                         <property name="max-width-chars">45</property>
                         <property name="ellipsize">end</property>
@@ -111,17 +111,17 @@
                     <child>
                       <object class="HdyPreferencesGroup">
                         <property name="visible">True</property>
-                        <property name="title">Activity</property>
+                        <property name="title" translatable="yes">Activity</property>
                         <property name="vexpand">True</property>
                         <child>
                           <object class="HdyActionRow">
                             <property name="visible">True</property>
-                            <property name="title">Last Activity</property>
+                            <property name="title" translatable="yes">Last Activity</property>
                             <property name="activatable-widget">_last_activity_button</property>
                             <child>
                               <object class="GtkButton" id="_last_activity_button">
                                 <property name="visible">True</property>
-                                <property name="label">Unknown</property>
+                                <property name="label" translatable="yes">Unknown</property>
                                 <property name="valign">GTK_ALIGN_CENTER</property>
                                 <signal name="activate" handler="_on_last_activity_button_activate" />
                                 <style>
@@ -135,7 +135,7 @@
                           <object class="HdyActionRow">
                             <!-- Not yet implemented, remember my discord datatools? -->
                             <property name="visible">True</property>
-                            <property name="title">Statistics</property>
+                            <property name="title" translatable="yes">Statistics</property>
                             <property name="activatable-widget">_statistics_button</property>
                             <child>
                               <object class="GtkButton" id="_statistics_button">

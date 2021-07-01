@@ -7,15 +7,15 @@
       <object class="HdyPreferencesPage">
         <property name="visible">True</property>
         <property name="icon-name">preferences-system-privacy-symbolic</property>
-        <property name="title">Privacy</property>
+        <property name="title" translatable="yes">Privacy</property>
         <child>
           <object class="HdyPreferencesGroup">
             <property name="visible">True</property>
-            <property name="title">Interaction</property>
+            <property name="title" translatable="yes">Interaction</property>
             <child>
               <object class="HdyActionRow">
                 <property name="visible">True</property>
-                <property name="title">Send typing events</property>
+                <property name="title" translatable="yes">Send typing events</property>
                 <property name="activatable-widget">_send_typing_switch</property>
                 <child>
                   <object class="GtkSwitch" id="_send_typing_switch">

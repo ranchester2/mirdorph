@@ -54,21 +54,19 @@ class TypingIndicator(Gtk.Revealer, EventReceiver):
     def _sync_typing_label(self):
         if self._currently_typing_users:
             self.set_reveal_child(True)
-            if len(self._currently_typing_users) >= 2:
-                typing_info_message = "are typing..."
-            else:
-                typing_info_message = "is typing..."
             username_list = ", ".join(
                 [f"<b>{escape_xml(user.name)}</b>" for user in self._currently_typing_users]
             )
-            typing_info_message = username_list + " " + typing_info_message
+            if len(self._currently_typing_users) >= 2:
+                typing_info_message = _("%s are typing...") % username_list
+            else:
+                typing_info_message = _("%s is typing...") % username_list
             self._typing_label.set_markup(typing_info_message)
         else:
             self.set_reveal_child(False)
-            self._typing_label.set_label("Noone is typing.")
+            self._typing_label.set_label(_("Noone is typing."))
 
     def disc_on_message(self, message: discord.Message):
-        print(_("Hello Translated World"))
         if message.channel == self._channel and message.author in self._currently_typing_users:
             self._currently_typing_users.remove(message.author)
             self._sync_typing_label()

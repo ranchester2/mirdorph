@@ -13,7 +13,7 @@ rm *.pot
 version=$(fgrep -m 1 "version: " ../meson.build | grep -v "meson" | grep -o "'.*'" | sed "s/'//g")
 
 find ../src -iname "*.py" | xargs xgettext --package-name=$APPNAME --package-version=$version --from-code=UTF-8 --output=$APPNAME-python.pot
-find ../data/ui -iname "*.glade" -or -iname "*.xml" -or -iname "*.ui" | xargs xgettext --package-name=$APPNAME --package-version=$version --from-code=UTF-8 --output=$APPNAME-glade.pot -L Glade
+find ../data/ui -iname "*.glade" -or -iname "*.xml" -or -iname "*.ui" -or -iname "*.ui.in" | xargs xgettext --package-name=$APPNAME --package-version=$version --from-code=UTF-8 --output=$APPNAME-glade.pot -L Glade
 find ../data/ -iname "*.desktop.in" | xargs xgettext --package-name=$APPNAME --package-version=$version --from-code=UTF-8 --output=$APPNAME-desktop.pot -L Desktop
 
 msgcat --use-first $APPNAME-python.pot $APPNAME-glade.pot $APPNAME-desktop.pot > $APPNAME.pot

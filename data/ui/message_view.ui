@@ -61,7 +61,7 @@
                 </child>
                 <child internal-child="accessible">
                   <object class="AtkObject" id="scroll_btn-atkobject">
-                    <property name="AtkObject::accessible-name">Scroll to bottom</property>
+                    <property name="AtkObject::accessible-name" translatable="yes">Scroll to bottom</property>
                   </object>
                 </child>
                 <style>

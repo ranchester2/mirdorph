@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mirdorph 0.10.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-07-01 11:31+0300\n"
-"PO-Revision-Date: 2021-07-01 11:31+0300\n"
+"POT-Creation-Date: 2021-07-01 12:00+0300\n"
+"PO-Revision-Date: 2021-07-01 12:00+0300\n"
 "Last-Translator: Raidro Manchester <raibo.quadrofus@gmail.com>\n"
 "Language-Team: Lithuanian <komp_lt@konferencijos.lt>\n"
 "Language: lt\n"
@@ -18,13 +18,206 @@ msgstr ""
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && (n"
 "%100<10 || n%100>=20) ? 1 : 2);\n"
 
-#: ../src/typing_indicator.py:71
-msgid "Hello Translated World"
-msgstr "Lietuviškas išverstas pasaulis"
+#: ../src/attachment.py:299
+msgid "Select File to Upload"
+msgstr ""
 
-#: ../data/ui/login_window.ui:236
+#: ../src/message_entry_bar.py:83
+msgid "Insufficient permissions"
+msgstr ""
+
+#: ../src/message_entry_bar.py:89
+#, python-format
+msgid "Failure sending message %s"
+msgstr ""
+
+#: ../src/typing_indicator.py:61
+#, python-format
+msgid "%s are typing..."
+msgstr ""
+
+#: ../src/typing_indicator.py:63
+#, python-format
+msgid "%s is typing..."
+msgstr ""
+
+#: ../src/typing_indicator.py:67
+msgid "Noone is typing."
+msgstr ""
+
+#: ../src/discord_web_grabber.py:46
+msgid "Login failed, make sure the window isn't narrow."
+msgstr ""
+
+#: ../data/ui/tos_notice.ui:6
+msgid "Critical Warning"
+msgstr ""
+
+#: ../data/ui/tos_notice.ui:7
+msgid ""
+"Use of Mirdorph is a direct violation of Discord's terms of service, and may "
+"lead to account termination."
+msgstr ""
+
+#: ../data/ui/tos_notice.ui:43
+msgid "I have understood the terms."
+msgstr ""
+
+#: ../data/ui/tos_notice.ui:60
+msgid "Proceed"
+msgstr ""
+
+#: ../data/ui/tos_notice.ui:70 ../data/ui/login_window.ui:33
+msgid "Cancel"
+msgstr ""
+
+#: ../data/ui/channel_properties_window.ui:23
+#: ../data/ui/channel_properties_window.ui:31 ../data/ui/context_menu.ui:6
+msgid "Channel Properties"
+msgstr ""
+
+#: ../data/ui/channel_properties_window.ui:88
+msgid "Unknown usage"
+msgstr ""
+
+#: ../data/ui/channel_properties_window.ui:114
+msgid "Activity"
+msgstr ""
+
+#: ../data/ui/channel_properties_window.ui:119
+msgid "Last Activity"
+msgstr ""
+
+#: ../data/ui/channel_properties_window.ui:124
+msgid "Unknown"
+msgstr ""
+
+#: ../data/ui/channel_properties_window.ui:138
+msgid "Statistics"
+msgstr ""
+
+#: ../data/ui/channel_sidebar.ui:62
+msgid "Guilds"
+msgstr ""
+
+#: ../data/ui/channel_sidebar.ui:71
+msgid "People"
+msgstr ""
+
+#: ../data/ui/settings_window.ui:10
+msgid "Privacy"
+msgstr ""
+
+#: ../data/ui/settings_window.ui:14
+msgid "Interaction"
+msgstr ""
+
+#: ../data/ui/settings_window.ui:18
+msgid "Send typing events"
+msgstr ""
+
+#: ../data/ui/login_window.ui:28 ../data/ui/login_window.ui:43
+msgid "Connect your Account"
+msgstr ""
+
+#: ../data/ui/login_window.ui:64
+msgid "Welcome to Mirdorph"
+msgstr ""
+
+#: ../data/ui/login_window.ui:94
+msgid "Advanced"
+msgstr ""
+
+#: ../data/ui/login_window.ui:107
+msgid "Manual Token"
+msgstr ""
+
+#: ../data/ui/login_window.ui:120
+msgid "Username and Password"
+msgstr ""
+
+#: ../data/ui/login_window.ui:152 ../data/ui/login_window.ui:236
+#: ../data/ui/login_window.ui:397
 msgid "Enter Credentials"
-msgstr "Įveskite savo prisijungimo duomenis."
+msgstr ""
+
+#: ../data/ui/login_window.ui:182
+msgid "Insert Token"
+msgstr ""
+
+#: ../data/ui/login_window.ui:207
+msgid "Insert"
+msgstr ""
+
+#: ../data/ui/login_window.ui:257
+msgid "Submit"
+msgstr ""
+
+#: ../data/ui/login_window.ui:292
+msgid "WARNING: Email and password login not recommended:"
+msgstr ""
+
+#: ../data/ui/login_window.ui:301
+msgid ""
+"Will not work with advanced configurations (2FA/Captcha), use Graphical "
+"Login or Manual Token instead."
+msgstr ""
+
+#: ../data/ui/login_window.ui:329
+msgid "Password Login"
+msgstr ""
+
+#: ../data/ui/login_window.ui:345
+msgid "Email Adress"
+msgstr ""
+
+#: ../data/ui/login_window.ui:361
+msgid "Password"
+msgstr ""
+
+#: ../data/ui/login_window.ui:442 ../data/ui/main_window.ui:130
+msgid "Default Notification"
+msgstr ""
+
+#: ../data/ui/context_menu.ui:10
+msgid "Advanced Search..."
+msgstr ""
+
+#: ../data/ui/general_menu.ui:6
+msgid "Preferences"
+msgstr ""
+
+#: ../data/ui/general_menu.ui:10
+msgid "Log Out"
+msgstr ""
+
+#: ../data/ui/general_menu.ui:16
+msgid "About Mirdorph"
+msgstr ""
+
+#: ../data/ui/message_view.ui:64
+msgid "Scroll to bottom"
+msgstr ""
+
+#: ../data/ui/channel_inner_window.ui:107
+msgid "Choose a channel"
+msgstr ""
+
+#: ../data/ui/main_window.ui:68
+msgid "Menu"
+msgstr ""
+
+#: ../data/ui/main_window.ui:121
+msgid "Title"
+msgstr ""
+
+#: ../data/ui/image_viewer.ui:15
+msgid "Open with..."
+msgstr ""
+
+#: ../data/ui/image_viewer.ui:102
+msgid "Loading more media..."
+msgstr ""
 
 #: ../data/org.gnome.gitlab.ranchester.Mirdorph.desktop.in:3
 msgid "Mirdorph"

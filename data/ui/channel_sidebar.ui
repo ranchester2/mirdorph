@@ -59,7 +59,7 @@
             </child>
           </object>
           <packing>
-            <property name="title">Guilds</property>
+            <property name="title" translatable="yes">Guilds</property>
             <property name="icon-name">org.gnome.gitlab.ranchester.Mirdorph.Guilds</property>
           </packing>
         </child>
@@ -68,7 +68,7 @@
             <property name="visible">True</property>
           </object>
           <packing>
-            <property name="title">People</property>
+            <property name="title" translatable="yes">People</property>
             <property name="icon-name">avatar-default-symbolic</property>
           </packing>
         </child>

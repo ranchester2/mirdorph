@@ -3,11 +3,11 @@
     <menu id="contextMenu">
         <section>
             <item>
-                <attribute name="label">Channel Properties</attribute>
+                <attribute name="label" translatable="yes">Channel Properties</attribute>
                 <attribute name="action">context.properties</attribute>
             </item>
             <item>
-                <attribute name="label">Advanced Search...</attribute>
+                <attribute name="label" translatable="yes">Advanced Search...</attribute>
                 <attribute name="action">context.search</attribute>
             </item>
         </section>

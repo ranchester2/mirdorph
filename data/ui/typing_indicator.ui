@@ -22,7 +22,7 @@
                 <property name="visible">True</property>
                 <property name="ellipsize">end</property>
                 <property name="xalign">0.0</property>
-                <property name="label">Noone is typing.</property>
+                <property name="label" translatable="yes">Noone is typing.</property>
               </object>
             </child>
           </object>

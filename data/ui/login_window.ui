@@ -25,12 +25,12 @@
                     <property name="show-close-button">False</property>
                     <property name="width-request">370</property>
                     <property name="valign">GTK_ALIGN_CENTER</property>
-                    <property name="title">Connect your Account</property>
+                    <property name="title" translatable="yes">Connect your Account</property>
                     <child>
                       <object class="GtkButton">
                         <property name="visible">True</property>
                         <property name="action-name">login.cancel</property>
-                        <property name="label">Cancel</property>
+                        <property name="label" translatable="yes">Cancel</property>
                       </object>
                     </child>
                   </object>
@@ -40,7 +40,7 @@
                     <property name="visible">True</property>
                     <property name="show-close-button">False</property>
                     <property name="valign">GTK_ALIGN_CENTER</property>
-                    <property name="title">Connect your Account</property>
+                    <property name="title" translatable="yes">Connect your Account</property>
                   </object>
                 </child>
               </object>
@@ -61,7 +61,7 @@
                 <child>
                   <object class="GtkLabel">
                     <property name="visible">True</property>
-                    <property name="label">Welcome to Mirdorph</property>
+                    <property name="label" translatable="yes">Welcome to Mirdorph</property>
                     <style>
                       <class name="title-2" />
                     </style>
@@ -78,7 +78,7 @@
                         <property name="width-request">250</property>
                         <property name="halign">GTK_ALIGN_CENTER</property>
                         <property name="action-name">login.with-graphical</property>
-                        <property name="label">Log In</property>
+                        <property name="label" translatable="yes">Log In</property>
                         <style>
                           <class name="suggested-action" />
                           <class name="login-button" />
@@ -91,7 +91,7 @@
                         <property name="halign">GTK_ALIGN_CENTER</property>
                         <property name="margin-top">10</property>
                         <property name="margin-bottom">10</property>
-                        <property name="label">Advanced</property>
+                        <property name="label" translatable="yes">Advanced</property>
                         <child>
                           <object class="GtkBox">
                             <property name="visible">True</property>
@@ -104,7 +104,7 @@
                                 <property name="halign">GTK_ALIGN_CENTER</property>
                                 <property name="width-request">250</property>
                                 <property name="action-name">login.with-token</property>
-                                <property name="label">Manual Token</property>
+                                <property name="label" translatable="yes">Manual Token</property>
                                 <style>
                                   <class name="circular" />
                                   <class name="login-button" />
@@ -117,7 +117,7 @@
                                 <property name="width-request">250</property>
                                 <property name="halign">GTK_ALIGN_CENTER</property>
                                 <property name="action-name">login.with-password</property>
-                                <property name="label">Username and Password</property>
+                                <property name="label" translatable="yes">Username and Password</property>
                                 <style>
                                   <class name="circular" />
                                   <class name="login-button" />
@@ -149,7 +149,7 @@
                 <child>
                   <object class="HdyHeaderBar">
                     <property name="visible">True</property>
-                    <property name="title">Enter Credentials</property>
+                    <property name="title" translatable="yes">Enter Credentials</property>
                     <child>
                       <object class="GtkButton">
                         <property name="visible">True</property>
@@ -179,7 +179,7 @@
                         <child>
                           <object class="GtkLabel">
                             <property name="visible">True</property>
-                            <property name="label">Insert Token</property>
+                            <property name="label" translatable="yes">Insert Token</property>
                             <style>
                               <class name="title-2" />
                             </style>
@@ -204,7 +204,7 @@
                                 <property name="visible">True</property>
                                 <property name="can-default">True</property>
                                 <property name="action-name">login.submit-token</property>
-                                <property name="label">Insert</property>
+                                <property name="label" translatable="yes">Insert</property>
                                 <style>
                                   <class name="suggested-action" />
                                 </style>
@@ -254,7 +254,7 @@
                         <property name="visible">True</property>
                         <property name="can-default">True</property>
                         <property name="action-name">login.submit-password</property>
-                        <property name="label">Submit</property>
+                        <property name="label" translatable="yes">Submit</property>
                         <style>
                           <class name="suggested-action" />
                         </style>
@@ -289,7 +289,7 @@
                                     <property name="wrap">True</property>
                                     <property name="wrap-mode">word</property>
                                     <property name="xalign">0.0</property>
-                                    <property name="label">WARNING: Email and password login not recommended:</property>
+                                    <property name="label" translatable="yes">WARNING: Email and password login not recommended:</property>
                                   </object>
                                 </child>
                                 <child>
@@ -298,7 +298,7 @@
                                     <property name="wrap">True</property>
                                     <property name="wrap-mode">word</property>
                                     <property name="xalign">0.0</property>
-                                    <property name="label">Will not work with advanced configurations (2FA/Captcha), use Graphical Login or Manual Token instead.</property>
+                                    <property name="label" translatable="yes">Will not work with advanced configurations (2FA/Captcha), use Graphical Login or Manual Token instead.</property>
                                   </object>
                                 </child>
                               </object>
@@ -326,7 +326,7 @@
                             <child>
                               <object class="GtkLabel">
                                 <property name="visible">True</property>
-                                <property name="label">Password Login</property>
+                                <property name="label" translatable="yes">Password Login</property>
                                 <style>
                                   <class name="title-2" />
                                 </style>
@@ -342,7 +342,7 @@
                                     <child>
                                       <object class="GtkEntry" id="_email_entry">
                                         <property name="visible">True</property>
-                                        <property name="placeholder-text">Email Adress</property>
+                                        <property name="placeholder-text" translatable="yes">Email Adress</property>
                                         <signal name="changed" handler="_on_password_entries_changed" />
                                         <signal name="activate" handler="_on_email_entry_activate" />
                                       </object>
@@ -358,7 +358,7 @@
                                     <child>
                                       <object class="GtkEntry" id="_password_entry">
                                         <property name="visible">True</property>
-                                        <property name="placeholder-text">Password</property>
+                                        <property name="placeholder-text" translatable="yes">Password</property>
                                         <property name="visibility">False</property>
                                         <property name="activates-default">True</property>
                                         <signal name="changed" handler="_on_password_entries_changed" />
@@ -394,7 +394,7 @@
                 <child>
                   <object class="HdyHeaderBar">
                     <property name="visible">True</property>
-                    <property name="title">Enter Credentials</property>
+                    <property name="title" translatable="yes">Enter Credentials</property>
                     <child>
                       <object class="GtkButton">
                         <property name="visible">True</property>
@@ -439,7 +439,7 @@
                             <child>
                               <object class="GtkLabel" id="_notification_label">
                                 <property name="visible">True</property>
-                                <property name="label">Default Notification</property>
+                                <property name="label" translatable="yes">Default Notification</property>
                                 <property name="ellipsize">3</property>
                               </object>
                             </child>

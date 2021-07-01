@@ -8,7 +8,7 @@
     <property name="version">@VERSION@</property>
     <property name="authors">@CONTRIBUTORS@</property>
     <property name="copyright">@authorfullname@, et al.</property>
-    <property name="comments">This application is not affiliated with or endorsed by Discord, Inc.</property>
+    <property name="comments" translatable="yes">This application is not affiliated with or endorsed by Discord, Inc.</property>
     <property name="logo_icon_name">@APPID@</property>
     <property name="license_type">gpl-3-0</property>
     <child internal-child="vbox">

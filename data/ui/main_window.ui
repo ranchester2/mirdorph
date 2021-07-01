@@ -65,7 +65,7 @@
                         <child>
                           <object class="GtkMenuButton">
                             <property name="visible">True</property>
-                            <property name="tooltip-text">Menu</property>
+                            <property name="tooltip-text" translatable="yes">Menu</property>
                             <property name="popover">_main_menu_popover</property>
                             <child>
                               <object class="GtkImage">
@@ -118,7 +118,7 @@
                   <object class="GtkLabel" id="_notification_title_label">
                     <property name="visible">True</property>
                     <property name="ellipsize">end</property>
-                    <property name="label">Title</property>
+                    <property name="label" translatable="yes">Title</property>
                     <style>
                       <class name="title-4"/>
                     </style>
@@ -127,7 +127,7 @@
                 <child>
                   <object class="GtkLabel" id="_notification_label">
                     <property name="visible">True</property>
-                    <property name="label">Default Notification</property>
+                    <property name="label" translatable="yes">Default Notification</property>
                     <property name="ellipsize">end</property>
                   </object>
                 </child>

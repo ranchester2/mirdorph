@@ -17,6 +17,7 @@ import asyncio
 import threading
 import discord
 from pathlib import Path
+from gettext import gettext as _
 from gi.repository import Gtk, Gio, GLib, Handy
 from .confman import ConfManager
 from .attachment import MessageEntryBarAttachment
@@ -79,14 +80,13 @@ class MessageEntryBar(Gtk.Box, EventReceiver):
     def _check_if_can_send_gtk_target(self, can_send: bool):
         if not can_send:
             self.set_sensitive(can_send)
-            self._message_entry.set_placeholder_text(
-                "Insufficient permissions")
+            self._message_entry.set_placeholder_text(_("Insufficient permissions"))
 
     async def _message_send_wrapper(self, message: str, files: list):
         try:
             await self.context.channel_disc.send(message, files=files)
         except Exception as e:
-            GLib.idle_add(lambda msg_error: self.app.do_error("Failure sending message", str(msg_error)), e)
+            GLib.idle_add(lambda msg_error: self.app.do_error(_("Failure sending message"), str(msg_error)), e)
 
     def _do_attempt_send(self):
         message = self._message_entry.get_text()
