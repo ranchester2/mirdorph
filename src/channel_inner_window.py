@@ -72,11 +72,9 @@ class ChannelInnerWindow(Gtk.Box):
         self.is_poped = False
 
         if not self.empty:
-            # Blocking
-            self.channel_disc = asyncio.run_coroutine_threadsafe(
-                self.app.discord_client.fetch_channel(self.channel_id),
-                self.app.discord_loop
-            ).result()
+            # Get channels works because guilds are already chunked when the UI
+            # for creating a context appears.
+            self.channel_disc = self.app.discord_client.get_channel(self.channel_id)
 
             self._context_headerbar.set_title("#" + self.channel_disc.name)
             if self.channel_disc.topic is not None:
