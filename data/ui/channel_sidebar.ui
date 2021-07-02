@@ -22,28 +22,69 @@
                     <child>
                       <object class="GtkSearchEntry" id="_guild_list_search_entry">
                         <property name="visible">True</property>
-                        <signal name="search-changed" handler="_on_guild_list_search_entry_changed"/>
-                        <signal name="activate" handler="_on_guild_list_search_entry_activate"/>
+                        <signal name="search-changed" handler="_on_search_changed"/>
+                        <signal name="activate" handler="_on_search_activate" />
                       </object>
                     </child>
                   </object>
                 </child>
                 <child>
-                  <object class="GtkScrolledWindow">
+                  <object class="GtkStack" id="_search_mode_stack">
                     <property name="visible">True</property>
-                    <property name="hscrollbar-policy">never</property>
+                    <property name="vexpand">True</property>
+                    <property name="transition-type">crossfade</property>
                     <child>
-                      <object class="GtkListBox" id="_channel_guild_list">
+                      <object class="GtkScrolledWindow">
                         <property name="visible">True</property>
-                        <style>
-                          <class name="guild-list"/>
-                        </style>
+                        <property name="hscrollbar-policy">never</property>
+                        <child>
+                          <object class="GtkListBox" id="_channel_guild_list">
+                            <property name="visible">True</property>
+                            <style>
+                              <class name="guild-list"/>
+                            </style>
+                          </object>
+                        </child>
                       </object>
+                      <packing>
+                        <property name="name">content</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkScrolledWindow">
+                        <property name="visible">True</property>
+                        <property name="hscrollbar-policy">never</property>
+                        <child>
+                          <object class="GtkStack" id="_search_empty_state_stack">
+                            <property name="visible">True</property>
+                            <child>
+                              <object class="HdyStatusPage">
+                                <property name="visible">True</property>
+                                <property name="title">No Results Found</property>
+                                <property name="description">Try a different search</property>
+                                <property name="icon-name">edit-find-symbolic</property>
+                              </object>
+                              <packing>
+                                <property name="name">empty</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkListBox" id="_search_list">
+                                <property name="visible">True</property>
+                                <signal name="row-activated" handler="_on_channel_entry_activated" />
+                              </object>
+                              <packing>
+                                <property name="name">results</property>
+                              </packing>
+                            </child>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="name">search</property>
+                      </packing>
                     </child>
                   </object>
-                  <packing>
-                    <property name="expand">True</property>
-                  </packing>
                 </child>
               </object>
             </child>

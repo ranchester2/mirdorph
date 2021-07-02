@@ -20,19 +20,40 @@ import discord
 import os
 from pathlib import Path
 from gi.repository import Gtk, Gio, GObject, GLib, GdkPixbuf, Handy
-from .event_receiver import EventReceiver
+
+# Use this to filter out only text channels, which we support
+TEXT_CHANNEL_FILTER = (discord.VoiceChannel, discord.StageChannel, discord.CategoryChannel)
+
+def separator_listbox_header_func(row, before):
+    if before is None:
+        row.set_header(None)
+        return
+    current = row.get_header()
+    if current is None:
+        current = Gtk.Separator.new(Gtk.Orientation.HORIZONTAL)
+        current.show()
+        row.set_header(current)
+
 
 @Gtk.Template(resource_path="/org/gnome/gitlab/ranchester/Mirdorph/ui/channel_list_entry.ui")
 class MirdorphChannelListEntry(Gtk.ListBoxRow):
     __gtype_name__ = "MirdorphChannelListEntry"
 
     _channel_label: Gtk.Label = Gtk.Template.Child()
+    _search_context_label: Gtk.Label = Gtk.Template.Child()
 
-    def __init__(self, discord_channel: discord.abc.GuildChannel, *args, **kwargs):
+    def __init__(self, discord_channel: discord.abc.GuildChannel, search_mode=False, *args, **kwargs):
         Gtk.ListBoxRow.__init__(self, *args, **kwargs)
         self.id = discord_channel.id
         self.name = discord_channel.name
-        self._channel_label.set_label("#" + discord_channel.name)
+        self._channel_label.set_label("#" + self.name)
+
+        if search_mode:
+            context_text = discord_channel.guild.name
+            if discord_channel.category:
+                context_text += f" -> {discord_channel.category.name}"
+            self._search_context_label.set_label(context_text)
+            self._search_context_label.show()
 
 class MirdorphGuildEntry(Handy.ExpanderRow):
     __gtype_name__ = "MirdorphGuildEntry"
@@ -44,8 +65,6 @@ class MirdorphGuildEntry(Handy.ExpanderRow):
         self.app = Gio.Application.get_default()
         self._disc_guild = disc_guild
         self.set_title(self._disc_guild.name)
-        # For filtering by search
-        self.guild_name = self._disc_guild.name
 
         self._loading_state_spinner = Gtk.Spinner()
         self._loading_state_spinner.show()
@@ -56,56 +75,17 @@ class MirdorphGuildEntry(Handy.ExpanderRow):
         # horizontal space.
         self.set_hexpand(False)
 
-        # Public because keeping track of which listbox is the current one is the job of the channel
-        # sidebar, not the entry.
+        # Public as the listbox is an extension of the sidebar, the sidebar
+        # should keep track of witch is selected for example, and the sidebar
+        # connects and handles row activations
         self.channel_listbox = Gtk.ListBox()
         self.channel_listbox.show()
-        # Nice separators between rows
-        def channel_listbox_header_func(row, before):
-            if before is None:
-                row.set_header(None)
-                return
-            current = row.get_header()
-            if current is None:
-                current = Gtk.Separator.new(Gtk.Orientation.HORIZONTAL)
-                current.show()
-                row.set_header(current)
-        self.channel_listbox.set_header_func(channel_listbox_header_func)
-        self.channel_listbox.connect("row-activated", self._on_channel_list_entry_activated)
+        self.channel_listbox.set_header_func(separator_listbox_header_func)
         self.add(self.channel_listbox)
 
         threading.Thread(
             target=self._fetching_guild_threaded_target
         ).start()
-
-    def do_search_display(self, search_string: str) -> MirdorphChannelListEntry:
-        """
-        Do search in the guild's itself's list of channels based on the search string
-
-        param:
-            search_string: `str` of what is being searched for
-        returns:
-            `MirdorphChannelListEntry` of the first match if a search was found at all,
-            `None` if no viable row was found
-        """
-        row_match = None
-        for channel_row in self.channel_listbox:
-            if search_string.lower() in channel_row.name.lower():
-                row_match = channel_row
-                self.set_expanded(True)
-                channel_row.get_style_context().add_class("channel-search-result")
-                channel_row.get_style_context().remove_class("anti-channel-search-result")
-            else:
-                if row_match is not None:
-                    channel_row.get_style_context().add_class("anti-channel-search-result")
-                channel_row.get_style_context().remove_class("channel-search-result")
-        return row_match
-
-    def has_channel_search_result(self) -> bool:
-        for channel_row in self.channel_listbox:
-            if channel_row.get_style_context().has_class("channel-search-result"):
-                return True
-        return False
 
     @staticmethod
     def _get_icon_path_from_guild_id(guild_id: int) -> Path:
@@ -155,8 +135,7 @@ class MirdorphGuildEntry(Handy.ExpanderRow):
             self.add_prefix(guild_image)
 
         for channel in self._disc_guild.channels:
-            # These channels aren't supported yet
-            if isinstance(channel, (discord.VoiceChannel, discord.StageChannel, discord.CategoryChannel)):
+            if isinstance(channel, TEXT_CHANNEL_FILTER):
                 continue
 
             if not channel.permissions_for(self._disc_guild.me).view_channel:
@@ -167,12 +146,6 @@ class MirdorphGuildEntry(Handy.ExpanderRow):
             self.channel_listbox.add(channel_entry)
 
         self.remove(self._loading_state_spinner)
-
-    def _on_channel_list_entry_activated(self, listbox, row):
-        self.app.main_win.show_active_channel(row.id)
-        # Most mobile sidebar switching implementations work like this
-        if self.app.main_win.main_flap.get_folded():
-            self.app.main_win.main_flap.set_reveal_flap(False)
 
 @Gtk.Template(resource_path='/org/gnome/gitlab/ranchester/Mirdorph/ui/channel_sidebar.ui')
 class MirdorphChannelSidebar(Gtk.Box):
@@ -185,6 +158,10 @@ class MirdorphChannelSidebar(Gtk.Box):
     _channel_guild_loading_stack: Gtk.Stack = Gtk.Template.Child()
     _channel_guild_list_container: Gtk.Box = Gtk.Template.Child()
     _guild_loading_page: Gtk.Spinner = Gtk.Template.Child()
+
+    _search_list: Gtk.ListBox = Gtk.Template.Child()
+    _search_mode_stack: Gtk.Stack = Gtk.Template.Child()
+    _search_empty_state_stack: Gtk.Stack = Gtk.Template.Child()
 
     def __init__(self, channel_search_button: Gtk.ToggleButton, *args, **kwargs):
         Gtk.Box.__init__(self, *args, **kwargs)
@@ -203,62 +180,55 @@ class MirdorphChannelSidebar(Gtk.Box):
         self.app.set_accels_for_action("app.search-guilds", ["<Primary>k"])
 
         self._guild_list_search_bar.connect_entry(self._guild_list_search_entry)
-
-        # For search, the channel that with the sum of indicators is the one that is
-        # the most likely search result.
-        self._most_wanted_search_channel = None
+        self._search_list.set_header_func(separator_listbox_header_func)
 
         threading.Thread(target=self._build_guilds_target).start()
 
-    @Gtk.Template.Callback()
-    def _on_guild_list_search_entry_changed(self, entry: Gtk.SearchEntry):
-        self._most_wanted_search_channel = None
+    def _select_default_search_row(self):
+        """
+        Selects the row that is currently the top search result
+        """
+        for row in self._search_list.get_children():
+            if self._search_filter_func(row, self._guild_list_search_entry.get_text()):
+                self._search_list.select_row(row)
+                return
 
-        # Clean Up when search is closed
-        if not self._guild_list_search_entry.get_text():
-            for guild_row in self._channel_guild_list.get_children():
-                guild_row.set_visible(True)
-            for channel_listbox in [guild_row.channel_listbox for guild_row in self._channel_guild_list.get_children()]:
-                for channel_row in channel_listbox.get_children():
-                    channel_row.get_style_context().remove_class("channel-search-result")
-                    channel_row.get_style_context().remove_class("anti-channel-search-result")
-            return
-
-        def is_row_in_search_results(row: MirdorphGuildEntry, search_text: str) -> bool:
-            try:
-                row.guild_name
-            except AttributeError:
-                return True
-            else:
-                return search_text.lower() in row.guild_name.lower()
-
-        search_string = self._guild_list_search_entry.get_text()
-        focused_row = None
-
-        already_selected_most_wanted_find_attempt = False
-        for guild_row in self._channel_guild_list.get_children():
-            find_attempt = guild_row.do_search_display(search_string)
-            if find_attempt is not None and not already_selected_most_wanted_find_attempt:
-                already_selected_most_wanted_find_attempt = True
-                self._most_wanted_search_channel = find_attempt
-
-        for guild_row in self._channel_guild_list.get_children():
-            if is_row_in_search_results(guild_row, search_string):
-                guild_row.set_visible(True)
-            else:
-                guild_row.set_visible(guild_row.has_channel_search_result())
-
-            if focused_row is None and is_row_in_search_results(guild_row, search_string):
-                for row in self._channel_guild_list.get_children():
-                    row.set_expanded(False)
-                focused_row = guild_row
-                guild_row.set_expanded(True)
+    def _search_filter_func(self, row: MirdorphChannelListEntry, search_string: str):
+        return search_string.lower() in "#" + row.name.lower()
 
     @Gtk.Template.Callback()
-    def _on_guild_list_search_entry_activate(self, entry: Gtk.SearchEntry):
-        if self._most_wanted_search_channel:
-            self._most_wanted_search_channel.emit("activate")
+    def _on_search_changed(self, search_entry: Gtk.SearchEntry):
+        if self._guild_list_search_entry.get_text():
+            self._search_list.invalidate_filter()
+            self._search_mode_stack.set_visible_child_name("search")
+            self._search_list.set_filter_func(self._search_filter_func, self._guild_list_search_entry.get_text())
+
+            any_result_found = False
+            # There is no way to check if a row is currently filtered out,
+            # however we can run the fitler_func manually, and we know the user_data
+            # is the current text of the search entry.
+            for row in self._search_list.get_children():
+                if self._search_filter_func(row, self._guild_list_search_entry.get_text()):
+                    any_result_found = True
+
+            # No results
+            if not any_result_found:
+                self._search_empty_state_stack.set_visible_child_name("empty")
+            else:
+                self._search_empty_state_stack.set_visible_child_name("results")
+                # By default immediately select the first search result, which is what is selected
+                # if you hit enter too.
+                self._select_default_search_row()
+        else:
+            self._search_mode_stack.set_visible_child_name("content")
+
+    @Gtk.Template.Callback()
+    def _on_search_activate(self, search_entry: Gtk.SearchEntry):
+        # It doesn't make sense to activate the last valid search if no search results
+        # are found.
+        if self._search_empty_state_stack.get_visible_child_name() == "results":
             self._guild_list_search_bar.set_search_mode(False)
+            self._set_channel_entry_active(self._search_list.get_selected_row())
 
     async def _get_guilds_list(self) -> list:
         # Why the waiting?
@@ -283,30 +253,48 @@ class MirdorphChannelSidebar(Gtk.Box):
     def _build_guilds_gtk_target(self, guilds: list):
         for guild in guilds:
             guild_entry = MirdorphGuildEntry(guild)
-            guild_entry.channel_listbox.connect("row-activated", self._on_guild_entry_channel_list_activate)
+            guild_entry.channel_listbox.connect("row-activated", self._on_channel_entry_activated)
             guild_entry.show()
             self._channel_guild_list.add(guild_entry)
+
+            # NOTE: may be a bit bad to performance to have such a massive listbox when not even needed,
+            # maybe better to build it on search and destroy it on search end?
+            for channel in guild.channels:
+                if not isinstance(channel, TEXT_CHANNEL_FILTER) and channel.permissions_for(guild.me).view_channel:
+                    search_channel_entry = MirdorphChannelListEntry(channel, search_mode=True)
+                    search_channel_entry.show()
+                    self._search_list.add(search_channel_entry)
+
         self._channel_guild_loading_stack.set_visible_child(self._channel_guild_list_container)
 
-    def _on_guild_entry_channel_list_activate(self, listbox, row):
-        self.set_listbox_active(listbox)
+    @Gtk.Template.Callback()
+    def _on_channel_entry_activated(self, listbox: Gtk.ListBox, row: MirdorphChannelListEntry):
+        if self._guild_list_search_bar.get_search_mode():
+            self._guild_list_search_bar.set_search_mode(False)
+        self._set_channel_entry_active(row)
 
-    def set_listbox_active(self, active_listbox: Gtk.ListBox):
+    def _set_channel_entry_active(self, activation_row: MirdorphChannelListEntry):
         """
-        Set which listbox is the currently selected one, to unselect
-        all other remaining listboxes.
+        Correctly mark the row as active, and do selection of it (IE opening it).
+        This correctly hadnles search list logic, unselecting other listboxes
+        and similar.
 
         param:
-            active_listbox, the one that should be the only one, usually self
+            activation_row, the MirdorphChannelListEntry you want to mark as active
         """
-        for listbox in [x.channel_listbox for x in self._channel_guild_list.get_children()]:
-            if listbox == active_listbox:
-                # By search we might select a listbox which isn't currently expanded
-                for guild_row in self._channel_guild_list:
-                    if guild_row.channel_listbox == active_listbox:
-                        guild_row.set_expanded(True)
-            else:
-                # Setting to none and back removes the selection
-                listbox.set_selection_mode(Gtk.SelectionMode.NONE)
-                listbox.set_selection_mode(Gtk.SelectionMode.SINGLE)
+        active_listbox = None
+        for guild_entry in self._channel_guild_list.get_children():
+            for row in guild_entry.channel_listbox.get_children():
+                # The id matters, not the specific instance, especially with search
+                if row.id == activation_row.id:
+                    guild_entry.channel_listbox.select_row(row)
+                    guild_entry.set_expanded(True)
+                    active_listbox = guild_entry.channel_listbox
+            if guild_entry.channel_listbox != active_listbox:
+                guild_entry.channel_listbox.unselect_all()
 
+        self.app.main_win.show_active_channel(activation_row.id)
+
+        # Most mobile sidebar switching implementations work like this
+        if self.app.main_win.main_flap.get_folded():
+            self.app.main_win.main_flap.set_reveal_flap(False)
