@@ -86,7 +86,9 @@ class MessageEntryBar(Gtk.Box, EventReceiver):
         try:
             await self.context.channel_disc.send(message, files=files)
         except Exception as e:
-            pass
+            GLib.idle_add(
+                lambda details : self.context.display_error(_("Sending Message Failed"), details=details), str(e)
+            )
 
     def _do_attempt_send(self):
         message = self._message_entry.get_text()

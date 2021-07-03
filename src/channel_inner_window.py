@@ -17,11 +17,28 @@ import asyncio
 import logging
 import discord
 import sys
+from gettext import gettext as _
 from gi.repository import Gtk, Gio, Handy
 from .channel_properties_window import ChannelPropertiesWindow
 from .message_view import MessageView
 from .message_entry_bar import MessageEntryBar
 from .image_viewer import ImageViewer
+
+
+@Gtk.Template(resource_path="/org/gnome/gitlab/ranchester/Mirdorph/ui/context_error_dialog.ui")
+class ContextErrorDialog(Gtk.MessageDialog):
+    __gtype_name__ = "ContextErrorDialog"
+
+    _details_textview: Gtk.TextView = Gtk.Template.Child()
+    _details_scrolled_win: Gtk.ScrolledWindow = Gtk.Template.Child()
+
+    def __init__(self, title: str, details: str=None, *args, **kwargs):
+        Gtk.MessageDialog.__init__(self, text=title, *args, **kwargs)
+        if details:
+            # The scrolled window has a minimum size and a border, better to
+            # not show it by default instead
+            self._details_scrolled_win.show()
+            self._details_textview.get_buffer().set_text(details, -1)
 
 
 @Gtk.Template(resource_path="/org/gnome/gitlab/ranchester/Mirdorph/ui/channel_inner_window.ui")
@@ -289,3 +306,23 @@ class ChannelInnerWindow(Gtk.Box):
         for example: for back buttons.
         """
         self._main_deck.set_visible_child(self._channel_box)
+
+    def display_error(self, title: str, details: str=None):
+        """
+        Display an error for this context, for example when doing
+        some Discord action failed.
+
+        param:
+            title: the main title of the error,
+            details: optional extra details (like the exact exception
+        """
+        dialog = ContextErrorDialog(
+            title=title,
+            details=details
+        )
+        dialog.connect("response", lambda *_ : dialog.destroy())
+        dialog.set_modal(True)
+        if self.get_toplevel().is_toplevel():
+            dialog.set_transient_for(self.get_toplevel())
+        dialog.show()
+
