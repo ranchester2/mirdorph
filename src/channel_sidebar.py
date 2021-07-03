@@ -18,6 +18,7 @@ import threading
 import logging
 import discord
 import os
+import time
 from pathlib import Path
 from gi.repository import Gtk, Gio, GObject, GLib, GdkPixbuf, Handy
 
@@ -230,23 +231,23 @@ class MirdorphChannelSidebar(Gtk.Box):
             self._guild_list_search_bar.set_search_mode(False)
             self._set_channel_entry_active(self._search_list.get_selected_row())
 
-    async def _get_guilds_list(self) -> list:
-        # Why the waiting?
-        # This is often loaded before our client is fully connected.
-        # This also then serves as the entire application's "loading" state.
-        # TODO: I might think about having a separate toplevel loading page for the app
-        # in the future.
+    def _get_guilds_list(self) -> list:
+        """
+        Helper function to get the guilds list while handling client not
+        yet being connected.
+
+        The channel sidebar is created at startup, and .guilds doesn't work
+        if the client isn't fully connected yet.
+
+        Must be called in separate thread (blocking if not connected).
+        """
         while not self.app.discord_client.guilds:
-            logging.info("guilds not synced, sleeping for additional quarter second")
-            await asyncio.sleep(0.25)
+            time.sleep(0.1)
 
         return self.app.discord_client.guilds
 
     def _build_guilds_target(self):
-        guilds = asyncio.run_coroutine_threadsafe(
-            self._get_guilds_list(),
-            self.app.discord_loop
-        ).result()
+        guilds = self._get_guilds_list()
 
         GLib.idle_add(self._build_guilds_gtk_target, guilds)
 
