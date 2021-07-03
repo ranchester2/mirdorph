@@ -242,7 +242,7 @@ class MirdorphChannelSidebar(Gtk.Box):
         Must be called in separate thread (blocking if not connected).
         """
         while not self.app.discord_client.guilds:
-            time.sleep(0.1)
+            time.sleep(0.25)
 
         return self.app.discord_client.guilds
 
