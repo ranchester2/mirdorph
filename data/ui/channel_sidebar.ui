@@ -60,8 +60,8 @@
                             <child>
                               <object class="HdyStatusPage">
                                 <property name="visible">True</property>
-                                <property name="title">No Results Found</property>
-                                <property name="description">Try a different search</property>
+                                <property name="title" translatable="yes">No Results Found</property>
+                                <property name="description" translatable="yes">Try a different search</property>
                                 <property name="icon-name">edit-find-symbolic</property>
                               </object>
                               <packing>
