@@ -24,6 +24,12 @@ class EventListeningDispatcher(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+        # On ready is a useful event, but doesn't work with commands.Cog.listenr,
+        # you need client.event instead.
+        @self.bot.event
+        async def on_ready(*args, **kwargs):
+            GLib.idle_add(self.forward_event, "on_ready", *args, **kwargs)
+
     def forward_event(self, name, *args, **kwargs):
         app = Gio.Application.get_default()
         app.event_manager.dispatch_event(name, *args, **kwargs)

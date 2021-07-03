@@ -30,6 +30,9 @@ class EventReceiver:
         self._ev_app = Gio.Application.get_default()
         self._ev_app.event_manager.register_receiver(self)
 
+    def disc_on_ready(self, *args, **kwargs):
+        pass
+
     def disc_on_connect(self, *args, **kwargs):
         pass
 
