@@ -66,10 +66,6 @@ if __name__ == '__main__':
 
     def init_discord(discord_client, discord_token):
         if discord_token:
-            @discord_client.event
-            async def on_ready():
-                logging.info(f"discord logged in as {client.user.name}")
-
             cogs = [
                 'mirdorph.disc_cogs.event_listening'
             ]
