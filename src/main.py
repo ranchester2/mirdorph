@@ -179,17 +179,6 @@ class Application(Gtk.Application):
 
         return self._inner_window_contexts[channel]
 
-    def do_error(self, error_title: str, error_body: str):
-        """
-        Display an error (Discord) in the application. Note that
-        this is only for the main window.
-
-        param:
-            error_title: The abstract title of the type of the widget
-            error_body: More advanced text of the error
-        """
-        self.main_win.display_err_priv(error_title, error_body)
-
     def relaunch(self):
         logging.info("launching program duplicate instance")
         os.execv(sys.argv[0], sys.argv)

@@ -13,145 +13,88 @@
     <property name="icon-name">org.gnome.gitlab.ranchester.Mirdorph</property>
     <signal name="destroy" handler="_on_window_destroy" />
     <child>
-      <object class="GtkOverlay">
+      <object class="HdyDeck">
         <property name="visible">True</property>
         <child>
-          <object class="HdyDeck">
+          <object class="HdyFlap" id="main_flap">
             <property name="visible">True</property>
-            <child>
-              <object class="HdyFlap" id="main_flap">
+            <property name="swipe-to-close">False</property>
+            <property name="modal">True</property>
+            <child type="flap">
+              <object class="GtkBox" id="_flap_box">
                 <property name="visible">True</property>
-                <property name="swipe-to-close">False</property>
-                <property name="modal">True</property>
-                <child type="flap">
-                  <object class="GtkBox" id="_flap_box">
+                <property name="orientation">vertical</property>
+                <child>
+                  <object class="HdyHeaderBar">
                     <property name="visible">True</property>
-                    <property name="orientation">vertical</property>
                     <child>
-                      <object class="HdyHeaderBar">
+                      <object class="GtkToggleButton" id="_channel_search_button">
                         <property name="visible">True</property>
                         <child>
-                          <object class="GtkToggleButton" id="_channel_search_button">
+                          <object class="GtkImage">
                             <property name="visible">True</property>
-                            <child>
-                              <object class="GtkImage">
-                                <property name="visible">True</property>
-                                <property name="icon-name">edit-find-symbolic</property>
-                              </object>
-                            </child>
-                            <style>
-                              <class name="image-button"/>
-                            </style>
+                            <property name="icon-name">edit-find-symbolic</property>
                           </object>
                         </child>
-                        <child>
-                          <object class="GtkButton" id="_add_server_button">
-                            <property name="visible">True</property>
-                            <child>
-                              <object class="GtkImage">
-                                <property name="visible">True</property>
-                                <property name="icon-name">list-add-symbolic</property>
-                              </object>
-                            </child>
-                            <style>
-                              <class name="image-button" />
-                            </style>
-                          </object>
-                          <packing>
-                            <property name="pack-type">end</property>
-                            <property name="position">1</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkMenuButton">
-                            <property name="visible">True</property>
-                            <property name="tooltip-text" translatable="yes">Menu</property>
-                            <property name="popover">_main_menu_popover</property>
-                            <child>
-                              <object class="GtkImage">
-                                <property name="visible">True</property>
-                                <property name="icon-name">open-menu-symbolic</property>
-                              </object>
-                            </child>
-                          </object>
-                          <packing>
-                            <property name="pack-type">end</property>
-                            <property name="position">0</property>
-                          </packing>
-                        </child>
+                        <style>
+                          <class name="image-button"/>
+                        </style>
                       </object>
                     </child>
-                  </object>
-                </child>
-                <child type="separator">
-                  <object class="GtkSeparator">
-                    <property name="visible">True</property>
-                    <style>
-                      <class name="vertical" />
-                    </style>
-                  </object>
-                </child>
-                <child type="content">
-                  <object class="GtkStack" id="context_stack">
-                    <property name="visible">True</property>
-                    <!-- NOTE: This will not work with already poped out windows, however it should be enough -->
-                    <!-- since windows are currently never popped out by default -->
-                    <!-- and by then adding messages with events has already taken over -->
-                    <signal name="notify::visible-child" handler="_on_context_stack_focus_change" />
+                    <child>
+                      <object class="GtkButton" id="_add_server_button">
+                        <property name="visible">True</property>
+                        <child>
+                          <object class="GtkImage">
+                            <property name="visible">True</property>
+                            <property name="icon-name">list-add-symbolic</property>
+                          </object>
+                        </child>
+                        <style>
+                          <class name="image-button" />
+                        </style>
+                      </object>
+                      <packing>
+                        <property name="pack-type">end</property>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkMenuButton">
+                        <property name="visible">True</property>
+                        <property name="tooltip-text" translatable="yes">Menu</property>
+                        <property name="popover">_main_menu_popover</property>
+                        <child>
+                          <object class="GtkImage">
+                            <property name="visible">True</property>
+                            <property name="icon-name">open-menu-symbolic</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="pack-type">end</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
                   </object>
                 </child>
               </object>
             </child>
-          </object>
-        </child>
-        <child type="overlay">
-          <object class="GtkRevealer" id="_notification_revealer">
-            <property name="visible">True</property>
-            <property name="halign">GTK_ALIGN_CENTER</property>
-            <property name="valign">GTK_ALIGN_START</property>
-            <child>
-              <object class="GtkBox">
+            <child type="separator">
+              <object class="GtkSeparator">
                 <property name="visible">True</property>
-                <property name="valign">start</property>
-                <property name="spacing">20</property>
-                <child>
-                  <object class="GtkLabel" id="_notification_title_label">
-                    <property name="visible">True</property>
-                    <property name="ellipsize">end</property>
-                    <property name="label" translatable="yes">Title</property>
-                    <style>
-                      <class name="title-4"/>
-                    </style>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="_notification_label">
-                    <property name="visible">True</property>
-                    <property name="label" translatable="yes">Default Notification</property>
-                    <property name="ellipsize">end</property>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkButton">
-                    <property name="visible">True</property>
-                    <signal name="clicked" handler="_on_notification_button_clicked"/>
-                    <child>
-                      <object class="GtkImage">
-                        <property name="visible">True</property>
-                        <property name="icon_name">window-close-symbolic</property>
-                      </object>
-                    </child>
-                    <style>
-                      <class name="image-button" />
-                    </style>
-                  </object>
-                  <packing>
-                    <property name="pack-type">end</property>
-                  </packing>
-                </child>
                 <style>
-                  <class name="app-notification" />
+                  <class name="vertical" />
                 </style>
+              </object>
+            </child>
+            <child type="content">
+              <object class="GtkStack" id="context_stack">
+                <property name="visible">True</property>
+                <!-- NOTE: This will not work with already poped out windows, however it should be enough -->
+                <!-- since windows are currently never popped out by default -->
+                <!-- and by then adding messages with events has already taken over -->
+                <signal name="notify::visible-child" handler="_on_context_stack_focus_change" />
               </object>
             </child>
           </object>

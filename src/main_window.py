@@ -34,10 +34,6 @@ class MirdorphMainWindow(Handy.ApplicationWindow):
 
     _main_menu_popover: Gtk.Popover = Gtk.Template.Child()
 
-    _notification_revealer: Gtk.Revealer = Gtk.Template.Child()
-    _notification_label: Gtk.Label = Gtk.Template.Child()
-    _notification_title_label: Gtk.Label = Gtk.Template.Child()
-
     _channel_search_button: Gtk.ToggleButton = Gtk.Template.Child()
 
     def __init__(self, *args, **kwargs):
@@ -132,17 +128,3 @@ class MirdorphMainWindow(Handy.ApplicationWindow):
             # For making the entry the default focus
             context.do_first_see()
 
-    @Gtk.Template.Callback()
-    def _on_notification_button_clicked(self, button):
-        self._notification_revealer.set_reveal_child(False)
-
-    def display_err_priv(self, error_title: str, error_body: str):
-        self._notification_label.set_label(error_body)
-        self._notification_title_label.set_label(error_title)
-        self._notification_revealer.set_reveal_child(True)
-
-        GLib.timeout_add_seconds(5, self._notification_waiting_gtk_target)
-
-    def _notification_waiting_gtk_target(self):
-        self._notification_revealer.set_reveal_child(False)
-        return False
