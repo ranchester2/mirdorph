@@ -17,66 +17,71 @@
         <property name="visible">True</property>
         <property name="transition-type">crossfade</property>
         <child>
-          <object class="GtkBox">
+          <object class="HdyWindowHandle">
             <property name="visible">True</property>
-            <property name="orientation">vertical</property>
-            <child>
-              <object class="GtkBox">
-                <property name="visible">True</property>
-                <child>
-                  <object class="GtkButton">
-                    <property name="visible">True</property>
-                    <property name="width-request">34</property>
-                    <property name="height-request">34</property>
-                    <property name="margin">6</property>
-                    <property name="halign">end</property>
-                    <property name="hexpand">True</property>
-                    <signal name="clicked" handler="_on_loading_close_btn_clicked" />
-                    <child>
-                      <object class="GtkImage">
-                        <property name="visible">True</property>
-                        <property name="icon-name">window-close-symbolic</property>
-                      </object>
-                    </child>
-                    <style>
-                      <class name="flat" />
-                      <class name="circular" />
-                    </style>
-                  </object>
-                </child>
-              </object>
-            </child>
             <child>
               <object class="GtkBox">
                 <property name="visible">True</property>
                 <property name="orientation">vertical</property>
-                <property name="vexpand">True</property>
-                <property name="halign">center</property>
-                <property name="valign">center</property>
-                <property name="spacing">12</property>
                 <child>
-                  <object class="GtkImage">
+                  <object class="GtkBox">
                     <property name="visible">True</property>
-                    <property name="pixel-size">128</property>
-                    <property name="icon-name">network-server-symbolic</property>
-                    <style>
-                      <class name="dim-label" />
-                    </style>
+                    <child>
+                      <object class="GtkButton">
+                        <property name="visible">True</property>
+                        <property name="width-request">34</property>
+                        <property name="height-request">34</property>
+                        <property name="margin">6</property>
+                        <property name="halign">end</property>
+                        <property name="hexpand">True</property>
+                        <signal name="clicked" handler="_on_loading_close_btn_clicked" />
+                        <child>
+                          <object class="GtkImage">
+                            <property name="visible">True</property>
+                            <property name="icon-name">window-close-symbolic</property>
+                          </object>
+                        </child>
+                        <style>
+                          <class name="flat" />
+                          <class name="circular" />
+                        </style>
+                      </object>
+                    </child>
                   </object>
                 </child>
                 <child>
-                  <object class="GtkLabel">
+                  <object class="GtkBox">
                     <property name="visible">True</property>
-                    <property name="label" translatable="yes">Connecting to Discord</property>
-                    <style>
-                      <class name="title" />
-                      <class name="dim-label" />
-                    </style>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkProgressBar" id="_loading_progress_bar">
-                    <property name="visible">True</property>
+                    <property name="orientation">vertical</property>
+                    <property name="vexpand">True</property>
+                    <property name="halign">center</property>
+                    <property name="valign">center</property>
+                    <property name="spacing">12</property>
+                    <child>
+                      <object class="GtkImage">
+                        <property name="visible">True</property>
+                        <property name="pixel-size">128</property>
+                        <property name="icon-name">network-server-symbolic</property>
+                        <style>
+                          <class name="dim-label" />
+                        </style>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="visible">True</property>
+                        <property name="label" translatable="yes">Connecting to Discord</property>
+                        <style>
+                          <class name="title" />
+                          <class name="dim-label" />
+                        </style>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkProgressBar" id="_loading_progress_bar">
+                        <property name="visible">True</property>
+                      </object>
+                    </child>
                   </object>
                 </child>
               </object>
