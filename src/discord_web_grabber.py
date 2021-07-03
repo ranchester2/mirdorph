@@ -43,7 +43,7 @@ class DiscordGrabber(WebKit2.WebView):
                       (str,))
     }
 
-    LOGIN_TROUBLESHOOT = _("Login failed, make sure the window isn't narrow.")
+    LOGIN_TROUBLESHOOT = _("Make sure the window isn't narrow.")
 
     def __init__(self, *args, **kwargs):
         WebKit2.WebView.__init__(self, is_ephemeral=True, *args, **kwargs)
