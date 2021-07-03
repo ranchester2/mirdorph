@@ -79,10 +79,6 @@ class MirdorphLoginWindow(Handy.ApplicationWindow):
     _login_graphical_page: Gtk.Box = Gtk.Template.Child()
     _login_graphical_page_webview_container: Gtk.Box = Gtk.Template.Child()
 
-    _notification_revealer: Gtk.Revealer = Gtk.Template.Child()
-    _notification_title_label: Gtk.Label = Gtk.Template.Child()
-    _notification_label: Gtk.Label = Gtk.Template.Child()
-
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self._build_token_grabber()
@@ -224,23 +220,21 @@ class MirdorphLoginWindow(Handy.ApplicationWindow):
 
     def _on_web_login_failed(self, grabber, help: str):
         self._build_token_grabber()
-        self._notification_label.set_label(help)
-        self._notification_title_label.set_label("Error")
-        self._notification_revealer.set_reveal_child(True)
 
-        def notification_waiting_gtk_target():
-            self._notification_revealer.set_reveal_child(False)
-            return False
-        GLib.timeout_add_seconds(5, notification_waiting_gtk_target)
+        dialog = Gtk.MessageDialog(
+            buttons=Gtk.ButtonsType.OK,
+            text="Login Failed",
+            secondary_text=help,
+            modal=True,
+            transient_for=self
+        )
+        dialog.connect("response", lambda *_ : dialog.destroy())
+        dialog.show()
 
     def _token_generic_retrieval_gtk_target(self, token):
         if token:
             self._save_token(token)
         self.props.application.relaunch()
-
-    @Gtk.Template.Callback()
-    def _on_notification_button_clicked(self, button):
-        self._notification_revealer.set_reveal_child(False)
 
     def _save_token(self, token: str):
         logging.info("setting token in keyring")
