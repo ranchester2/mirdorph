@@ -15,7 +15,7 @@ I don't have much else to add.
 ### Build from source method:
 
 Have flatpak and flatpak-builder installed.
-Install `org.gnome.Sdk` and `org.gnome.Platform` if they are
+Install `org.gnome.Sdk`, `org.gnome.Platform` and `org.freedesktop.Sdk.Extension.rust-stable` if they are
 not allready installed.
 
 And from the source directory:
