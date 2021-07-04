@@ -5,17 +5,7 @@ sys.path.append("..")
 # Message parsing has gresource templates, and linkpreview uses handy
 import tests.load_gtk
 from src.link_preview import LinkPreviewExport
-from src.message_parsing import _process_links, _create_pango_markup, calculate_msg_parts, _generate_exports, ComponentType
-
-def test_process_links():
-    test_text = """\
-Test word https://google.com
-Second line http://example.com"""
-    expected_Text = """\
-Test word <a href="https://google.com">https://google.com</a>
-Second line <a href="http://example.com">http://example.com</a>"""
-
-    assert _process_links(test_text) == expected_Text
+from src.message_parsing import _create_pango_markup, calculate_msg_parts, _generate_exports, ComponentType
 
 def test_full_create_pango_markup():
     test_text = """\

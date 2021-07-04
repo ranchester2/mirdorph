@@ -16,12 +16,11 @@
 import copy
 import re
 import gi
+import html2pango
 from gi.repository import Gtk, Pango
 from enum import Enum
-from xml.sax.saxutils import escape as escape_xml
 from .link_preview import LinkPreviewExport
 
-LINK_REGEX = r"(?P<url>https?://[^\s]+)"
 
 class ComponentType(Enum):
     STANDARD = 0
@@ -110,27 +109,13 @@ def _extract_discord_components(message_string) -> list:
 
 
 def _generate_exports(message_string: str):
-    links = re.findall(LINK_REGEX, message_string)
+    links = re.findall(r"(?P<url>https?://[^\s]+)", message_string)
     return [LinkPreviewExport(link) for link in links]
 
 
-def _process_links(message_string: str) -> str:
-    """
-    Find all the links in a string and replace them
-    with escaped pango links
-    """
-    # Not escaping links because it is complicated with re.sub,
-    # and I don't think it is needed generally
-    marked_links = re.sub(LINK_REGEX, r'<a href="\1">\1</a>', message_string)
-    return marked_links
-
-
 def _create_pango_markup(message_string: str) -> str:
-    # Escape all existing potential markup before
-    # processing
-    workd_on_str = escape_xml(message_string)
-
-    workd_on_str = _process_links(workd_on_str)
+    workd_on_str = html2pango.html_escape(message_string)
+    workd_on_str = html2pango.markup_links(workd_on_str)
 
     # For now actual markdown isn't actually implemented
     pass
@@ -147,8 +132,9 @@ def build_widget_list(message_string: str) -> list:
     returns:
         A list of either `Gtk.Widget` or `str`
     """
+    # Discord components need to be parsed before converting the strings
+    # to pango.
     discord_components = _extract_discord_components(message_string)
-    # Not implemented
     if discord_components:
         pass
 
