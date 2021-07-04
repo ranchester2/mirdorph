@@ -104,11 +104,11 @@
 				},
 				{
 					"type": "patch",
-					"path": "./patches/0001-fix-broken-.content-and-.embeds-and-more-in-self-bot.patch"
+					"path": "./patches/discord.py/0001-fix-broken-.content-and-.embeds-and-more-in-self-bot.patch"
 				},
 				{
 					"type": "patch",
-					"path": "./patches/0002-fix-on-typing-for-self-bots.patch"
+					"path": "./patches/discord.py/0002-fix-on-typing-for-self-bots.patch"
 				}
 			]
 		},
