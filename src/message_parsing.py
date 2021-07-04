@@ -116,23 +116,8 @@ def _generate_exports(message_string: str):
 
 
 def _create_pango_markup(message_string: str) -> str:
-    html_base = mistune.markdown(message_string)
-    # Why markup_from_raw?
-    # mistune.markdown already sanitizes the input,
-    # and we need to keep the <a> link objects of mistune,
-    # and this is overall a more flexible approach
+    html_base = mistune.html(html2pango.html_escape(message_string))
     workd_on_str = html2pango.markup_from_raw(html_base)
-
-    # Sometimes we get errors due to invalid markup, this seems to partially
-    # be from my html2pango changes, a better solution to make mistune
-    # ignore links?
-    # NOTE: links (<a>) always fail, so on except we still create thems
-    # with the 100% safe markup_links method.
-    try:
-        Pango.parse_markup(workd_on_str, length=-1, accel_marker="0")
-    except gi.repository.GLib.Error:
-        logging.warning(f"invalid pango markup for message, markup: {workd_on_str}")
-        return html2pango.markup_links(html2pango.html_escape(message_string))
 
     return workd_on_str
 

@@ -23,7 +23,7 @@ spooky <b>non escaped</b>
 <a href="hello">other</a>"""
     expected_text = """\
 spooky &lt;b&gt;non escaped&lt;/b&gt;
-&lt;a href="hello"&gt;other&lt;/a&gt;"""
+&lt;a href=&quot;hello&quot;&gt;other&lt;/a&gt;"""
 
     assert _create_pango_markup(test_text) == expected_text
 
