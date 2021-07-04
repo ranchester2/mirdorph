@@ -233,7 +233,8 @@ class MessageView(Gtk.Overlay, EventReceiver):
 
         # Near top of loaded history
         if adj.get_value() < adj.get_page_size() * 1.5:
-            self.load_history(additional=15)
+            if not self._loading_history:
+                self.load_history(additional=15)
 
     ### Smooth scroll animation code taken from Fractal, but converted from rust to Python
     ### Also, I basically know zero Rust ###
