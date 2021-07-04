@@ -1,0 +1,115 @@
+From 49955bff4f0e2f950404dd7518fefc76a3571130 Mon Sep 17 00:00:00 2001
+From: Raidro Manchester <raibo.quadrofus@gmail.com>
+Date: Sun, 4 Jul 2021 19:48:09 +0300
+Subject: [PATCH 2/2] markup: don't handle links here
+
+the provided HTML is meant to already have links like this, then it
+isn't HTML.
+
+There is markup_links function for that anyway.
+
+NOTE: I removed the filter for < because it was capturing links, I am
+note sure about this... but the input for this is meant to be sanitized
+html anyway, so idk
+---
+ src/lib.rs | 42 ++----------------------------------------
+ 1 file changed, 2 insertions(+), 40 deletions(-)
+
+diff --git a/src/lib.rs b/src/lib.rs
+index 08ed289..60ee1c6 100644
+--- a/src/lib.rs
++++ b/src/lib.rs
+@@ -58,9 +58,6 @@ fn html2pango(_py: Python, m: &PyModule) -> PyResult<()> {
+ ///
+ /// let m = markup("this is <span>parsed</span>");
+ /// assert_eq!(&m, "this is &lt;span&gt;parsed&lt;/span&gt;");
+-///
+-/// let m = markup("with links: http://gnome.org");
+-/// assert_eq!(&m, "with links: <a href=\"http://gnome.org\">http://gnome.org</a>");
+ /// ```
+ ///
+ /// [ammonia]: https://docs.rs/ammonia/1.1.0/ammonia/fn.clean.html
+@@ -85,9 +82,6 @@ pub fn markup(s: &str) -> String {
+ ///
+ /// let m = markup_from_raw("this is <span>parsed</span>");
+ /// assert_eq!(&m, "this is &lt;span&gt;parsed&lt;/span&gt;");
+-///
+-/// let m = markup_from_raw("with links: http://gnome.org");
+-/// assert_eq!(&m, "with links: <a href=\"http://gnome.org\">http://gnome.org</a>");
+ /// ```
+ #[pyfunction]
+ pub fn markup_from_raw(s: &str) -> String {
+@@ -102,7 +96,7 @@ pub fn markup_from_raw(s: &str) -> String {
+         );
+         static ref RE: Regex = Regex::new(&REURL).unwrap();
+         static ref MATCH: Regex = Regex::new(
+-            r"<p>|</p>|<br>|<b>|</b>|<strong>|</strong>|<code>|</code>|<i>|</i>|<em>|</em>|<|>|&nbsp;"
++            r"<p>|</p>|<br>|<b>|</b>|<strong>|</strong>|<code>|</code>|<i>|</i>|<em>|</em>|&nbsp;"
+         ).unwrap();
+     }
+ 
+@@ -122,8 +116,6 @@ pub fn markup_from_raw(s: &str) -> String {
+             "</code>" => "</tt>",
+             "<i>" | "<em>" => "<i>",
+             "</i>" | "</em>" => "</i>",
+-            "<" => "&lt;",
+-            ">" => "&gt;",
+             "&nbsp;" => " ",
+             _ => unreachable!(),
+         });
+@@ -134,7 +126,7 @@ pub fn markup_from_raw(s: &str) -> String {
+     let mut out = String::with_capacity(foo.iter().map(|s| s.len()).sum());
+     out.extend(foo.into_iter());
+ 
+-    String::from(RE.replace_all(&out.trim(), "<a href=\"$0\">$0</a>"))
++    String::from(&out)
+ }
+ 
+ // WIP: only allow the html subset that matrix uses.
+@@ -408,9 +400,6 @@ mod test {
+         let m = markup("this is parsed");
+         assert_eq!(&m, "this is parsed");
+ 
+-        let m = markup("this is <span>parsed</span>");
+-        assert_eq!(&m, "this is &lt;span&gt;parsed&lt;/span&gt;");
+-
+         let m = markup("this is &ssdf;");
+         assert_eq!(&m, "this is &amp;ssdf;");
+ 
+@@ -420,33 +409,6 @@ mod test {
+ 
+         let m = markup("<b>this <i>is &ssd<f;</i></b>");
+         assert_eq!(&m, "<b>this <i>is &amp;ssd</i></b>");
+-
+-        let url = "http://url.com/test?foo1&foo2=test&foo3#hashing";
+-        let m = markup(&format!("this is &ssdf; {}", url));
+-        assert_eq!(
+-            &m,
+-            &format!(
+-                "this is &amp;ssdf; <a href=\"{0}\">{0}</a>",
+-                url.replace('&', "&amp;")
+-            )
+-        );
+-
+-        for l in &[
+-            ("with links: http://gnome.org :D", "http://gnome.org"),
+-            (
+-                "with links: http://url.com/test.html&stuff :D",
+-                "http://url.com/test.html&stuff",
+-            ),
+-        ] {
+-            let m = markup(l.0);
+-            assert_eq!(
+-                &m,
+-                &format!(
+-                    "with links: <a href=\"{0}\">{0}</a> :D",
+-                    l.1.replace('&', "&amp;")
+-                )
+-            );
+-        }
+     }
+ 
+     #[test]
+-- 
+2.30.2
+

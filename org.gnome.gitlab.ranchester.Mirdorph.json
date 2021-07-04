@@ -380,6 +380,20 @@
 			]
 		},
 		{
+			"name": "python-mistune",
+			"buildsystem": "simple",
+			"build-commands": [
+				"pip3 install --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"mistune\" --no-build-isolation"
+			],
+			"sources": [
+				{
+					"type": "file",
+					"url": "https://files.pythonhosted.org/packages/2d/a4/509f6e7783ddd35482feda27bc7f72e65b5e7dc910eca4ab2164daf9c577/mistune-0.8.4.tar.gz",
+					"sha256": "59a3429db53c50b5c6bcc8a07f8848cb00d7dc8bdb431a4ab41920d201d4756e"
+				}
+			]
+		},
+		{
 			"name": "python-html2pango",
 			"buildsystem": "simple",
 			"build-options": {
@@ -402,6 +416,10 @@
 				{
 					"type": "patch",
 					"path": "./patches/html2pango/0001-allow-usage-from-python.patch"
+				},
+				{
+					"type": "patch",
+					"path": "./patches/html2pango/0002-markup-don-t-handle-links-here.patch"
 				},
 				{
 					"type": "file",

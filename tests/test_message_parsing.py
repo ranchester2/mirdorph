@@ -7,17 +7,27 @@ import tests.load_gtk
 from src.link_preview import LinkPreviewExport
 from src.message_parsing import _create_pango_markup, calculate_msg_parts, _generate_exports, ComponentType
 
-def test_full_create_pango_markup():
+def test_create_pango_markup_links():
     test_text = """\
-Scary <b>non escaped markup</b>
 with a link https://google.com
 and other http://example.com"""
     expected_text = """\
-Scary &lt;b&gt;non escaped markup&lt;/b&gt;
 with a link <a href="https://google.com">https://google.com</a>
 and other <a href="http://example.com">http://example.com</a>"""
 
     assert _create_pango_markup(test_text) == expected_text
+
+def test_create_pango_markup_escaping():
+    test_text = """\
+spooky <b>non escaped</b>
+<a href="hello">other</a>"""
+    expected_text = """\
+spooky &lt;b&gt;non escaped&lt;/b&gt;
+&lt;a href="hello"&gt;other&lt;/a&gt;"""
+
+    assert _create_pango_markup(test_text) == expected_text
+
+# Why not test all of markdown? Because html2pango has tests in itself.
 
 def test_calculate_message_parts():
     example_message = """\
