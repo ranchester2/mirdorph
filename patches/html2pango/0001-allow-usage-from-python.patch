@@ -1,0 +1,110 @@
+From 08945b9300fee9611b5619eb8ea9de82d1ae0471 Mon Sep 17 00:00:00 2001
+From: Raidro Manchester <raibo.quadrofus@gmail.com>
+Date: Sun, 4 Jul 2021 18:10:39 +0300
+Subject: [PATCH] allow usage from python
+
+It fits my usecase to use this library, except from python. Even though
+I barely know Rust at all, here it works with PyO3.
+---
+ Cargo.toml |  8 ++++++++
+ src/lib.rs | 18 ++++++++++++++++++
+ 2 files changed, 26 insertions(+)
+
+diff --git a/Cargo.toml b/Cargo.toml
+index a703ad3..07c240d 100644
+--- a/Cargo.toml
++++ b/Cargo.toml
+@@ -14,6 +14,10 @@ documentation = "https://world.pages.gitlab.gnome.org/html2pango/html2pango/"
+ repository = "https://gitlab.gnome.org/World/html2pango"
+ edition = "2018"
+ 
++[lib]
++name = "html2pango"
++crate-type = ["cdylib"]
++
+ [dependencies]
+ regex = "1.4.2"
+ lazy_static = "1.4.0"
+@@ -24,5 +28,9 @@ anyhow = "1.0.35"
+ html5ever = "0.25.1"
+ markup5ever_rcdom = "0.1.0"
+ 
++[dependencies.pyo3]
++version = "0.14.0"
++features = ["extension-module"]
++
+ [dev-dependencies]
+ pretty_assertions = "0.6.1"
+diff --git a/src/lib.rs b/src/lib.rs
+index b583e35..08ed289 100644
+--- a/src/lib.rs
++++ b/src/lib.rs
+@@ -11,12 +11,25 @@ use maplit::{hashmap, hashset};
+ 
+ use regex::Regex;
+ 
++use pyo3::prelude::*;
++
+ const AMP: &str = "(&amp;)";
+ const DOMAIN: &str = "[^\\s,)(\"]+";
+ const HASH: &str = "(#[\\w._-]+)?";
+ 
+ pub mod block;
+ 
++#[pymodule]
++fn html2pango(_py: Python, m: &PyModule) -> PyResult<()> {
++    m.add_function(wrap_pyfunction!(markup, m)?)?;
++    m.add_function(wrap_pyfunction!(markup_from_raw, m)?)?;
++    m.add_function(wrap_pyfunction!(matrix_html_to_markup, m)?)?;
++    m.add_function(wrap_pyfunction!(html_escape, m)?)?;
++    m.add_function(wrap_pyfunction!(markup_links, m)?)?;
++
++    Ok(())
++}
++
+ /// Sanitize the input using [`ammonia`][ammonia]'s defaults,
+ /// Convert the input `&str` to pango format and parse
+ /// URLS to show as `pango` markup links(removes rel attributes).
+@@ -51,6 +64,7 @@ pub mod block;
+ /// ```
+ ///
+ /// [ammonia]: https://docs.rs/ammonia/1.1.0/ammonia/fn.clean.html
++#[pyfunction]
+ pub fn markup(s: &str) -> String {
+     let sanitized_html = ammonia::Builder::new().link_rel(None).clean(s).to_string();
+     markup_from_raw(&sanitized_html)
+@@ -75,6 +89,7 @@ pub fn markup(s: &str) -> String {
+ /// let m = markup_from_raw("with links: http://gnome.org");
+ /// assert_eq!(&m, "with links: <a href=\"http://gnome.org\">http://gnome.org</a>");
+ /// ```
++#[pyfunction]
+ pub fn markup_from_raw(s: &str) -> String {
+     lazy_static! {
+         static ref PARAM: String = format!("({amp}?\\w+(=[\\w._-]+)?)", amp = AMP);
+@@ -123,6 +138,7 @@ pub fn markup_from_raw(s: &str) -> String {
+ }
+ 
+ // WIP: only allow the html subset that matrix uses.
++#[pyfunction]
+ pub fn matrix_html_to_markup(s: &str) -> String {
+     // https://github.com/matrix-org/matrix-react-sdk/blob/4bf5e44b2043bbe95faa66943878acad23dfb823/src/HtmlUtils.js#L178-L184
+     #[rustfmt::skip]
+@@ -164,6 +180,7 @@ pub fn matrix_html_to_markup(s: &str) -> String {
+ }
+ 
+ /// Escape the html entities of `s`
++#[pyfunction]
+ pub fn html_escape(s: &str) -> String {
+     s.to_string()
+         .replace('&', "&amp;")
+@@ -173,6 +190,7 @@ pub fn html_escape(s: &str) -> String {
+ }
+ 
+ /// Converts links to <a href="LINK">LINK</a>
++#[pyfunction]
+ pub fn markup_links(s: &str) -> String {
+     let mut parsed = String::with_capacity(s.len());
+     let finder = LinkFinder::new();
+-- 
+2.30.2
+

@@ -5,6 +5,8 @@ variables:
 
 flatpak:
     image: 'registry.gitlab.gnome.org/gnome/gnome-runtime-images/gnome:40'
+    before_script:
+        - "flatpak install --user -y --noninteractive flathub org.freedesktop.Sdk.Extension.rust-stable//20.08"
     variables:
         MANIFEST_PATH: "org.gnome.gitlab.ranchester.Mirdorph.json"
         FLATPAK_MODULE: "mirdorph"
@@ -14,6 +16,8 @@ flatpak:
 
 flatpak-test:
     image: 'registry.gitlab.gnome.org/gnome/gnome-runtime-images/gnome:40'
+    before_script:
+        - "flatpak install --user -y --noninteractive flathub org.freedesktop.Sdk.Extension.rust-stable//20.08"
     script:
       - !reference [.flatpak, script]
       - 'flatpak install -y --noninteractive --user --no-pull --no-related mirdorph.flatpak'
