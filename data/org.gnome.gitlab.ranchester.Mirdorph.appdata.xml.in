@@ -32,6 +32,38 @@
   </screenshots>
 
   <releases>
+    <release version="0.12.0" date="2021-06-05">
+      <description>
+        <p>Small incremental release, released because I want to port to GTK4:</p>
+        <ul>
+          <li>You can now elegantly see who is typing and send typing events yourself</li>
+          <li>Appstream now actually works (was wrong id)</li>
+          <li>When closing a popped out window, it is now poped back in</li>
+          <li>Links are now highlighted in messages</li>
+          <li>There are now link previews</li>
+          <li>Some rare images that break the sizing are now handled correctly</li>
+          <li>Multiple messages in a row from the same user are now grouped</li>
+          <li>You can now scroll the message view through selection/keyboard</li>
+          <li>Performance of coloring usernames has been greatly improved</li>
+          <li>Login has minor improvements to design and keyboard navigation</li>
+          <li>There is now a notice on first run about the Terms of Service violations</li>
+          <li>There is now a preferences window (currently only toggles typing)</li>
+          <li>There is now an elegant media viewer that allows you to view images more cleanly and navigate the catalog</li>
+          <li>The window titles have been improved</li>
+          <li>The filechooser is correctly transient when used in poppped out channels</li>
+          <li>All images now load significantly faster if you are on a fast connection</li>
+          <li>Attachments in empty messages now look a bit better</li>
+          <li>There is now localization support (currently Lithuanian)</li>
+          <li>Performance of opening a channel has been improved</li>
+          <li>Guild/sidebar search has been completely redesigned to be vastly easier to use, elegant, and like other GNOME apps</li>
+          <li>The error notifications (message failed, graphical authentication failed) have been changed to use messagedialogs</li>
+          <li>There is now a loading screen</li>
+          <li>Basic markdown in messages is now supported (not Discord specific)</li>
+          <li>Updated screenshots</li>
+          <li>Many under the hood improvements</li>
+        </ul>
+      </description>
+    </release>
     <release version="0.10.0" date="2021-05-23">
       <description>
         <p>

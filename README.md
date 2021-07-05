@@ -29,7 +29,7 @@ flatpak run org.gnome.gitlab.ranchester.Mirdorph
 
 ## Screenshots
 
-Here are a few screenshots of 0.10.0:
+Here are a few screenshots of 0.12.0:
 
 ![image](./doc/asset/mirdorph-login.png)
 ![image](./doc/asset/mirdorph-login-gui.png)
@@ -41,3 +41,6 @@ Here are a few screenshots of 0.10.0:
 ![image](./doc/asset/mirdorph-mobile.png)
 ![image](./doc/asset/mirdorph-mobile-with-sidebar.png)
 ![image](./doc/asset/mirdorph-channel-properties.png)
+![image](./doc/asset/mirdorph-guild-search.png)
+![image](./doc/asset/mirdorph-image-viewer.png)
+![image](./doc/asset/mirdorph-loading-screen.png)

@@ -1,3 +1,37 @@
+Version 0.12.0
+~~~~~~~~~~~~~~
+Released: 2021-06-05
+
+Small incremental release, released because I want to port to GTK4:
+ * You can now elegantly see who is typing and send typing events yourself
+ * Appstream now actually works (was wrong id)
+ * When closing a popped out window, it is now poped back in
+ * Links are now highlighted in messages
+ * There are now link previews
+ * Some rare images that break the sizing are now handled correctly
+ * Multiple messages in a row from the same user are now grouped
+ * You can now scroll the message view through selection/keyboard
+ * Performance of coloring usernames has been greatly improved
+ * Login has minor improvements to design and keyboard navigation
+ * There is now a notice on first run about the Terms of Service violations
+ * There is now a preferences window (currently only toggles typing)
+ * There is now an elegant media viewer that allows you to view images more cleanly and navigate
+   the catalog
+ * The window titles have been improved
+ * The filechooser is correctly transient when used in poppped out channels
+ * All images now load significantly faster if you are on a fast connection
+ * Attachments in empty messages now look a bit better
+ * There is now localization support (currently Lithuanian)
+ * Performance of opening a channel has been improved
+ * Guild/sidebar search has been completely redesigned to be vastly easier to use, elegant, and
+   like other GNOME apps
+ * The error notifications (message failed, graphical authentication failed) have been changed to
+   use messagedialogs
+ * There is now a loading screen
+ * Basic markdown in messages is now supported (not Discord specific)
+ * Updated screenshots
+ * Many under the hood improvements
+
 Version 0.10.0
 ~~~~~~~~~~~~~~
 Released: 2021-05-23

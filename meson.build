@@ -1,5 +1,5 @@
 project('mirdorph',
-          version: '0.10.0',
+          version: '0.12.0',
     meson_version: '>= 0.50.0',
   default_options: [ 'warning_level=2',
                    ],
