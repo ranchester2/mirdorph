@@ -44,7 +44,7 @@ class ChannelPropertiesWindow(Handy.Window):
             cleaned_topic = self._channel_disc.topic.replace("\n", "")
             self._description_label.set_label(cleaned_topic)
         else:
-            self._description_label.destroy()
+            self._description_label.hide()
 
         threading.Thread(target=self._get_last_activity_time_target).start()
 

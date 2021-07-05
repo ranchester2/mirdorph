@@ -138,10 +138,9 @@ class ChannelInnerWindow(Gtk.Box):
             )
             self._context_menu_popover.bind_model(context_menu)
         elif self.empty:
-            self._context_menu_button.destroy()
-            self._popout_button.destroy()
-            self._popin_button.destroy()
-            self._popout_button_stack.destroy()
+            self._context_headerbar.remove(self._context_menu_button)
+            self._context_headerbar.remove(self._popout_button)
+            self._context_headerbar.remove(self._popout_button_stack)
             self._toplevel_content_stack.set_visible_child(self._empty_status_page)
 
     # NOTE: not connected to the signal automatically, connect it yourself

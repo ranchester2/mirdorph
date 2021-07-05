@@ -156,10 +156,6 @@ class ImageViewer(Handy.Flap):
             new_attachment, self.context.channel_id)
 
         def on_full_render(image_attachment: ImageAttachment):
-            # Widget no longer needed, however the file remains,
-            # and the promise of display_image only being used when the image is
-            # downloaded is kept.
-            image_attachment.destroy()
             self.display_image(new_attachment)
             self._signify_catalog_load_end()
 
@@ -220,7 +216,9 @@ class ImageViewer(Handy.Flap):
 
     def _remove_existing_image(self, *args):
         if self._picture_container.get_children():
-            self._picture_container.get_children()[0].destroy()
+            self._picture_container.remove(
+                self._picture_container.get_children()[0]
+            )
             self._current_image_path = None
 
     def display_image(self, attachment: discord.Attachment):

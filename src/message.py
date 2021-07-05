@@ -240,10 +240,10 @@ class MirdorphMessage(Gtk.ListBoxRow):
         self.get_style_context().add_class("merged-discord-message")
 
         if hasattr(self, "_username_label"):
-            self._username_label.destroy()
+            self._username_container.remove(self._username_label)
             del(self._username_label)
         if hasattr(self, "_avatar"):
-            self._avatar.destroy()
+            self._avatar_box.remove(self._avatar)
             del(self._avatar)
         self.merged = True
 

@@ -121,7 +121,7 @@ class MessageEntryBar(Gtk.Box, EventReceiver):
 
         for child in self._attachment_container.get_children():
             if not child.add_mode:
-                child.destroy()
+                self._attachment_container.remove(child)
         self._attachment_togglebutton.set_active(False)
         self._message_entry.set_text("")
 

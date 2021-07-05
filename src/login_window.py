@@ -130,7 +130,9 @@ class MirdorphLoginWindow(Handy.ApplicationWindow):
         except AttributeError:
             pass
         else:
-            self._token_grabber.destroy()
+            self._login_graphical_page_webview_container.remove(
+                self._token_grabber
+            )
         self._token_grabber = DiscordGrabber()
         self._token_grabber.connect("login_complete", self._on_web_login_complete)
         self._token_grabber.connect("login_failed", self._on_web_login_failed)
