@@ -10,7 +10,7 @@
       <property name="orientation">vertical</property>
       <property name="width-request">355</property>
       <child>
-        <object class="HdyDeck" id="_main_deck">
+        <object class="AdwDeck" id="_main_deck">
           <property name="visible">True</property>
           <property name="can-swipe-back">True</property>
           <property name="can-swipe-forward">False</property>
@@ -21,7 +21,7 @@
               <property name="visible">True</property>
               <property name="orientation">vertical</property>
               <child>
-                <object class="HdyHeaderBar" id="_context_headerbar">
+                <object class="AdwHeaderBar" id="_context_headerbar">
                   <property name="visible">True</property>
                   <property name="show-close-button">True</property>
                   <child>
@@ -102,7 +102,7 @@
                     </object>
                   </child>
                   <child>
-                    <object class="HdyStatusPage" id="_empty_status_page">
+                    <object class="AdwStatusPage" id="_empty_status_page">
                       <property name="visible">True</property>
                       <property name="title" translatable="yes">Choose a channel</property>
                       <property name="icon-name">find-location-symbolic</property>

@@ -18,14 +18,14 @@
       </object>
     </child>
   </object>
-  <template class="ImageViewer" parent="HdyFlap">
+  <template class="ImageViewer" parent="AdwFlap">
     <property name="orientation">vertical</property>
     <property name="fold-policy">never</property>
     <property name="modal">False</property>
     <property name="swipe-to-close">False</property>
     <property name="swipe-to-open">False</property>
     <child type="flap">
-      <object class="HdyHeaderBar" id="_headerbar">
+      <object class="AdwHeaderBar" id="_headerbar">
         <property name="visible">True</property>
         <property name="show-close-button">True</property>
         <child>

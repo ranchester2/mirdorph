@@ -150,7 +150,7 @@ class Application(Gtk.Application):
 
         param:
             channel: integer of the id of the channel
-            flap: the HdyFlap that should be monitored for adaptiveness,
+            flap: the AdwFlap that should be monitored for adaptiveness,
             you have to provide it here so that ChannelInnerWindows could be
             created while the main window isn't initialized yet.
         """

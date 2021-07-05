@@ -9,7 +9,7 @@
       <object class="GtkListBoxRow">
         <property name="visible">True</property>
         <child>
-          <object class="HdyClamp">
+          <object class="AdwClamp">
             <!-- Note that the clamp isn't working as intended -->
             <property name="visible">True</property>
             <property name="maximum-size">130</property>

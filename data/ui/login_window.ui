@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
   <requires lib="gtk+" version="3.24" />
-  <template class="MirdorphLoginWindow" parent="HdyApplicationWindow">
+  <template class="MirdorphLoginWindow" parent="AdwApplicationWindow">
     <property name="default-width">750</property>
     <property name="default-height">616</property>
     <property name="icon-name">org.gnome.gitlab.ranchester.Mirdorph</property>
     <child>
-      <object class="HdyDeck" id="_toplevel_deck">
+      <object class="AdwDeck" id="_toplevel_deck">
         <property name="visible">True</property>
         <property name="can-swipe-forward">False</property>
         <property name="can-swipe-back">True</property>
@@ -15,12 +15,12 @@
             <property name="visible">True</property>
             <property name="orientation">vertical</property>
             <child>
-              <object class="HdySqueezer">
+              <object class="AdwSqueezer">
                 <property name="visible">True</property>
                 <property name="interpolate-size">True</property>
                 <property name="transition-type">1</property>
                 <child>
-                  <object class="HdyHeaderBar">
+                  <object class="AdwHeaderBar">
                     <property name="visible">True</property>
                     <property name="show-close-button">False</property>
                     <property name="width-request">370</property>
@@ -36,7 +36,7 @@
                   </object>
                 </child>
                 <child>
-                  <object class="HdyHeaderBar">
+                  <object class="AdwHeaderBar">
                     <property name="visible">True</property>
                     <property name="show-close-button">False</property>
                     <property name="valign">GTK_ALIGN_CENTER</property>
@@ -146,7 +146,7 @@
                 <property name="visible">True</property>
                 <property name="orientation">vertical</property>
                 <child>
-                  <object class="HdyHeaderBar">
+                  <object class="AdwHeaderBar">
                     <property name="visible">True</property>
                     <property name="title" translatable="yes">Enter Credentials</property>
                     <child>
@@ -167,7 +167,7 @@
                   </object>
                 </child>
                 <child>
-                  <object class="HdyClamp">
+                  <object class="AdwClamp">
                     <property name="visible">True</property>
                     <property name="vexpand">True</property>
                     <child>
@@ -229,7 +229,7 @@
                 <property name="visible">True</property>
                 <property name="orientation">vertical</property>
                 <child>
-                  <object class="HdyHeaderBar">
+                  <object class="AdwHeaderBar">
                     <property name="visible">True</property>
                     <property name="title" translatable="yes">Enter Credentials</property>
                     <child>
@@ -310,7 +310,7 @@
                       </object>
                     </child>
                     <child>
-                      <object class="HdyClamp">
+                      <object class="AdwClamp">
                         <property name="visible">True</property>
                         <property name="maximum-size">450</property>
                         <child>
@@ -387,7 +387,7 @@
                 <property name="visible">True</property>
                 <property name="orientation">vertical</property>
                 <child>
-                  <object class="HdyHeaderBar">
+                  <object class="AdwHeaderBar">
                     <property name="visible">True</property>
                     <property name="title" translatable="yes">Enter Credentials</property>
                     <child>

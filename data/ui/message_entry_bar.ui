@@ -12,7 +12,7 @@
         <property name="height-request">46</property>
         <property name="orientation">horizontal</property>
         <child>
-          <object class="HdyClamp">
+          <object class="AdwClamp">
             <property name="visible">True</property>
             <property name="maximum-size">800</property>
             <property name="tightening-threshold">600</property>

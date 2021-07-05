@@ -59,7 +59,7 @@ Messageview at it's heart uses a GtkListBox, with children like message represen
 `MirdorphMessage`, and is sorted automatically, you don't have to worry about that.
 
 A context itself is a Gtk widget too, and is the whole headerbar+area thing you see
-on the left. The popoit windows are simpy a `ChannelInnerWindow` inside a `HdyWindow`.
+on the left. The popoit windows are simpy a `ChannelInnerWindow` inside a `AdwWindow`.
 
 Global state is application, yada yada, etc. There are quite a few things like that
 

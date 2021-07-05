@@ -16,7 +16,7 @@
                 <property name="visible">True</property>
                 <property name="orientation">vertical</property>
                 <child>
-                  <object class="HdySearchBar" id="_guild_list_search_bar">
+                  <object class="AdwSearchBar" id="_guild_list_search_bar">
                     <property name="visible">True</property>
                     <property name="hexpand">False</property>
                     <child>
@@ -58,7 +58,7 @@
                           <object class="GtkStack" id="_search_empty_state_stack">
                             <property name="visible">True</property>
                             <child>
-                              <object class="HdyStatusPage">
+                              <object class="AdwStatusPage">
                                 <property name="visible">True</property>
                                 <property name="title" translatable="yes">No Results Found</property>
                                 <property name="description" translatable="yes">Try a different search</property>
@@ -115,7 +115,7 @@
       </object>
     </child>
     <child>
-      <object class="HdyViewSwitcherBar" id="_view_switcher">
+      <object class="AdwViewSwitcherBar" id="_view_switcher">
         <property name="visible">True</property>
         <property name="reveal">True</property>
         <property name="stack">_channel_list_type_stack</property>
