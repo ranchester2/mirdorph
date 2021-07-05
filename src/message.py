@@ -20,7 +20,7 @@ import discord
 import os
 from pathlib import Path
 from xml.sax.saxutils import escape as escape_xml
-from gi.repository import Gtk, Gio, GLib, Gdk, GdkPixbuf, Handy
+from gi.repository import Gtk, Gio, GLib, Gdk, GdkPixbuf, Adw
 from .attachment import GenericAttachment, ImageAttachment, AttachmentType, get_attachment_type
 from .message_parsing import MessageComponent, calculate_msg_parts
 
@@ -41,13 +41,13 @@ class MessageContent(Gtk.Box):
             for comp in calculate_msg_parts(self._message_content)
         ]
 
-class UserMessageAvatar(Handy.Avatar):
+class UserMessageAvatar(Adw.Avatar):
     __gtype_name__ = "UserMessageAvatar"
 
     _avatar_icon_dir_path = Path(os.environ["XDG_CACHE_HOME"] / Path("mirdorph"))
 
     def __init__(self, user: discord.User, *args, **kwargs):
-        Handy.Avatar.__init__(self, size=32, text=user.name, show_initials=True, *args, **kwargs)
+        Adw.Avatar.__init__(self, size=32, text=user.name, show_initials=True, *args, **kwargs)
         self.app = Gio.Application.get_default()
 
         self._user_disc = user

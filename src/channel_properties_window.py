@@ -17,14 +17,14 @@ import asyncio
 import datetime
 import threading
 import discord
-from gi.repository import Gtk, Gio, GLib, Gdk, Handy
+from gi.repository import Gtk, Gio, GLib, Gdk, Adw
 from .event_receiver import EventReceiver
 
 @Gtk.Template(resource_path="/org/gnome/gitlab/ranchester/Mirdorph/ui/channel_properties_window.ui")
-class ChannelPropertiesWindow(Handy.Window):
+class ChannelPropertiesWindow(Adw.Window):
     __gtype_name__ = "ChannelPropertiesWindow"
 
-    _channel_avatar: Handy.Avatar = Gtk.Template.Child()
+    _channel_avatar: Adw.Avatar = Gtk.Template.Child()
 
     _name_label: Gtk.Label = Gtk.Template.Child()
     _description_label: Gtk.Label = Gtk.Template.Child()
@@ -32,7 +32,7 @@ class ChannelPropertiesWindow(Handy.Window):
     _last_activity_button: Gtk.Button = Gtk.Template.Child()
 
     def __init__(self, channel: discord.TextChannel, *args, **kwargs):
-        Handy.Window.__init__(self, *args, **kwargs)
+        Adw.Window.__init__(self, *args, **kwargs)
         self.app = Gio.Application.get_default()
         self._channel_disc = channel
 

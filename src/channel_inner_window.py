@@ -18,7 +18,7 @@ import logging
 import discord
 import sys
 from gettext import gettext as _
-from gi.repository import Gtk, Gio, Handy
+from gi.repository import Gtk, Gio, Adw
 from .channel_properties_window import ChannelPropertiesWindow
 from .message_view import MessageView
 from .message_entry_bar import MessageEntryBar
@@ -45,12 +45,12 @@ class ContextErrorDialog(Gtk.MessageDialog):
 class ChannelInnerWindow(Gtk.Box):
     __gtype_name__ = "ChannelInnerWindow"
 
-    _context_headerbar: Handy.HeaderBar = Gtk.Template.Child()
+    _context_headerbar: Adw.HeaderBar = Gtk.Template.Child()
 
     _toplevel_content_stack: Gtk.Stack = Gtk.Template.Child()
-    _empty_status_page: Handy.StatusPage = Gtk.Template.Child()
+    _empty_status_page: Adw.StatusPage = Gtk.Template.Child()
 
-    _main_deck: Handy.Deck = Gtk.Template.Child()
+    _main_deck: Adw.Deck = Gtk.Template.Child()
     _channel_box: Gtk.Box = Gtk.Template.Child()
 
     _content_box: Gtk.Box = Gtk.Template.Child()
@@ -144,7 +144,7 @@ class ChannelInnerWindow(Gtk.Box):
             self._toplevel_content_stack.set_visible_child(self._empty_status_page)
 
     # NOTE: not connected to the signal automatically, connect it yourself
-    def handle_flap_folding(self, flap: Handy.Flap, *args):
+    def handle_flap_folding(self, flap: Adw.Flap, *args):
         if flap.get_folded():
             self._flap_toggle_button.set_visible(True)
             self._popout_button_stack.set_visible(False)
@@ -211,7 +211,7 @@ class ChannelInnerWindow(Gtk.Box):
         self.app.main_win.context_stack.remove(self)
         self.app.main_win.reconfigure_for_popout_window()
 
-        self._popout_window = Handy.Window(
+        self._popout_window = Adw.Window(
             default_width=650,
             default_height=470,
             icon_name="org.gnome.gitlab.ranchester.Mirdorph",
@@ -257,7 +257,7 @@ class ChannelInnerWindow(Gtk.Box):
         if not self.is_poped:
             if self._main_deck.get_visible_child() == self._channel_box:
                 self.app.main_win.main_flap.set_fold_policy(
-                    Handy.FlapFoldPolicy.AUTO
+                    Adw.FlapFoldPolicy.AUTO
                 )
                 # If this is not checked, if the flap is made folded
                 # while popout windows exist that are being popped in,
@@ -269,7 +269,7 @@ class ChannelInnerWindow(Gtk.Box):
                 self.handle_flap_folding(self.app.main_win.main_flap)
             elif self._main_deck.get_visible_child() == self._image_viewer:
                 self.app.main_win.main_flap.set_fold_policy(
-                    Handy.FlapFoldPolicy.NEVER
+                    Adw.FlapFoldPolicy.NEVER
                 )
                 self.app.main_win.main_flap.set_reveal_flap(False)
                 # Sometime it is possible to have it appear

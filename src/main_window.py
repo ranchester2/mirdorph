@@ -18,19 +18,19 @@ import logging
 import threading
 import queue
 import time
-from gi.repository import Gtk, GLib, Handy
+from gi.repository import Gtk, GLib, Adw
 from .event_receiver import EventReceiver
 from .channel_inner_window import ChannelInnerWindow
 from .channel_sidebar import MirdorphChannelSidebar
 
 @Gtk.Template(resource_path="/org/gnome/gitlab/ranchester/Mirdorph/ui/main_window.ui")
-class MirdorphMainWindow(Handy.ApplicationWindow, EventReceiver):
+class MirdorphMainWindow(Adw.ApplicationWindow, EventReceiver):
     __gtype_name__ = "MirdorphMainWindow"
 
     _loading_stack: Gtk.Stack = Gtk.Template.Child()
     _loading_progress_bar: Gtk.ProgressBar = Gtk.Template.Child()
 
-    main_flap: Handy.Flap = Gtk.Template.Child()
+    main_flap: Adw.Flap = Gtk.Template.Child()
     # Public, the contexts themselves interact with the stack to manage popout and popin
     context_stack: Gtk.Stack = Gtk.Template.Child()
     _flap_box: Gtk.Box = Gtk.Template.Child()
@@ -40,7 +40,7 @@ class MirdorphMainWindow(Handy.ApplicationWindow, EventReceiver):
     _channel_search_button: Gtk.ToggleButton = Gtk.Template.Child()
 
     def __init__(self, *args, **kwargs):
-        Handy.ApplicationWindow.__init__(self, *args, **kwargs)
+        Adw.ApplicationWindow.__init__(self, *args, **kwargs)
         EventReceiver.__init__(self)
 
         menu_builder = Gtk.Builder.new_from_resource(

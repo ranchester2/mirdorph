@@ -20,7 +20,7 @@ import shutil
 import keyring
 import asyncio
 import discord.ext.commands
-from gi.repository import Gtk, Gdk, GLib, Gio, Handy
+from gi.repository import Gtk, Gdk, GLib, Gio, Adw
 from pathlib import Path
 from .login_window import MirdorphLoginWindow
 from .main_window import MirdorphMainWindow
@@ -55,7 +55,7 @@ class Application(Gtk.Application):
 
     def do_startup(self):
         Gtk.Application.do_startup(self)
-        Handy.init()
+        Adw.init()
         # These are only the extremely "global" actions,
         # where it is significantly more convenient, the widget
         # itself adds the action (for example channel sidebar search)
@@ -143,7 +143,7 @@ class Application(Gtk.Application):
         keyring.delete_password("mirdorph", "token")
         self.relaunch()
     
-    def create_inner_window_context(self, channel: int, flap: Handy.Flap):
+    def create_inner_window_context(self, channel: int, flap: Adw.Flap):
         """
         Create  an inner window context, usually this is done automatically
         if none exists.

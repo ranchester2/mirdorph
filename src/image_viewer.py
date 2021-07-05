@@ -20,17 +20,17 @@ import subprocess
 import asyncio
 import threading
 from pathlib import Path
-from gi.repository import Gtk, Gdk, GLib, Gio, Handy
+from gi.repository import Gtk, Gdk, GLib, Gio, Adw
 from .atkpicture import AtkPicture
 from .attachment import ImageAttachment, AttachmentType, get_attachment_type
 
 
 @Gtk.Template(resource_path="/org/gnome/gitlab/ranchester/Mirdorph/ui/image_viewer.ui")
-class ImageViewer(Handy.Flap):
+class ImageViewer(Adw.Flap):
     __gtype_name__ = "ImageViewer"
 
     _picture_container: Gtk.ScrolledWindow = Gtk.Template.Child()
-    _headerbar: Handy.HeaderBar = Gtk.Template.Child()
+    _headerbar: Adw.HeaderBar = Gtk.Template.Child()
     _fullscreen_button_image: Gtk.Image = Gtk.Template.Child()
 
     _mouse_hover_eventbox: Gtk.EventBox = Gtk.Template.Child()
@@ -40,7 +40,7 @@ class ImageViewer(Handy.Flap):
     _loading_notif_revealer: Gtk.Revealer = Gtk.Template.Child()
 
     def __init__(self, context, *args, **kwargs):
-        Handy.Flap.__init__(self, *args, **kwargs)
+        Adw.Flap.__init__(self, *args, **kwargs)
         self.context = context
         self.app = Gio.Application.get_default()
 
@@ -197,7 +197,7 @@ class ImageViewer(Handy.Flap):
                 )
 
                 self._headerbar.set_show_close_button(True)
-                self.set_fold_policy(Handy.FlapFoldPolicy.NEVER)
+                self.set_fold_policy(Adw.FlapFoldPolicy.NEVER)
                 self.set_reveal_flap(True)
 
                 self._is_fullscreen = False
@@ -209,7 +209,7 @@ class ImageViewer(Handy.Flap):
                 )
 
                 self._headerbar.set_show_close_button(False)
-                self.set_fold_policy(Handy.FlapFoldPolicy.ALWAYS)
+                self.set_fold_policy(Adw.FlapFoldPolicy.ALWAYS)
                 self.set_reveal_flap(True)
 
                 self._is_fullscreen = True

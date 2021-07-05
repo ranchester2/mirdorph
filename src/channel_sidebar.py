@@ -20,7 +20,7 @@ import discord
 import os
 import time
 from pathlib import Path
-from gi.repository import Gtk, Gio, GObject, GLib, GdkPixbuf, Handy
+from gi.repository import Gtk, Gio, GObject, GLib, GdkPixbuf, Adw
 
 # Use this to filter out only text channels, which we support
 TEXT_CHANNEL_FILTER = (discord.VoiceChannel, discord.StageChannel, discord.CategoryChannel)
@@ -56,7 +56,7 @@ class MirdorphChannelListEntry(Gtk.ListBoxRow):
             self._search_context_label.set_label(context_text)
             self._search_context_label.show()
 
-class MirdorphGuildEntry(Handy.ExpanderRow):
+class MirdorphGuildEntry(Adw.ExpanderRow):
     __gtype_name__ = "MirdorphGuildEntry"
 
     _guild_icon_dir_path = Path(os.environ["XDG_CACHE_HOME"] / Path("mirdorph"))
@@ -116,7 +116,7 @@ class MirdorphGuildEntry(Handy.ExpanderRow):
     def _build_guild_gtk_target(self):
         guild_image_path = self._get_icon_path_from_guild_id(self._disc_guild.id)
         if guild_image_path.is_file():
-            guild_image = Handy.Avatar(size=32)
+            guild_image = Adw.Avatar(size=32)
             def load_image(size, guild_image_path: Path):
                 pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(
                     str(guild_image_path),
@@ -130,7 +130,7 @@ class MirdorphGuildEntry(Handy.ExpanderRow):
             self.add_prefix(guild_image)
         # The image isn't downloaded if the guild doesn't have one
         else:
-            guild_image = Handy.Avatar(size=32, show_initials=True)
+            guild_image = Adw.Avatar(size=32, show_initials=True)
             guild_image.set_text(self._disc_guild.name)
             guild_image.show()
             self.add_prefix(guild_image)
@@ -153,7 +153,7 @@ class MirdorphChannelSidebar(Gtk.Box):
     __gtype_name__ = "MirdorphChannelSidebar"
 
     _guild_list_search_entry: Gtk.SearchEntry = Gtk.Template.Child()
-    _guild_list_search_bar: Handy.SearchBar = Gtk.Template.Child()
+    _guild_list_search_bar: Adw.SearchBar = Gtk.Template.Child()
     _channel_guild_list: Gtk.ListBox = Gtk.Template.Child()
 
     _channel_guild_loading_stack: Gtk.Stack = Gtk.Template.Child()

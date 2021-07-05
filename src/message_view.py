@@ -18,7 +18,7 @@ import logging
 import threading
 import discord
 import sys
-from gi.repository import Gtk, Gio, GLib, Handy
+from gi.repository import Gtk, Gio, GLib, Adw
 from .event_receiver import EventReceiver
 from .message import MirdorphMessage
 from .typing_indicator import TypingIndicator
@@ -82,7 +82,7 @@ class MessageView(Gtk.Overlay, EventReceiver):
         self._history_loading_row.add(self._history_loading_spinner)
         self._message_listbox.add(self._history_loading_row)
 
-        self._message_clamp = Handy.Clamp(maximum_size=800, tightening_threshold=600)
+        self._message_clamp = Adw.Clamp(maximum_size=800, tightening_threshold=600)
         self._message_clamp.show()
         self._message_clamp.add(self._message_listbox)
         self._message_column.add(self._message_clamp)

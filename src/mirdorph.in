@@ -47,9 +47,9 @@ if __name__ == '__main__':
         gettext.bindtextdomain("mirdorph", localedir)
 
         import gi
-        gi.require_version('Gtk', '3.0')
-        gi.require_version('Handy', '1')
-        from gi.repository import Gio, Gtk, Handy
+        gi.require_version('Gtk', '4.0')
+        gi.require_version('Adw', '1')
+        from gi.repository import Gio, Gtk, Adw
 
         resource = Gio.Resource.load(os.path.join(pkgdatadir, 'mirdorph.gresource'))
         resource._register()

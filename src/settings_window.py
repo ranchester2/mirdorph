@@ -13,17 +13,17 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from gi.repository import Gtk, Gio, Handy
+from gi.repository import Gtk, Gio, Adw
 
 
 @Gtk.Template(resource_path="/org/gnome/gitlab/ranchester/Mirdorph/ui/settings_window.ui")
-class MirdorphSettingsWindow(Handy.PreferencesWindow):
+class MirdorphSettingsWindow(Adw.PreferencesWindow):
     __gtype_name__ = "MirdorphSettingsWindow"
 
     _send_typing_switch: Gtk.Switch = Gtk.Template.Child()
 
     def __init__(self, *args, **kwargs):
-        Handy.PreferencesWindow.__init__(self, *args, **kwargs)
+        Adw.PreferencesWindow.__init__(self, *args, **kwargs)
         self._init_values()
 
     def _init_values(self):
