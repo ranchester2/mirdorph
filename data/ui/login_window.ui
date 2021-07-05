@@ -48,6 +48,7 @@
             <child>
               <object class="GtkBox">
                 <property name="visible">True</property>
+                <property name="vexpand">True</property>
                 <property name="valign">GTK_ALIGN_CENTER</property>
                 <property name="orientation">vertical</property>
                 <property name="margin">10</property>
@@ -133,8 +134,6 @@
               </object>
               <packing>
                 <property name="pack-type">end</property>
-                <property name="fill">True</property>
-                <property name="expand">True</property>
               </packing>
             </child>
           </object>
@@ -170,6 +169,7 @@
                 <child>
                   <object class="HdyClamp">
                     <property name="visible">True</property>
+                    <property name="vexpand">True</property>
                     <child>
                       <object class="GtkBox">
                         <property name="visible">True</property>
@@ -220,8 +220,6 @@
                   </object>
                   <packing>
                     <property name="pack-type">end</property>
-                    <property name="fill">True</property>
-                    <property name="expand">True</property>
                   </packing>
                 </child>
               </object>
@@ -305,8 +303,6 @@
                             </child>
                           </object>
                           <packing>
-                            <property name="expand">False</property>
-                            <property name="fill">False</property>
                             <property name="position">0</property>
                           </packing>
                         </child>
@@ -381,8 +377,6 @@
                   </object>
                   <packing>
                     <property name="pack-type">end</property>
-                    <property name="fill">True</property>
-                    <property name="expand">True</property>
                   </packing>
                 </child>
               </object>
@@ -416,12 +410,8 @@
                   <!-- Ideally bin, but that is an abstract class -->
                   <object class="GtkBox" id="_login_graphical_page_webview_container">
                     <property name="visible">True</property>
+                    <property name="vexpand">True</property>
                   </object>
-                  <packing>
-                    <property name="pack-type">end</property>
-                    <property name="fill">True</property>
-                    <property name="expand">True</property>
-                  </packing>
                 </child>
               </object>
             </child>

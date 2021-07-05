@@ -22,7 +22,6 @@
                 <property name="name">message-entry-button-box</property>
                 <property name="spacing">5</property>
                 <property name="valign">GTK_ALIGN_CENTER</property>
-                <property name="orientation">horizontal</property>
                 <child>
                   <object class="GtkToggleButton" id="_attachment_togglebutton">
                     <property name="visible">True</property>
@@ -45,10 +44,6 @@
                     <signal name="activate" handler="_on_message_entry_activate" />
                     <signal name="changed" handler="_on_message_entry_changed" />
                   </object>
-                  <packing>
-                    <property name="expand">True</property>
-                    <property name="fill">True</property>
-                  </packing>
                 </child>
                 <child>
                   <object class="GtkButton" id="_emoji_button">

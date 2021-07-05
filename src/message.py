@@ -204,7 +204,7 @@ class MirdorphMessage(Gtk.ListBoxRow):
 
         self._message_content_wid = MessageContent(self._disc_message.content)
         self._message_content_wid.show()
-        self._message_content_container.pack_start(self._message_content_wid, True, True, 0)
+        self._message_content_container.pack_start(self._message_content_wid, False, False, 0)
 
         if self.merged:
             self.merge()
@@ -218,13 +218,13 @@ class MirdorphMessage(Gtk.ListBoxRow):
                 att_widg = ImageAttachment(att, self._disc_message.channel.id)
                 att_widg.set_halign(Gtk.Align.START)
                 att_widg.show()
-                self._attachment_box.pack_start(att_widg, True, True, 0)
+                self._attachment_box.pack_start(att_widg, False, False, 0)
             # If an attachment type is unsupported yet, it becomes generic
             else:
                 att_widg = GenericAttachment(att, self._disc_message.channel.id)
                 att_widg.set_halign(Gtk.Align.START)
                 att_widg.show()
-                self._attachment_box.pack_start(att_widg, True, True, 0)
+                self._attachment_box.pack_start(att_widg, False, False, 0)
             # There is atleast one attachment, and it looks better with a top margin,
             # not set from the start, as it looks weird with regular messages, and hiding
             # it is complicated with exports.
@@ -232,7 +232,7 @@ class MirdorphMessage(Gtk.ListBoxRow):
 
         for export in self._message_content_wid.exports:
             export.show()
-            self._attachment_box.pack_start(export, True, True, 0)
+            self._attachment_box.pack_start(export, False, False, 0)
 
     def merge(self):
         # Width = Avatar Size (32)

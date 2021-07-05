@@ -51,6 +51,7 @@
         <child>
           <object class="GtkBox">
             <property name="visible">True</property>
+            <property name="vexpand">True</property>
             <property name="orientation">vertical</property>
             <child>
               <object class="GtkBox">
@@ -171,10 +172,6 @@
               </object>
             </child>
           </object>
-          <packing>
-            <property name="expand">True</property>
-            <property name="pack-type">end</property>
-          </packing>
         </child>
       </object>
     </child>
