@@ -67,7 +67,9 @@ class ChannelPropertiesWindow(Adw.Window):
     @Gtk.Template.Callback()
     def _on_last_activity_button_activate(self, button):
         time = self._last_activity_button.get_label()
-        Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD).set_text(time, -1)
+
+        clipboard = self.get_clipboard()
+        clipboard.set(time)
 
     @Gtk.Template.Callback()
     def _on_statistics_button_activate(self, button):
