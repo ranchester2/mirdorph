@@ -178,7 +178,7 @@ class MirdorphChannelSidebar(Gtk.Box):
         )
         search_action = Gio.PropertyAction.new("search-guilds", self._guild_list_search_bar, "search-mode-enabled")
         self.app.add_action(search_action)
-        self.app.set_accels_for_action("app.search-guilds", ["<Primary>k"])
+        self.app.set_accels_for_action("app.search-guilds", ["<Control>k"])
 
         self._guild_list_search_bar.connect_entry(self._guild_list_search_entry)
         self._search_list.set_header_func(separator_listbox_header_func)

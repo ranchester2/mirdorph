@@ -63,7 +63,7 @@ class Application(Gtk.Application):
             {
                 "name": "settings",
                 "func": self.show_settings_window,
-                "accel": "<Primary>comma"
+                "accel": "<Control>comma"
             },
             {
                 "name": "about",
