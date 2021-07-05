@@ -130,7 +130,7 @@ class ImageAttachmentLoadingTemplate(Gtk.Bin):
         self._spinner.start()
 
 
-class ImageAttachment(MirdorphAttachment, Gtk.Bin):
+class ImageAttachment(MirdorphAttachment, Gtk.EventBox):
     __gtype_name__ = "ImageAttachment"
 
     __gsignals__ = {
@@ -143,8 +143,9 @@ class ImageAttachment(MirdorphAttachment, Gtk.Bin):
     # Attachment and channel_id arguments captured to not pass it to widget gtk
     def __init__(self, attachment, channel_id: int, *args, **kwargs):
         MirdorphAttachment.__init__(self, attachment, channel_id)
-        Gtk.Bin.__init__(self, *args, **kwargs)
+        Gtk.EventBox.__init__(self, *args, **kwargs)
         self.app = Gio.Application.get_default()
+        self._fully_loaded = False
         self.image_save_path = self.get_image_save_path(
             self._attachment_disc.id,
             self._attachment_disc.filename
@@ -154,8 +155,8 @@ class ImageAttachment(MirdorphAttachment, Gtk.Bin):
         self._image_stack.show()
         self.add(self._image_stack)
 
-        # Not GtkGestureSingle because it simply doesn't work on its own.
-        self.connect("button-press-event", self._on_clicked)
+        self._gesture = Gtk.GestureSingle(widget=self)
+        self._gesture.connect("begin", self._on_clicked)
 
         self._do_template_render()
         self._do_full_render_at()
@@ -173,10 +174,11 @@ class ImageAttachment(MirdorphAttachment, Gtk.Bin):
         )
 
     def _on_clicked(self, guesture: Gtk.GestureSingle, sequence):
-        context = self.app.retrieve_inner_window_context(
-            self._channel_id
-        )
-        context.show_image_viewer(self._attachment_disc)
+        if self._fully_loaded:
+            context = self.app.retrieve_inner_window_context(
+                self._channel_id
+            )
+            context.show_image_viewer(self._attachment_disc)
 
     def _calculate_required_size(self) -> tuple:
         """
@@ -236,17 +238,13 @@ class ImageAttachment(MirdorphAttachment, Gtk.Bin):
             self._real_image = Gtk.Image.new_from_pixbuf(pixbuf)
             self._real_image.show()
 
-            # This seems really weird, but for ::button-press-event to work
-            # we need to create a gesture for this widget. It is completely
-            # unrelated.
-            # However this is still quite useful as we can no that on_click
-            # only happens after the image has been downloaded.
-            self._gesture = Gtk.GestureSingle(widget=self._real_image)
-
             self._image_stack.add(self._real_image)
             self._image_stack.set_visible_child(self._real_image)
 
             self.emit("image_fully_loaded")
+
+    def do_image_fully_loaded(self):
+        self._fully_loaded = True
 
 def get_attachment_type(attachment: discord.Attachment) -> str:
     """
