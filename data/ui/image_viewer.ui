@@ -132,7 +132,6 @@
             <child type="overlay">
               <object class="GtkEventBox" id="_mouse_hover_eventbox">
                 <property name="visible">True</property>
-                <signal name="motion-notify-event" handler="_on_motion" />
                 <child>
                   <object class="GtkRevealer" id="_catalog_buttons_revealer">
                     <property name="visible">True</property>

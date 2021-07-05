@@ -62,14 +62,14 @@ class ImageViewer(Handy.Flap):
 
         self.insert_action_group("image-viewer", self._image_viewer_action_group)
 
-        # Doesn't work by default
         self._mouse_hover_eventbox.set_events(Gdk.EventMask.POINTER_MOTION_MASK)
+        self._motion_event_controller = Gtk.EventControllerMotion(widget=self._mouse_hover_eventbox)
+        self._motion_event_controller.connect("motion", self._on_motion)
 
     @Gtk.Template.Callback()
     def _on_back_button_clicked(self, button: Gtk.Button):
         self.context.exit_image_viewer()
 
-    @Gtk.Template.Callback()
     def _on_motion(self, *args):
         def waiting_callback():
             if (self._last_show_catalog_button_time) + 3 >= time.time():
