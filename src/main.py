@@ -86,13 +86,13 @@ class Application(Gtk.Application):
                 )
 
     def do_activate(self):
-        stylecontext = Gtk.StyleContext()
         provider = Gtk.CssProvider()
         provider.load_from_resource(
             "/org/gnome/gitlab/ranchester/Mirdorph/ui/gtk_style.css"
         )
-        stylecontext.add_provider_for_screen(
-            Gdk.Screen.get_default(),
+        display = Gdk.Display.get_default()
+        Gtk.StyleContext.add_provider_for_screen(
+            Gdk.Display.get_default(),
             provider,
             Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
         )
