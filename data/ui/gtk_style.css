@@ -136,11 +136,11 @@ list.guild-list > row, list.guild-list > row list > row { border-color: alpha(#c
 
 list.guild-list > row:not(:last-child) { border-width: 1px 1px 0px 1px; }
 
-list.guild-list > row:first-child, list.guild-list > row.expander:first-child row.header, list.guild-list > row.expander:checked, list.guild-list > row.expander:checked row.header, list.guild-list > row.expander:checked + row, list.guild-list > row.expander:checked + row.expander row.header { border-top-left-radius: 0px; -gtk-outline-top-left-radius: 0px; border-top-right-radius: 0px; -gtk-outline-top-right-radius: 0px; }
+list.guild-list > row:first-child, list.guild-list > row.expander:first-child row.header, list.guild-list > row.expander:checked, list.guild-list > row.expander:checked row.header, list.guild-list > row.expander:checked + row, list.guild-list > row.expander:checked + row.expander row.header { border-top-left-radius: 0px; border-top-right-radius: 0px; }
 
 list.guild-list > row:last-child, list.guild-list > row.checked-expander-row-previous-sibling, list.guild-list > row.expander:checked { border-width: 1px; }
 
-list.guild-list > row:last-child, list.guild-list > row.checked-expander-row-previous-sibling, list.guild-list > row.expander:checked, list.guild-list > row.expander:not(:checked):last-child row.header, list.guild-list > row.expander.checked-expander-row-previous-sibling:not(:checked) row.header, list.guild-list > row.expander.empty:checked row.header, list.guild-list > row.expander list.nested > row:last-child { border-bottom-left-radius: 0px; -gtk-outline-bottom-left-radius: 0px; border-bottom-right-radius: 0px; -gtk-outline-bottom-right-radius: 0px; }
+list.guild-list > row:last-child, list.guild-list > row.checked-expander-row-previous-sibling, list.guild-list > row.expander:checked, list.guild-list > row.expander:not(:checked):last-child row.header, list.guild-list > row.expander.checked-expander-row-previous-sibling:not(:checked) row.header, list.guild-list > row.expander.empty:checked row.header, list.guild-list > row.expander list.nested > row:last-child { border-bottom-left-radius: 0px; border-bottom-right-radius: 0px; }
 
 list.guild-list > row.expander:checked:not(:first-child), list.guild-list > row.expander:checked + row { margin-top: 6px; }
 
