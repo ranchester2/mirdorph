@@ -45,12 +45,6 @@ class TosNotice(Gtk.MessageDialog):
 
         self.get_widget_for_response(Gtk.ResponseType.CANCEL).grab_focus()
 
-        # If the secondary-text is long, even though it rewraps, the window
-        # is first resized to the size it would be if the text couldn't wrap.
-        # So we need to resize it again after that.
-        self.set_resizable(True)
-        self.resize(450, 1)
-
     def _on_adj_value_changed(self, adj: Gtk.Adjustment):
         bottom = adj.get_upper() - adj.get_page_size()
         if (abs(adj.get_value() - bottom) < sys.float_info.epsilon):
