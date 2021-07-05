@@ -4,6 +4,7 @@ data/ui/channel_inner_window.ui
 data/ui/channel_properties_window.ui
 data/ui/context_menu.ui
 data/ui/channel_sidebar.ui
+data/ui/context_error_dialog.ui
 data/ui/context_menu.ui
 data/ui/general_menu.ui
 data/ui/image_viewer.ui

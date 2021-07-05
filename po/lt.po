@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mirdorph 0.10.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-07-01 12:35+0300\n"
+"POT-Creation-Date: 2021-07-05 17:43+0300\n"
 "PO-Revision-Date: 2021-07-01 12:00+0300\n"
 "Last-Translator: Raidro Manchester <raibo.quadrofus@gmail.com>\n"
 "Language-Team: Lithuanian <komp_lt@konferencijos.lt>\n"
@@ -26,9 +26,9 @@ msgstr "Pasirinkite failą įkelimui"
 msgid "Insufficient permissions"
 msgstr "Nepakankamos teisės"
 
-#: ../src/message_entry_bar.py:89
-msgid "Failure sending message"
-msgstr "Klaida siunčiant žinutę"
+#: ../src/message_entry_bar.py:90
+msgid "Sending Message Failed"
+msgstr "Nepavyko Siūsti Žinutės"
 
 #: ../src/typing_indicator.py:61
 #, python-format
@@ -45,8 +45,12 @@ msgid "Noone is typing."
 msgstr "Niekas nerašo."
 
 #: ../src/discord_web_grabber.py:46
-msgid "Login failed, make sure the window isn't narrow."
-msgstr "Prisijungimas nepavyko, įsitikinkite, kad langas nėra siauras."
+msgid "Make sure the window isn't narrow."
+msgstr "Įsitikinkite, kad langas nėra siauras."
+
+#: ../data/ui/context_error_dialog.ui:27
+msgid "OK"
+msgstr "OK"
 
 #: ../data/ui/tos_notice.ui:6
 msgid "Critical Warning"
@@ -97,11 +101,19 @@ msgstr "Nežinoma"
 msgid "Statistics"
 msgstr "Statistika"
 
-#: ../data/ui/channel_sidebar.ui:62
+#: ../data/ui/channel_sidebar.ui:63
+msgid "No Results Found"
+msgstr "Nerasta Rezultatų"
+
+#: ../data/ui/channel_sidebar.ui:64
+msgid "Try a different search"
+msgstr "Bandykite kitą paiešką"
+
+#: ../data/ui/channel_sidebar.ui:102
 msgid "Guilds"
 msgstr "Serveriai"
 
-#: ../data/ui/channel_sidebar.ui:71
+#: ../data/ui/channel_sidebar.ui:111
 msgid "People"
 msgstr "Žmonės"
 
@@ -184,10 +196,6 @@ msgstr "Elektroninio Pašto Adresas"
 msgid "Password"
 msgstr "Slaptažodis"
 
-#: ../data/ui/login_window.ui:442 ../data/ui/main_window.ui:130
-msgid "Default Notification"
-msgstr "Standartinis Pranešimas"
-
 #: ../data/ui/about_dialog.ui.in:11
 msgid "This application is not affiliated with or endorsed by Discord, Inc."
 msgstr "Ši programa nėra susijusi su Discord, Inc. ar patvirtinta."
@@ -216,13 +224,13 @@ msgstr "Nuslinkti į apačią"
 msgid "Choose a channel"
 msgstr "Pasirinkite kanalą"
 
-#: ../data/ui/main_window.ui:68
+#: ../data/ui/main_window.ui:73
+msgid "Connecting to Discord"
+msgstr "Jungiamai prie Discord"
+
+#: ../data/ui/main_window.ui:144
 msgid "Menu"
 msgstr "Meniu"
-
-#: ../data/ui/main_window.ui:121
-msgid "Title"
-msgstr "Titulas"
 
 #: ../data/ui/image_viewer.ui:15
 msgid "Open with..."
