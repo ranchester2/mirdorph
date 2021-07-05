@@ -266,6 +266,7 @@
                 <child>
                   <object class="GtkOverlay">
                     <property name="visible">True</property>
+                    <property name="vexpand">True</property>
                     <child type="overlay">
                       <object class="GtkInfoBar">
                         <property name="visible">True</property>
