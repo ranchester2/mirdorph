@@ -128,12 +128,14 @@ class MirdorphLoginWindow(Adw.ApplicationWindow):
                 self._token_grabber
             )
         # self._token_grabber = DiscordGrabber()
-        self._token_grabber = Gtk.Label(label="Graphical login temporarily disabled while WebKitgtk doesn't support gtk4")
+        self._token_grabber = Gtk.Label(
+            label="Graphical login temporarily disabled while WebKitgtk doesn't support gtk4",
+            vexpand=True
+        )
         # self._token_grabber.connect("login_complete", self._on_web_login_complete)
         # self._token_grabber.connect("login_failed", self._on_web_login_failed)
         self._token_grabber.show()
-        self._login_graphical_page_webview_container.pack_start(
-            self._token_grabber, True, True, 0)
+        self._login_graphical_page_webview_container.append(self._token_grabber)
 
     def _show_tos_notice(self):
         notice = TosNotice(modal=True, transient_for=self)

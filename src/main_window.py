@@ -54,9 +54,9 @@ class MirdorphMainWindow(Adw.ApplicationWindow, EventReceiver):
         self._empty_inner_window.show()
         self.context_stack.add_child(self._empty_inner_window)
 
-        self._channel_sidebar = MirdorphChannelSidebar(channel_search_button=self._channel_search_button)
+        self._channel_sidebar = MirdorphChannelSidebar(channel_search_button=self._channel_search_button, vexpand=True)
         self._channel_sidebar.show()
-        self._flap_box.pack_end(self._channel_sidebar, True, True, 0)
+        self._flap_box.append(self._channel_sidebar)
 
         GLib.timeout_add(150, self._progress_bar_target)
 

@@ -102,22 +102,22 @@ class ChannelInnerWindow(Gtk.Box):
             self._image_viewer.show()
             self._main_deck.append(self._image_viewer)
 
-            self._message_view = MessageView(context=self)
+            self._message_view = MessageView(context=self, vexpand=True)
             self._message_view.show()
             # It is needed to check if now the scroll should be handled differently
             # if for example the user just sent a message, for example to
             # always scroll to the bottom then.
             # Users are expected to directly read, set, and get this attribute.
             self.scroll_for_msg_send = False
-            self._content_box.pack_start(self._message_view, True, True, 0)
+            self._content_box.append(self._message_view)
 
-            self._message_entry_bar = MessageEntryBar(context=self)
+            self._message_entry_bar = MessageEntryBar(context=self, vexpand=True, valign=Gtk.Align.END)
             self._message_entry_bar.show()
             # If the attachment tray "revealment" mode for handling scrolling is
             # used (smooth animation), users of this are expected to directly set it
             self.attachment_tray_scroll_mode = False
-            self._content_box.pack_end(self._message_entry_bar, False, False, 0)
-            self._content_box.pack_end(Gtk.Separator(visible=True), False, False, 0)
+            self._content_box.append(Gtk.Separator())
+            self._content_box.append(self._message_entry_bar)
 
             self._msg_sending_scrl_mode_en = False
 

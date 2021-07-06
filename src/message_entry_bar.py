@@ -48,7 +48,7 @@ class MessageEntryBar(Gtk.Box, EventReceiver):
         self._add_extra_attachment_button = MessageEntryBarAttachment(
             parent_for_sign=self, add_mode=True)
         self._add_extra_attachment_button.show()
-        self._attachment_container.pack_start(self._add_extra_attachment_button, False, False, 0)
+        self._attachment_container.append(self._add_extra_attachment_button)
 
         self.app.confman.connect("setting-changed", self._on_confman_setting_changed)
         self._should_send_typing_events = self.app.confman.get_value("send_typing_events")
