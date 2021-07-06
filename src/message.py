@@ -73,24 +73,17 @@ class UserMessageAvatar(Adw.Avatar):
 
         GLib.idle_add(self._set_avatar_gtk_target)
 
-    def _load_image_func(self, size):
-        try:
-            pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(
-                str(self._avatar_icon_path),
-                width=size,
-                height=size,
-                preserve_aspect_ratio=False
-            )
-        except GLib.Error as e:
-            logging.warning(
-                f"encountered unkown avatar error as {e}. Probably loading partially downloaded file."
-            )
-            pixbuf = None
-        return pixbuf
-
     def _set_avatar_gtk_target(self):
         if self._avatar_icon_path.is_file():
-            self.set_image_load_func(self._load_image_func)
+            try:
+                image = Gtk.Image.new_from_file(
+                    str(self._avatar_icon_path)
+                )
+                self.set_custom_image(image.get_paintable())
+            except GLib.Error as e:
+                logging.warning(
+                    f"encountered unkown avatar error as {e}. Probably loading partially downloaded file."
+                )
 
 class UsernameLabel(Gtk.Label):
     __gtype_name__ = "UsernameLabel"
@@ -252,5 +245,5 @@ class MirdorphMessage(Gtk.ListBoxRow):
 
         if not hasattr(self, "_avatar"):
             self._avatar = UserMessageAvatar(self.author, margin_top=3)
-            self._avatar_box.append(self._avatar, False, False, 0)
+            self._avatar_box.append(self._avatar)
         self.merged = False
