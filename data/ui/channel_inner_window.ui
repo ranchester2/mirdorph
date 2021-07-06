@@ -69,7 +69,7 @@
                     </child>
                   </object>
                 </child>
-                <child>
+                <child type="end">
                   <object class="GtkMenuButton" id="_context_menu_button">
                     <property name="popover">_context_menu_popover</property>
                     <child>
@@ -78,9 +78,6 @@
                       </object>
                     </child>
                   </object>
-                  <packing>
-                    <property name="pack-type">end</property>
-                  </packing>
                 </child>
               </object>
             </child>

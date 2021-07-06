@@ -222,7 +222,7 @@
                         </style>
                       </object>
                     </child>
-                    <child>
+                    <child type="end">
                       <object class="GtkButton" id="_login_password_submit_button">
                         <property name="action-name">login.submit-password</property>
                         <property name="label" translatable="yes">Submit</property>
@@ -230,9 +230,6 @@
                           <class name="suggested-action" />
                         </style>
                       </object>
-                      <packing>
-                        <property name="pack-type">end</property>
-                      </packing>
                     </child>
                   </object>
                 </child>

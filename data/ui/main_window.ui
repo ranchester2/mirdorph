@@ -113,7 +113,7 @@
                                 </style>
                               </object>
                             </child>
-                            <child>
+                            <child type="end">
                               <object class="GtkButton" id="_add_server_button">
                                 <child>
                                   <object class="GtkImage">
@@ -124,12 +124,8 @@
                                   <class name="image-button"/>
                                 </style>
                               </object>
-                              <packing>
-                                <property name="pack-type">end</property>
-                                <property name="position">1</property>
-                              </packing>
                             </child>
-                            <child>
+                            <child type="end">
                               <object class="GtkMenuButton">
                                 <property name="tooltip-text" translatable="yes">Menu</property>
                                 <property name="popover">_main_menu_popover</property>
@@ -139,10 +135,6 @@
                                   </object>
                                 </child>
                               </object>
-                              <packing>
-                                <property name="pack-type">end</property>
-                                <property name="position">0</property>
-                              </packing>
                             </child>
                           </object>
                         </child>

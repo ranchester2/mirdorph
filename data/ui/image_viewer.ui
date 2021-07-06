@@ -38,7 +38,7 @@
             </style>
           </object>
         </child>
-        <child>
+        <child type="end">
           <object class="GtkButton">
             <property name="action-name">image-viewer.fullscreen</property>
             <child>
@@ -50,12 +50,8 @@
               <class name="image-button" />
             </style>
           </object>
-          <packing>
-            <property name="pack-type">end</property>
-            <property name="position">2</property>
-          </packing>
         </child>
-        <child>
+        <child type="end">
           <object class="GtkMenuButton">
             <property name="popover">_more_actions_popover</property>
             <child>
@@ -67,9 +63,6 @@
               <class name="image-button" />
             </style>
           </object>
-          <packing>
-            <property name="pack-type">end</property>
-          </packing>
         </child>
       </object>
     </child>
