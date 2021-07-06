@@ -180,7 +180,7 @@ class MirdorphMessage(Gtk.ListBoxRow):
     _avatar_box: Gtk.Box = Gtk.Template.Child()
 
     _username_container: Gtk.Box = Gtk.Template.Child()
-    _message_content_container: Gtk.Bin = Gtk.Template.Child()
+    _message_content_container: Adw.Bin = Gtk.Template.Child()
 
     _attachment_box: Gtk.Box = Gtk.Template.Child()
 

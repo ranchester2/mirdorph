@@ -111,7 +111,7 @@ class GenericAttachment(Gtk.ListBox, MirdorphAttachment):
         self._finished_download = True
         GLib.idle_add(lambda *_ : self._download_button_image.set_from_icon_name("emblem-ok-symbolic", 4))
 
-class ImageAttachmentLoadingTemplate(Gtk.Bin):
+class ImageAttachmentLoadingTemplate(Adw.Bin):
     """
     Template of a still "loading" image, it is designed
     in this way because the template and the final result
@@ -121,7 +121,7 @@ class ImageAttachmentLoadingTemplate(Gtk.Bin):
     __gtype_name__ = "ImageAttachmentLoadingTemplate"
 
     def __init__(self, width: int, height: int, *args, **kwargs):
-        Gtk.Bin.__init__(self, width_request=width, height_request=height, *args, **kwargs)
+        Adw.Bin.__init__(self, width_request=width, height_request=height, *args, **kwargs)
         self.get_style_context().add_class("image-attachment-template")
         self._spinner = Gtk.Spinner(halign=Gtk.Align.CENTER, valign=Gtk.Align.CENTER, 
             width_request=48, height_request=48)
@@ -130,7 +130,7 @@ class ImageAttachmentLoadingTemplate(Gtk.Bin):
         self._spinner.start()
 
 
-class ImageAttachment(MirdorphAttachment, Gtk.Bin):
+class ImageAttachment(MirdorphAttachment, Adw.Bin):
     __gtype_name__ = "ImageAttachment"
 
     __gsignals__ = {
@@ -143,7 +143,7 @@ class ImageAttachment(MirdorphAttachment, Gtk.Bin):
     # Attachment and channel_id arguments captured to not pass it to widget gtk
     def __init__(self, attachment, channel_id: int, *args, **kwargs):
         MirdorphAttachment.__init__(self, attachment, channel_id)
-        Gtk.Bin.__init__(self, *args, **kwargs)
+        Adw.Bin.__init__(self, *args, **kwargs)
         self.app = Gio.Application.get_default()
         self._fully_loaded = False
         self.image_save_path = self.get_image_save_path(

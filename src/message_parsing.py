@@ -143,9 +143,9 @@ def build_widget_list(message_string: str) -> list:
     return widget_list
 
 
-class MessageComponent(Gtk.Bin):
+class MessageComponent(Adw.Bin):
     def __init__(self, component_content: str, component_type: ComponentType, *args, **kwargs):
-        Gtk.Bin.__init__(self, *args, **kwargs)
+        Adw.Bin.__init__(self, *args, **kwargs)
         self.component_type = component_type
         self._raw_component_content = component_content
         # Exports are based on non-sescaped, non-processed content
