@@ -19,7 +19,7 @@ import keyring
 import logging
 import threading
 import requests
-from gi.repository import Adw, Gtk, Gio, GLib
+from gi.repository import Adw, Gtk, Gio, GLib, Pango
 #from .discord_web_grabber import DiscordGrabber
 
 
@@ -130,7 +130,8 @@ class MirdorphLoginWindow(Adw.ApplicationWindow):
         # self._token_grabber = DiscordGrabber()
         self._token_grabber = Gtk.Label(
             label="Graphical login temporarily disabled while WebKitgtk doesn't support gtk4",
-            vexpand=True
+            vexpand=True,
+            ellipsize=Pango.EllipsizeMode.END
         )
         # self._token_grabber.connect("login_complete", self._on_web_login_complete)
         # self._token_grabber.connect("login_failed", self._on_web_login_failed)
@@ -150,12 +151,12 @@ class MirdorphLoginWindow(Adw.ApplicationWindow):
         self._toplevel_deck.set_visible_child(self._second_stage_stack)
         self._second_stage_stack.set_visible_child(self._login_token_page)
         self._login_token_entry.grab_focus()
-        self._login_token_entry_button.grab_default()
+        self.set_default_widget(self._login_token_entry_button)
 
     def _on_password_login(self, *args):
         self._toplevel_deck.set_visible_child(self._second_stage_stack)
         self._second_stage_stack.set_visible_child(self._login_password_page)
-        self._login_password_submit_button.grab_default()
+        self.set_default_widget(self._login_password_submit_button)
 
     def _on_graphical_login(self, *args):
         self._toplevel_deck.set_visible_child(self._second_stage_stack)

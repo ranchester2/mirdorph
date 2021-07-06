@@ -132,6 +132,8 @@
                 <property name="orientation">vertical</property>
                 <child>
                   <object class="AdwHeaderBar">
+                    <property name="show-start-title-buttons">False</property>
+                    <property name="show-end-title-buttons">False</property>
                     <property name="title-widget">
                       <object class="AdwWindowTitle">
                         <property name="title" translatable="yes">Enter Credentials</property>
@@ -207,6 +209,8 @@
                 <property name="orientation">vertical</property>
                 <child>
                   <object class="AdwHeaderBar">
+                    <property name="show-start-title-buttons">False</property>
+                    <property name="show-end-title-buttons">False</property>
                     <property name="title-widget">
                       <object class="AdwWindowTitle">
                         <property name="title" translatable="yes">Enter Credentials</property>
@@ -245,7 +249,7 @@
                         <property name="message-type">warning</property>
                         <property name="show-close-button">True</property>
                         <signal name="response" handler="_on_password_warning_bar_response" />
-                        <child internal-child="content_area">
+                        <child>
                           <object class="GtkBox">
                             <property name="spacing">16</property>
                             <child>
@@ -268,9 +272,6 @@
                               </object>
                             </child>
                           </object>
-                          <packing>
-                            <property name="position">0</property>
-                          </packing>
                         </child>
                       </object>
                     </child>
@@ -344,6 +345,8 @@
                 <property name="orientation">vertical</property>
                 <child>
                   <object class="AdwHeaderBar">
+                    <property name="show-start-title-buttons">False</property>
+                    <property name="show-end-title-buttons">False</property>
                     <property name="title-widget">
                       <object class="AdwWindowTitle">
                         <property name="title" translatable="yes">Enter Credentials</property>
