@@ -122,7 +122,7 @@ class ImageAttachmentLoadingTemplate(Adw.Bin):
 
     def __init__(self, width: int, height: int, *args, **kwargs):
         Adw.Bin.__init__(self, width_request=width, height_request=height, *args, **kwargs)
-        self.get_style_context().add_class("image-attachment-template")
+        self.add_css_class("image-attachment-template")
         self._spinner = Gtk.Spinner(halign=Gtk.Align.CENTER, valign=Gtk.Align.CENTER, 
             width_request=48, height_request=48)
         self._spinner.show()

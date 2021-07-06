@@ -104,7 +104,7 @@ class UsernameLabel(Gtk.Label):
 
         self.set_use_markup(True)
         self.set_xalign(0.0)
-        self.get_style_context().add_class("username")
+        self.add_css_class("username")
 
         self.set_label(escape_xml(self._author.name))
 
@@ -237,7 +237,7 @@ class MirdorphMessage(Gtk.ListBoxRow):
     def merge(self):
         # Width = Avatar Size (32)
         self._avatar_box.props.width_request = 32
-        self.get_style_context().add_class("merged-discord-message")
+        self.add_css_class("merged-discord-message")
 
         if hasattr(self, "_username_label"):
             self._username_container.remove(self._username_label)
@@ -249,7 +249,7 @@ class MirdorphMessage(Gtk.ListBoxRow):
 
     def unmerge(self):
         self._avatar_box.props.width_request = -1
-        self.get_style_context().remove_class("merged-discord-message")
+        self.remove_css_class("merged-discord-message")
 
         if not hasattr(self, "_username_label"):
             self._username_label = UsernameLabel(self.author, self._disc_message.guild)

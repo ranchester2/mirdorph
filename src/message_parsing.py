@@ -163,6 +163,6 @@ class MessageComponent(Adw.Bin):
             self._text_label.show()
 
             if self.component_type == ComponentType.QUOTE:
-                self._text_label.get_style_context().add_class("quote")
+                self._text_label.add_css_class("quote")
 
             self.set_child(self._text_label)

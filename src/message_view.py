@@ -54,7 +54,7 @@ class MessageView(Gtk.Overlay, EventReceiver):
         self._loading_history = False
 
         self._message_listbox = Gtk.ListBox(hexpand=True, selection_mode=Gtk.SelectionMode.NONE)
-        self._message_listbox.get_style_context().add_class("message-history")
+        self._message_listbox.add_css_class("message-history")
         # With nearly empty channel, messages should not pile up on top
         self._message_listbox.set_valign(Gtk.Align.END)
         # It is better to always ensure the order is correct, instead of manually fidling with

@@ -125,7 +125,7 @@ class MessageEntryBar(Gtk.Box, EventReceiver):
         self._message_entry.set_text("")
 
         self._send_button.set_sensitive(False)
-        self._send_button.get_style_context().remove_class("suggested-action")
+        self._send_button.remove_css_class("suggested-action")
 
     @Gtk.Template.Callback()
     def _on_send_button_clicked(self, entry):
@@ -163,10 +163,10 @@ class MessageEntryBar(Gtk.Box, EventReceiver):
                     self._simulate_typing(),
                     self.app.discord_loop
                 )
-            self._send_button.get_style_context().add_class("suggested-action")
+            self._send_button.add_css_class("suggested-action")
         elif len(self.added_attachments_wid) < 2:
             self._send_button.set_sensitive(False)
-            self._send_button.get_style_context().remove_class("suggested-action")
+            self._send_button.remove_css_class("suggested-action")
 
     @Gtk.Template.Callback()
     def _on_revealer_reveal_child(self, revealer, param):
@@ -184,4 +184,4 @@ class MessageEntryBar(Gtk.Box, EventReceiver):
     def emulate_attachment_container_change(self):
         if len(self.added_attachments_wid) > 1:
             self._send_button.set_sensitive(True)
-            self._send_button.get_style_context().add_class("suggested-action")
+            self._send_button.add_css_class("suggested-action")
