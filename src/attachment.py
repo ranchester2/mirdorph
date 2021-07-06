@@ -130,7 +130,7 @@ class ImageAttachmentLoadingTemplate(Gtk.Bin):
         self._spinner.start()
 
 
-class ImageAttachment(MirdorphAttachment, Gtk.EventBox):
+class ImageAttachment(MirdorphAttachment, Gtk.Bin):
     __gtype_name__ = "ImageAttachment"
 
     __gsignals__ = {
@@ -143,7 +143,7 @@ class ImageAttachment(MirdorphAttachment, Gtk.EventBox):
     # Attachment and channel_id arguments captured to not pass it to widget gtk
     def __init__(self, attachment, channel_id: int, *args, **kwargs):
         MirdorphAttachment.__init__(self, attachment, channel_id)
-        Gtk.EventBox.__init__(self, *args, **kwargs)
+        Gtk.Bin.__init__(self, *args, **kwargs)
         self.app = Gio.Application.get_default()
         self._fully_loaded = False
         self.image_save_path = self.get_image_save_path(

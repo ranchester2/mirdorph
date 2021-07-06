@@ -33,7 +33,6 @@ class ImageViewer(Adw.Flap):
     _headerbar: Adw.HeaderBar = Gtk.Template.Child()
     _fullscreen_button_image: Gtk.Image = Gtk.Template.Child()
 
-    _mouse_hover_eventbox: Gtk.EventBox = Gtk.Template.Child()
     _catalog_buttons_revealer: Gtk.Revealer = Gtk.Template.Child()
     _catalog_forward: Gtk.Button = Gtk.Template.Child()
     _catalog_back: Gtk.Button = Gtk.Template.Child()
@@ -62,9 +61,8 @@ class ImageViewer(Adw.Flap):
 
         self.insert_action_group("image-viewer", self._image_viewer_action_group)
 
-        self._mouse_hover_eventbox.set_events(Gdk.EventMask.POINTER_MOTION_MASK)
         self._motion_event_controller = Gtk.EventControllerMotion()
-        self._mouse_hover_eventbox.add_controller(self._motion_event_controller)
+        self._picture_container.add_controller(self._motion_event_controller)
         self._motion_event_controller.connect("motion", self._on_motion)
 
     @Gtk.Template.Callback()
