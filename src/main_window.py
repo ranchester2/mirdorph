@@ -47,7 +47,7 @@ class MirdorphMainWindow(Adw.ApplicationWindow, EventReceiver):
             "/org/gnome/gitlab/ranchester/Mirdorph/ui/general_menu.ui"
         )
         menu = menu_builder.get_object("generalMenu")
-        self._main_menu_popover.bind_model(menu)
+        self._main_menu_popover.set_menu_model(menu)
 
         self._empty_inner_window = ChannelInnerWindow(empty=True)
         self.main_flap.connect("notify::folded", self._empty_inner_window.handle_flap_folding)

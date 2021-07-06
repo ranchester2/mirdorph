@@ -133,7 +133,7 @@ class ChannelInnerWindow(Gtk.Box):
             context_menu = context_menu_builder.get_object(
                 "contextMenu"
             )
-            self._context_menu_popover.bind_model(context_menu)
+            self._context_menu_popover.set_menu_model(context_menu)
         elif self.empty:
             self._context_headerbar.remove(self._context_menu_button)
             self._context_headerbar.remove(self._popout_button)
