@@ -101,6 +101,8 @@
                         <child>
                           <object class="AdwHeaderBar">
                             <property name="show-end-title-buttons">False</property>
+                            <!-- Hide the title widget by setting it to an empty label -->
+                            <property name="title-widget"><object class="GtkLabel"></object></property>
                             <child>
                               <object class="GtkToggleButton" id="_channel_search_button">
                                 <child>
