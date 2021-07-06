@@ -214,7 +214,7 @@ class ChannelInnerWindow(Gtk.Box):
             icon_name="org.gnome.gitlab.ranchester.Mirdorph",
             title=f"Mirdorph - #{self.channel_disc.name}"
         )
-        self._popout_window.connect("delete-event", lambda w, e : self.popin())
+        self._popout_window.connect("close-request", lambda w : self.popin())
         self._popout_window.set_child(self)
         self.do_first_see()
         self._popout_window.present()
