@@ -20,7 +20,7 @@ import subprocess
 import asyncio
 import threading
 from pathlib import Path
-from gi.repository import Gtk, Gdk, GLib, Gio, Adw
+from gi.repository import Adw, Gtk, Gdk, GLib, Gio
 from .atkpicture import AtkPicture
 from .attachment import ImageAttachment, AttachmentType, get_attachment_type
 

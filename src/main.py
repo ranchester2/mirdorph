@@ -20,7 +20,7 @@ import shutil
 import keyring
 import asyncio
 import discord.ext.commands
-from gi.repository import Gtk, Gdk, GLib, Gio, Adw
+from gi.repository import Adw, Gtk, Gdk, GLib, Gio
 from pathlib import Path
 from .login_window import MirdorphLoginWindow
 from .main_window import MirdorphMainWindow

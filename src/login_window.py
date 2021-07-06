@@ -19,7 +19,7 @@ import keyring
 import logging
 import threading
 import requests
-from gi.repository import Gtk, Gio, GLib, Adw
+from gi.repository import Adw, Gtk, Gio, GLib
 #from .discord_web_grabber import DiscordGrabber
 
 

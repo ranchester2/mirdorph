@@ -19,7 +19,7 @@ import re
 import gi
 import html2pango
 import mistune
-from gi.repository import Gtk, Pango
+from gi.repository import Adw, Gtk, Pango
 from enum import Enum
 from .link_preview import LinkPreviewExport
 

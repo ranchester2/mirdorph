@@ -18,7 +18,7 @@ import logging
 import threading
 import discord
 import sys
-from gi.repository import Gtk, Gio, GLib, Adw
+from gi.repository import Adw, Gtk, Gio, GLib
 from .event_receiver import EventReceiver
 from .message import MirdorphMessage
 from .typing_indicator import TypingIndicator

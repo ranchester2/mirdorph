@@ -18,7 +18,7 @@ import logging
 import discord
 import sys
 from gettext import gettext as _
-from gi.repository import Gtk, Gio, Adw
+from gi.repository import Adw, Gtk, Gio
 from .channel_properties_window import ChannelPropertiesWindow
 from .message_view import MessageView
 from .message_entry_bar import MessageEntryBar

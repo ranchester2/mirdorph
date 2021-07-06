@@ -20,7 +20,7 @@ import discord
 import os
 from pathlib import Path
 from xml.sax.saxutils import escape as escape_xml
-from gi.repository import Gtk, Gio, GLib, Gdk, GdkPixbuf, Adw
+from gi.repository import Adw, Gtk, Gio, GLib, Gdk, GdkPixbuf
 from .attachment import GenericAttachment, ImageAttachment, AttachmentType, get_attachment_type
 from .message_parsing import MessageComponent, calculate_msg_parts
 

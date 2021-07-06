@@ -18,7 +18,7 @@ import logging
 import threading
 import queue
 import time
-from gi.repository import Gtk, GLib, Adw
+from gi.repository import Adw, Gtk, GLib
 from .event_receiver import EventReceiver
 from .channel_inner_window import ChannelInnerWindow
 from .channel_sidebar import MirdorphChannelSidebar

@@ -14,7 +14,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import discord
-from gi.repository import Gio, Gtk, Adw
+from gi.repository import Gio, Gtk
 
 
 class EventReceiver:

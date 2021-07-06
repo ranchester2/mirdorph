@@ -20,7 +20,7 @@ import discord
 import os
 import time
 from pathlib import Path
-from gi.repository import Gtk, Gio, GObject, GLib, GdkPixbuf, Adw
+from gi.repository import Adw, Gtk, Gio, GObject, GLib, GdkPixbuf
 
 # Use this to filter out only text channels, which we support
 TEXT_CHANNEL_FILTER = (discord.VoiceChannel, discord.StageChannel, discord.CategoryChannel)

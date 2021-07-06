@@ -17,7 +17,7 @@ import asyncio
 import datetime
 import threading
 import discord
-from gi.repository import Gtk, Gio, GLib, Gdk, Adw
+from gi.repository import Adw, Gtk, Gio, GLib, Gdk
 from .event_receiver import EventReceiver
 
 @Gtk.Template(resource_path="/org/gnome/gitlab/ranchester/Mirdorph/ui/channel_properties_window.ui")

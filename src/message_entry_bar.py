@@ -18,7 +18,7 @@ import threading
 import discord
 from pathlib import Path
 from gettext import gettext as _
-from gi.repository import Gtk, Gio, GLib, Adw
+from gi.repository import Adw, Gtk, Gio, GLib
 from .confman import ConfManager
 from .attachment import MessageEntryBarAttachment
 from .event_receiver import EventReceiver
