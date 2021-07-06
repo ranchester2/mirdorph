@@ -1,26 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
-  <requires lib="gtk+" version="3.24"/>
+  <requires lib="gtk" version="4.0"/>
   <template class="LinkPreviewExport" parent="GtkListBox">
     <property name="halign">GTK_ALIGN_START</property>
     <property name="selection-mode">none</property>
     <signal name="row-activated" handler="_on_row_activated"/>
     <child>
       <object class="GtkListBoxRow">
-        <property name="visible">True</property>
         <child>
           <object class="AdwClamp">
-            <!-- Note that the clamp isn't working as intended -->
-            <property name="visible">True</property>
             <property name="maximum-size">130</property>
             <child>
               <object class="GtkBox">
-                <property name="visible">True</property>
                 <property name="orientation">vertical</property>
                 <property name="spacing">3</property>
                 <child>
                   <object class="GtkImage" id="_link_image">
-                    <property name="visible">True</property>
                     <property name="width-request">140</property>
                     <property name="height-request">140</property>
                     <property name="icon-name">insert-link-symbolic</property>
@@ -32,8 +27,6 @@
                 </child>
                 <child>
                   <object class="GtkLabel" id="_link_label">
-                    <property name="visible">True</property>
-                    <!-- Ellipsize doesn't work with Clamp, so we also add max-width-chars -->
                     <property name="max-width-chars">14</property>
                     <property name="ellipsize">end</property>
                   </object>

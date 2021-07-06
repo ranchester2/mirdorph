@@ -1,40 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
-  <requires lib="gtk+" version="3.22" />
+  <requires lib="gtk" version="4.0"/>
   <template class="MirdorphMessage" parent="GtkListBoxRow">
-    <!-- Margin top fits most usecases for having gaps between messages,-->
-    <!-- however it is a bit confusing for reducing spacing with merging, as we -->
-    <!-- can only rely on internal padding -->
-    <!-- spacing cannot be used as GtkListBox does not support it -->
     <property name="margin-top">5</property>
-    <child>
+    <property name="child">
       <object class="GtkBox">
-        <property name="visible">True</property>
         <property name="spacing">5</property>
         <child>
           <object class="GtkBox" id="_avatar_box">
-            <property name="visible">True</property>
             <property name="valign">GTK_ALIGN_START</property>
           </object>
         </child>
         <child>
           <object class="GtkBox">
-            <property name="visible">True</property>
             <property name="hexpand">True</property>
             <property name="orientation">vertical</property>
             <child>
-              <object class="GtkBox" id="_username_container">
-                <property name="visible">True</property>
-              </object>
+              <object class="GtkBox" id="_username_container"/>
             </child>
             <child>
-              <object class="GtkBox" id="_message_content_container">
-                <property name="visible">True</property>
-              </object>
+              <object class="GtkBox" id="_message_content_container"/>
             </child>
             <child>
               <object class="GtkBox" id="_attachment_box">
-                <property name="visible">True</property>
                 <property name="vexpand">True</property>
                 <property name="orientation">vertical</property>
                 <property name="spacing">5</property>
@@ -43,9 +31,9 @@
           </object>
         </child>
       </object>
-    </child>
+    </property>
     <style>
-      <class name="discord-message" />
+      <class name="discord-message"/>
     </style>
   </template>
 </interface>

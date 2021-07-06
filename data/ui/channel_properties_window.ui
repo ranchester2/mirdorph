@@ -1,22 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
-  <requires lib="gtk+" version="3.24" />
-  <requires lib="libhandy" version="1.0" />
+  <requires lib="gtk" version="4.0"/>
+  <requires lib="libadwaita" version="1.0"/>
   <template class="ChannelPropertiesWindow" parent="AdwWindow">
     <property name="default-width">375</property>
     <property name="default-height">550</property>
     <child>
       <object class="GtkBox">
-        <property name="visible">True</property>
         <property name="orientation">vertical</property>
         <child>
           <object class="AdwSqueezer">
-            <property name="visible">True</property>
             <property name="interpolate-size">True</property>
             <property name="transition-type">1</property>
             <child>
               <object class="AdwHeaderBar">
-                <property name="visible">True</property>
                 <property name="show-close-button">True</property>
                 <property name="width-request">362</property>
                 <property name="valign">GTK_ALIGN_CENTER</property>
@@ -25,22 +22,19 @@
             </child>
             <child>
               <object class="AdwHeaderBar">
-                <property name="visible">True</property>
                 <property name="show-close-button">True</property>
                 <property name="valign">GTK_ALIGN_CENTER</property>
                 <property name="title" translatable="yes">Channel Properties</property>
                 <child>
                   <object class="GtkButton" id="_back_button">
-                    <property name="visible">True</property>
-                    <signal name="clicked" handler="_on_back_button_clicked" />
+                    <signal name="clicked" handler="_on_back_button_clicked"/>
                     <child>
                       <object class="GtkImage">
-                        <property name="visible">True</property>
                         <property name="icon-name">go-previous-symbolic</property>
                       </object>
                     </child>
                     <style>
-                      <class name="image-button" />
+                      <class name="image-button"/>
                     </style>
                   </object>
                 </child>
@@ -50,13 +44,10 @@
         </child>
         <child>
           <object class="GtkBox">
-            <property name="visible">True</property>
             <property name="vexpand">True</property>
             <property name="orientation">vertical</property>
             <child>
               <object class="GtkBox">
-                <property name="visible">True</property>
-                <property name="orientation">horizontal</property>
                 <property name="spacing">5</property>
                 <child>
                   <object class="AdwAvatar" id="_channel_avatar">
@@ -68,105 +59,95 @@
                 </child>
                 <child>
                   <object class="GtkBox">
-                    <property name="visible">True</property>
                     <property name="orientation">vertical</property>
                     <child>
                       <object class="GtkLabel" id="_name_label">
-                        <property name="visible">True</property>
                         <property name="xalign">0.0</property>
                         <property name="label">#</property>
                         <property name="ellipsize">end</property>
                         <style>
-                          <class name="large-title" />
-                          <class name="reverse-text" />
+                          <class name="large-title"/>
+                          <class name="reverse-text"/>
                         </style>
                       </object>
                     </child>
                     <child>
                       <object class="GtkLabel" id="_description_label">
-                        <property name="visible">True</property>
                         <property name="xalign">0.0</property>
                         <property name="label" translatable="yes">Unknown usage</property>
-                        <!-- About enough to not oversize window-->
                         <property name="max-width-chars">45</property>
                         <property name="ellipsize">end</property>
                         <style>
-                          <class name="caption" />
-                          <class name="reverse-text" />
+                          <class name="caption"/>
+                          <class name="reverse-text"/>
                         </style>
                       </object>
                     </child>
                   </object>
                 </child>
                 <style>
-                  <class name="channel-banner-box" />
+                  <class name="channel-banner-box"/>
                 </style>
               </object>
             </child>
             <child>
               <object class="GtkNotebook">
-                <property name="visible">True</property>
                 <child>
-                  <object class="GtkBox">
-                    <property name="visible">True</property>
-                    <child>
-                      <object class="AdwPreferencesGroup">
-                        <property name="visible">True</property>
-                        <property name="title" translatable="yes">Activity</property>
-                        <property name="vexpand">True</property>
+                  <object class="GtkNotebookPage">
+                    <property name="child">
+                      <object class="GtkBox">
                         <child>
-                          <object class="AdwActionRow">
-                            <property name="visible">True</property>
-                            <property name="title" translatable="yes">Last Activity</property>
-                            <property name="activatable-widget">_last_activity_button</property>
+                          <object class="AdwPreferencesGroup">
+                            <property name="title" translatable="yes">Activity</property>
+                            <property name="vexpand">True</property>
                             <child>
-                              <object class="GtkButton" id="_last_activity_button">
-                                <property name="visible">True</property>
-                                <property name="label" translatable="yes">Unknown</property>
-                                <property name="valign">GTK_ALIGN_CENTER</property>
-                                <signal name="activate" handler="_on_last_activity_button_activate" />
-                                <style>
-                                  <class name="flat" />
-                                </style>
-                              </object>
-                            </child>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="AdwActionRow">
-                            <!-- Not yet implemented, remember my discord datatools? -->
-                            <property name="visible">True</property>
-                            <property name="title" translatable="yes">Statistics</property>
-                            <property name="activatable-widget">_statistics_button</property>
-                            <child>
-                              <object class="GtkButton" id="_statistics_button">
-                                <property name="visible">True</property>
-                                <property name="valign">GTK_ALIGN_CENTER</property>
-                                <signal name="activate" handler="_on_statistics_button_activate" />
+                              <object class="AdwActionRow">
+                                <property name="title" translatable="yes">Last Activity</property>
+                                <property name="activatable-widget">_last_activity_button</property>
                                 <child>
-                                  <object class="GtkImage">
-                                    <property name="visible">True</property>
-                                    <property name="icon-name">go-next-symbolic</property>
+                                  <object class="GtkButton" id="_last_activity_button">
+                                    <property name="label" translatable="yes">Unknown</property>
+                                    <property name="valign">GTK_ALIGN_CENTER</property>
+                                    <signal name="activate" handler="_on_last_activity_button_activate"/>
+                                    <style>
+                                      <class name="flat"/>
+                                    </style>
                                   </object>
                                 </child>
-                                <style>
-                                  <class name="image-button" />
-                                </style>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="AdwActionRow">
+                                <property name="title" translatable="yes">Statistics</property>
+                                <property name="activatable-widget">_statistics_button</property>
+                                <child>
+                                  <object class="GtkButton" id="_statistics_button">
+                                    <property name="valign">GTK_ALIGN_CENTER</property>
+                                    <signal name="activate" handler="_on_statistics_button_activate"/>
+                                    <child>
+                                      <object class="GtkImage">
+                                        <property name="icon-name">go-next-symbolic</property>
+                                      </object>
+                                    </child>
+                                    <style>
+                                      <class name="image-button"/>
+                                    </style>
+                                  </object>
+                                </child>
                               </object>
                             </child>
                           </object>
                         </child>
+                        <style>
+                          <class name="channel-properties-content-container"/>
+                        </style>
                       </object>
-                    </child>
-                    <style>
-                      <class name="channel-properties-content-container" />
-                    </style>
-                  </object>
-                </child>
-                <child type="tab">
-                  <object class="GtkLabel">
-                    <property name="visible">True</property>
-                    <property name="label">General</property>
+                    </property>
+                    <property name="tab">
+                      <object class="GtkLabel">
+                        <property name="label">General</property>
+                      </object>
+                    </property>
                   </object>
                 </child>
               </object>

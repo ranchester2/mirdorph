@@ -1,129 +1,123 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
-  <requires lib="gtk+" version="3.24"/>
+  <requires lib="gtk" version="4.0"/>
   <template class="MirdorphChannelSidebar" parent="GtkBox">
     <property name="orientation">vertical</property>
     <property name="width-request">240</property>
     <child>
       <object class="GtkStack" id="_channel_list_type_stack">
-        <property name="visible">True</property>
         <property name="vexpand">True</property>
         <child>
-          <object class="GtkStack" id="_channel_guild_loading_stack">
-            <property name="visible">True</property>
-            <child>
-              <object class="GtkBox" id="_channel_guild_list_container">
-                <property name="visible">True</property>
-                <property name="orientation">vertical</property>
-                <child>
-                  <object class="AdwSearchBar" id="_guild_list_search_bar">
-                    <property name="visible">True</property>
-                    <property name="hexpand">False</property>
-                    <child>
-                      <object class="GtkSearchEntry" id="_guild_list_search_entry">
-                        <property name="visible">True</property>
-                        <signal name="search-changed" handler="_on_search_changed"/>
-                        <signal name="activate" handler="_on_search_activate" />
-                      </object>
-                    </child>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkStack" id="_search_mode_stack">
-                    <property name="visible">True</property>
-                    <property name="vexpand">True</property>
-                    <property name="transition-type">crossfade</property>
-                    <child>
-                      <object class="GtkScrolledWindow">
-                        <property name="visible">True</property>
-                        <property name="hscrollbar-policy">never</property>
-                        <child>
-                          <object class="GtkListBox" id="_channel_guild_list">
-                            <property name="visible">True</property>
-                            <style>
-                              <class name="guild-list"/>
-                            </style>
-                          </object>
-                        </child>
-                      </object>
-                      <packing>
-                        <property name="name">content</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkScrolledWindow">
-                        <property name="visible">True</property>
-                        <property name="hscrollbar-policy">never</property>
-                        <child>
-                          <object class="GtkStack" id="_search_empty_state_stack">
-                            <property name="visible">True</property>
-                            <child>
-                              <object class="AdwStatusPage">
-                                <property name="visible">True</property>
-                                <property name="title" translatable="yes">No Results Found</property>
-                                <property name="description" translatable="yes">Try a different search</property>
-                                <property name="icon-name">edit-find-symbolic</property>
-                              </object>
-                              <packing>
-                                <property name="name">empty</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkListBox" id="_search_list">
-                                <property name="visible">True</property>
-                                <signal name="row-activated" handler="_on_channel_entry_activated" />
-                              </object>
-                              <packing>
-                                <property name="name">results</property>
-                              </packing>
-                            </child>
-                          </object>
-                        </child>
-                      </object>
-                      <packing>
-                        <property name="name">search</property>
-                      </packing>
-                    </child>
-                  </object>
-                </child>
-              </object>
-            </child>
-            <child>
-              <object class="GtkSpinner" id="_guild_loading_page">
-                <property name="visible">True</property>
-                <property name="active">True</property>
-                <property name="valign">GTK_ALIGN_CENTER</property>
-                <property name="height-request">256</property>
-                <property name="width-request">256</property>
-              </object>
-            </child>
-          </object>
-          <packing>
+          <object class="GtkStackPage">
             <property name="title" translatable="yes">Guilds</property>
             <property name="icon-name">org.gnome.gitlab.ranchester.Mirdorph.Guilds</property>
-          </packing>
+            <property name="child">
+              <object class="GtkStack" id="_channel_guild_loading_stack">
+                <child>
+                  <object class="GtkBox" id="_channel_guild_list_container">
+                    <property name="orientation">vertical</property>
+                    <child>
+                      <object class="GtkSearchBar" id="_guild_list_search_bar">
+                        <property name="visible">True</property>
+                        <property name="hexpand">False</property>
+                        <child>
+                          <object class="GtkSearchEntry" id="_guild_list_search_entry">
+                            <signal name="search-changed" handler="_on_search_changed"/>
+                            <signal name="activate" handler="_on_search_activate"/>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkStack" id="_search_mode_stack">
+                        <property name="vexpand">True</property>
+                        <property name="transition-type">crossfade</property>
+                        <child>
+                          <object class="GtkStackPage">
+                            <property name="name">content</property>
+                            <property name="child">
+                              <object class="GtkScrolledWindow">
+                                <property name="hscrollbar-policy">never</property>
+                                <property name="child">
+                                  <object class="GtkListBox" id="_channel_guild_list">
+                                    <style>
+                                      <class name="guild-list"/>
+                                    </style>
+                                  </object>
+                                </property>
+                              </object>
+                            </property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkStackPage">
+                            <property name="name">search</property>
+                            <property name="child">
+                              <object class="GtkScrolledWindow">
+                                <property name="hscrollbar-policy">never</property>
+                                <property name="child">
+                                  <object class="GtkStack" id="_search_empty_state_stack">
+                                    <child>
+                                      <object class="GtkStackPage">
+                                        <property name="name">empty</property>
+                                        <property name="child">
+                                          <object class="AdwStatusPage">
+                                            <property name="title" translatable="yes">No Results Found</property>
+                                            <property name="description" translatable="yes">Try a different search</property>
+                                            <property name="icon-name">edit-find-symbolic</property>
+                                          </object>
+                                        </property>
+                                      </object>
+                                    </child>
+                                    <child>
+                                      <object class="GtkStackPage">
+                                        <property name="name">results</property>
+                                        <property name="child">
+                                          <object class="GtkListBox" id="_search_list">
+                                            <signal name="row-activated" handler="_on_channel_entry_activated"/>
+                                          </object>
+                                        </property>
+                                      </object>
+                                    </child>
+                                  </object>
+                                </property>
+                              </object>
+                            </property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkSpinner" id="_guild_loading_page">
+                    <property name="active">True</property>
+                    <property name="valign">GTK_ALIGN_CENTER</property>
+                    <property name="height-request">256</property>
+                    <property name="width-request">256</property>
+                  </object>
+                </child>
+              </object>
+            </property>
+          </object>
         </child>
         <child>
-          <object class="GtkListBox" id="_channel_direct_list">
-            <property name="visible">True</property>
-          </object>
-          <packing>
+          <object class="GtkStackPage">
             <property name="title" translatable="yes">People</property>
             <property name="icon-name">avatar-default-symbolic</property>
-          </packing>
+            <property name="child">
+              <object class="GtkListBox" id="_channel_direct_list"/>
+            </property>
+          </object>
         </child>
       </object>
     </child>
     <child>
       <object class="AdwViewSwitcherBar" id="_view_switcher">
-        <property name="visible">True</property>
         <property name="reveal">True</property>
         <property name="stack">_channel_list_type_stack</property>
         <property name="policy">HDY_VIEW_SWITCHER_POLICY_NARROW</property>
       </object>
-      <packing>
-        <property name="pack-type">end</property>
-      </packing>
     </child>
     <style>
       <class name="background"/>

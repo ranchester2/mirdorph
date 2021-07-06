@@ -1,34 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
-  <requires lib="gtk+" version="3.24" />
+  <requires lib="gtk" version="4.0" />
   <template class="MirdorphLoginWindow" parent="AdwApplicationWindow">
     <property name="default-width">750</property>
     <property name="default-height">616</property>
     <property name="icon-name">org.gnome.gitlab.ranchester.Mirdorph</property>
     <child>
       <object class="AdwDeck" id="_toplevel_deck">
-        <property name="visible">True</property>
         <property name="can-swipe-forward">False</property>
         <property name="can-swipe-back">True</property>
         <child>
           <object class="GtkBox" id="_login_welcome_page">
-            <property name="visible">True</property>
             <property name="orientation">vertical</property>
             <child>
               <object class="AdwSqueezer">
-                <property name="visible">True</property>
                 <property name="interpolate-size">True</property>
                 <property name="transition-type">1</property>
                 <child>
                   <object class="AdwHeaderBar">
-                    <property name="visible">True</property>
                     <property name="show-close-button">False</property>
                     <property name="width-request">370</property>
                     <property name="valign">GTK_ALIGN_CENTER</property>
                     <property name="title" translatable="yes">Connect your Account</property>
                     <child>
                       <object class="GtkButton">
-                        <property name="visible">True</property>
                         <property name="action-name">login.cancel</property>
                         <property name="label" translatable="yes">Cancel</property>
                       </object>
@@ -37,7 +32,6 @@
                 </child>
                 <child>
                   <object class="AdwHeaderBar">
-                    <property name="visible">True</property>
                     <property name="show-close-button">False</property>
                     <property name="valign">GTK_ALIGN_CENTER</property>
                     <property name="title" translatable="yes">Connect your Account</property>
@@ -47,21 +41,21 @@
             </child>
             <child>
               <object class="GtkBox">
-                <property name="visible">True</property>
-                <property name="vexpand">True</property>
+                <property name="vexpand">1</property>
                 <property name="valign">GTK_ALIGN_CENTER</property>
                 <property name="orientation">vertical</property>
-                <property name="margin">10</property>
+                <property name="margin-start">10</property>
+                <property name="margin-end">10</property>
+                <property name="margin-top">10</property>
+                <property name="margin-bottom">10</property>
                 <child>
                   <object class="GtkImage">
-                    <property name="visible">True</property>
                     <property name="icon-name">org.gnome.gitlab.ranchester.Mirdorph.DiscussionsLogo</property>
                     <property name="pixel-size">256</property>
                   </object>
                 </child>
                 <child>
                   <object class="GtkLabel">
-                    <property name="visible">True</property>
                     <property name="label" translatable="yes">Welcome to Mirdorph</property>
                     <style>
                       <class name="title-2" />
@@ -70,12 +64,10 @@
                 </child>
                 <child>
                   <object class="GtkBox">
-                    <property name="visible">True</property>
                     <property name="margin-top">10</property>
                     <property name="orientation">vertical</property>
                     <child>
                       <object class="GtkButton" id="_graphical_login_button">
-                        <property name="visible">True</property>
                         <property name="width-request">250</property>
                         <property name="halign">GTK_ALIGN_CENTER</property>
                         <property name="action-name">login.with-graphical</property>
@@ -88,20 +80,17 @@
                     </child>
                     <child>
                       <object class="GtkExpander">
-                        <property name="visible">True</property>
                         <property name="halign">GTK_ALIGN_CENTER</property>
                         <property name="margin-top">10</property>
                         <property name="margin-bottom">10</property>
                         <property name="label" translatable="yes">Advanced</property>
                         <child>
                           <object class="GtkBox">
-                            <property name="visible">True</property>
                             <property name="orientation">vertical</property>
                             <property name="margin-top">10</property>
                             <property name="spacing">15</property>
                             <child>
                               <object class="GtkButton">
-                                <property name="visible">True</property>
                                 <property name="halign">GTK_ALIGN_CENTER</property>
                                 <property name="width-request">250</property>
                                 <property name="action-name">login.with-token</property>
@@ -114,7 +103,6 @@
                             </child>
                             <child>
                               <object class="GtkButton">
-                                <property name="visible">True</property>
                                 <property name="width-request">250</property>
                                 <property name="halign">GTK_ALIGN_CENTER</property>
                                 <property name="action-name">login.with-password</property>
@@ -132,30 +120,22 @@
                   </object>
                 </child>
               </object>
-              <packing>
-                <property name="pack-type">end</property>
-              </packing>
             </child>
           </object>
         </child>
         <child>
           <object class="GtkStack" id="_second_stage_stack">
-            <property name="visible">True</property>
             <child>
               <object class="GtkBox" id="_login_token_page">
-                <property name="visible">True</property>
                 <property name="orientation">vertical</property>
                 <child>
                   <object class="AdwHeaderBar">
-                    <property name="visible">True</property>
                     <property name="title" translatable="yes">Enter Credentials</property>
                     <child>
                       <object class="GtkButton">
-                        <property name="visible">True</property>
                         <property name="action-name">login.back</property>
                         <child>
                           <object class="GtkImage">
-                            <property name="visible">True</property>
                             <property name="icon-name">go-previous-symbolic</property>
                           </object>
                         </child>
@@ -168,17 +148,17 @@
                 </child>
                 <child>
                   <object class="AdwClamp">
-                    <property name="visible">True</property>
                     <property name="vexpand">True</property>
                     <child>
                       <object class="GtkBox">
-                        <property name="visible">True</property>
                         <property name="orientation">vertical</property>
                         <property name="valign">GTK_ALIGN_CENTER</property>
-                        <property name="margin">20</property>
+                        <property name="margin-start">20</property>
+                        <property name="margin-end">20</property>
+                        <property name="margin-top">20</property>
+                        <property name="margin-bottom">20</property>
                         <child>
                           <object class="GtkLabel">
-                            <property name="visible">True</property>
                             <property name="label" translatable="yes">Insert Token</property>
                             <style>
                               <class name="title-2" />
@@ -187,22 +167,17 @@
                         </child>
                         <child>
                           <object class="GtkBox">
-                            <property name="visible">True</property>
                             <property name="margin-top">20</property>
                             <property name="halign">GTK_ALIGN_CENTER</property>
                             <child>
                               <object class="GtkEntry" id="_login_token_entry">
-                                <property name="visible">True</property>
-                                <!-- width-request cause I cant get it to expand horizontally -->
                                 <property name="width-request">230</property>
-                                <property name="activates-default">True</property>
+                                <property name="activates-default">1</property>
                                 <signal name="changed" handler="_on_login_token_entry_changed" />
                               </object>
                             </child>
                             <child>
                               <object class="GtkButton" id="_login_token_entry_button">
-                                <property name="visible">True</property>
-                                <property name="can-default">True</property>
                                 <property name="action-name">login.submit-token</property>
                                 <property name="label" translatable="yes">Insert</property>
                                 <style>
@@ -218,27 +193,20 @@
                       </object>
                     </child>
                   </object>
-                  <packing>
-                    <property name="pack-type">end</property>
-                  </packing>
                 </child>
               </object>
             </child>
             <child>
               <object class="GtkBox" id="_login_password_page">
-                <property name="visible">True</property>
                 <property name="orientation">vertical</property>
                 <child>
                   <object class="AdwHeaderBar">
-                    <property name="visible">True</property>
                     <property name="title" translatable="yes">Enter Credentials</property>
                     <child>
                       <object class="GtkButton">
-                        <property name="visible">True</property>
                         <property name="action-name">login.back</property>
                         <child>
                           <object class="GtkImage">
-                            <property name="visible">True</property>
                             <property name="icon-name">go-previous-symbolic</property>
                           </object>
                         </child>
@@ -249,8 +217,6 @@
                     </child>
                     <child>
                       <object class="GtkButton" id="_login_password_submit_button">
-                        <property name="visible">True</property>
-                        <property name="can-default">True</property>
                         <property name="action-name">login.submit-password</property>
                         <property name="label" translatable="yes">Submit</property>
                         <style>
@@ -265,37 +231,29 @@
                 </child>
                 <child>
                   <object class="GtkOverlay">
-                    <property name="visible">True</property>
-                    <property name="vexpand">True</property>
+                    <property name="vexpand">1</property>
                     <child type="overlay">
                       <object class="GtkInfoBar">
-                        <property name="visible">True</property>
                         <property name="valign">GTK_ALIGN_START</property>
                         <property name="message-type">warning</property>
-                        <property name="show-close-button">True</property>
+                        <property name="show-close-button">1</property>
                         <signal name="response" handler="_on_password_warning_bar_response" />
                         <child internal-child="content_area">
                           <object class="GtkBox">
-                            <property name="can-focus">False</property>
                             <property name="spacing">16</property>
                             <child>
                               <object class="GtkBox">
-                                <property name="visible">True</property>
                                 <property name="orientation">vertical</property>
                                 <child>
                                   <object class="GtkLabel">
-                                    <property name="visible">True</property>
-                                    <property name="wrap">True</property>
-                                    <property name="wrap-mode">word</property>
+                                    <property name="wrap">1</property>
                                     <property name="xalign">0.0</property>
                                     <property name="label" translatable="yes">WARNING: Email and password login not recommended:</property>
                                   </object>
                                 </child>
                                 <child>
                                   <object class="GtkLabel">
-                                    <property name="visible">True</property>
-                                    <property name="wrap">True</property>
-                                    <property name="wrap-mode">word</property>
+                                    <property name="wrap">1</property>
                                     <property name="xalign">0.0</property>
                                     <property name="label" translatable="yes">Will not work with advanced configurations (2FA/Captcha), use Graphical Login or Manual Token instead.</property>
                                   </object>
@@ -311,18 +269,18 @@
                     </child>
                     <child>
                       <object class="AdwClamp">
-                        <property name="visible">True</property>
                         <property name="maximum-size">450</property>
                         <child>
                           <object class="GtkBox">
-                            <property name="visible">True</property>
                             <property name="orientation">vertical</property>
                             <property name="valign">GTK_ALIGN_CENTER</property>
                             <property name="spacing">20</property>
-                            <property name="margin">20</property>
+                            <property name="margin-start">20</property>
+                            <property name="margin-end">20</property>
+                            <property name="margin-top">20</property>
+                            <property name="margin-bottom">20</property>
                             <child>
                               <object class="GtkLabel">
-                                <property name="visible">True</property>
                                 <property name="label" translatable="yes">Password Login</property>
                                 <style>
                                   <class name="title-2" />
@@ -331,19 +289,16 @@
                             </child>
                             <child>
                               <object class="GtkListBox">
-                                <property name="visible">True</property>
                                 <property name="selection-mode">none</property>
                                 <child>
                                   <object class="GtkListBoxRow">
-                                    <property name="visible">True</property>
-                                    <child>
+                                    <property name="child">
                                       <object class="GtkEntry" id="_email_entry">
-                                        <property name="visible">True</property>
                                         <property name="placeholder-text" translatable="yes">Email Adress</property>
                                         <signal name="changed" handler="_on_password_entries_changed" />
                                         <signal name="activate" handler="_on_email_entry_activate" />
                                       </object>
-                                    </child>
+                                    </property>
                                     <style>
                                       <class name="password-entry-row" />
                                     </style>
@@ -351,16 +306,14 @@
                                 </child>
                                 <child>
                                   <object class="GtkListBoxRow">
-                                    <property name="visible">True</property>
-                                    <child>
+                                    <property name="child">
                                       <object class="GtkEntry" id="_password_entry">
-                                        <property name="visible">True</property>
                                         <property name="placeholder-text" translatable="yes">Password</property>
                                         <property name="visibility">False</property>
                                         <property name="activates-default">True</property>
                                         <signal name="changed" handler="_on_password_entries_changed" />
                                       </object>
-                                    </child>
+                                    </property>
                                     <style>
                                       <class name="password-entry-row" />
                                     </style>
@@ -376,27 +329,20 @@
                       </object>
                     </child>
                   </object>
-                  <packing>
-                    <property name="pack-type">end</property>
-                  </packing>
                 </child>
               </object>
             </child>
             <child>
               <object class="GtkBox" id="_login_graphical_page">
-                <property name="visible">True</property>
                 <property name="orientation">vertical</property>
                 <child>
                   <object class="AdwHeaderBar">
-                    <property name="visible">True</property>
                     <property name="title" translatable="yes">Enter Credentials</property>
                     <child>
                       <object class="GtkButton">
-                        <property name="visible">True</property>
                         <property name="action-name">login.back</property>
                         <child>
                           <object class="GtkImage">
-                            <property name="visible">True</property>
                             <property name="icon-name">go-previous-symbolic</property>
                           </object>
                         </child>
@@ -408,9 +354,7 @@
                   </object>
                 </child>
                 <child>
-                  <!-- Ideally bin, but that is an abstract class -->
                   <object class="GtkBox" id="_login_graphical_page_webview_container">
-                    <property name="visible">True</property>
                     <property name="vexpand">True</property>
                   </object>
                 </child>

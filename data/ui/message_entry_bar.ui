@@ -1,34 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
-  <requires lib="gtk+" version="3.24" />
+  <requires lib="gtk" version="4.0" />
   <template class="MessageEntryBar" parent="GtkBox">
     <property name="orientation">vertical</property>
     <child>
       <object class="GtkBox">
-        <property name="visible">True</property>
-        <!-- For initial alignment with the guild/people viewswitcher -->
-        <!-- hardcoded for now, it seems to be the size of the viewswitcher -->
-        <!-- breaks themes I guess -->
         <property name="height-request">46</property>
-        <property name="orientation">horizontal</property>
         <child>
           <object class="AdwClamp">
-            <property name="visible">True</property>
             <property name="maximum-size">800</property>
             <property name="tightening-threshold">600</property>
             <child>
               <object class="GtkBox">
-                <property name="visible">True</property>
                 <property name="name">message-entry-button-box</property>
                 <property name="spacing">5</property>
                 <property name="valign">GTK_ALIGN_CENTER</property>
                 <child>
                   <object class="GtkToggleButton" id="_attachment_togglebutton">
-                    <property name="visible">True</property>
-                    <property name="image">_attachment_togglebutton_image</property>
                     <child>
                       <object class="GtkImage" id="_attachment_togglebutton_image">
-                        <property name="visible">True</property>
                         <property name="icon-name">mail-attachment-symbolic</property>
                       </object>
                     </child>
@@ -39,7 +29,6 @@
                 </child>
                 <child>
                   <object class="GtkEntry" id="_message_entry">
-                    <property name="visible">True</property>
                     <property name="hexpand">True</property>
                     <signal name="activate" handler="_on_message_entry_activate" />
                     <signal name="changed" handler="_on_message_entry_changed" />
@@ -47,11 +36,8 @@
                 </child>
                 <child>
                   <object class="GtkButton" id="_emoji_button">
-                    <property name="visible">True</property>
-                    <property name="image">_emoji_button_image</property>
                     <child>
                       <object class="GtkImage" id="_emoji_button_image">
-                        <property name="visible">True</property>
                         <property name="icon-name">smile-symbolic</property>
                       </object>
                     </child>
@@ -62,13 +48,10 @@
                 </child>
                 <child>
                   <object class="GtkButton" id="_send_button">
-                    <property name="visible">True</property>
                     <property name="sensitive">False</property>
-                    <property name="image">_send_button_image</property>
                     <signal name="clicked" handler="_on_send_button_clicked" />
                     <child>
                       <object class="GtkImage" id="_send_button_image">
-                        <property name="visible">True</property>
                         <property name="icon-name">paper-plane-symbolic</property>
                       </object>
                     </child>
@@ -85,18 +68,15 @@
     </child>
     <child>
       <object class="GtkRevealer" id="_attachment_area_revealer">
-        <property name="visible">True</property>
         <property name="transition-type">4</property>
         <property name="reveal-child" bind-source="_attachment_togglebutton" bind-property="active" bind-flags="default" />
         <signal name="notify::reveal-child" handler="_on_revealer_reveal_child" />
         <signal name="notify::child-revealed" handler="_on_revealer_child_revealed" />
-        <child>
+        <property name="child">
           <object class="GtkBox">
-            <property name="visible">True</property>
             <property name="orientation">vertical</property>
             <child>
               <object class="GtkSeparator">
-                <property name="visible">True</property>
                 <style>
                   <class name="horizontal" />
                 </style>
@@ -104,26 +84,20 @@
             </child>
             <child>
               <object class="GtkScrolledWindow">
-                <property name="visible">True</property>
                 <property name="vscrollbar-policy">2</property>
-                <child>
+                <property name="child">
                   <object class="GtkBox" id="_attachment_container">
-                    <property name="visible">True</property>
-                    <property name="orientation">horizontal</property>
                     <property name="spacing">16</property>
                     <style>
-                      <class name="message-entry-bar-attachment-container"/>
+                      <class name="message-entry-bar-attachment-container" />
                     </style>
                   </object>
-                </child>
+                </property>
               </object>
             </child>
           </object>
-        </child>
+        </property>
       </object>
-      <packing>
-        <property name="pack-type">end</property>
-      </packing>
     </child>
   </template>
 </interface>

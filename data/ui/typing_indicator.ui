@@ -1,25 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
-  <requires lib="gtk+" version="3.24"/>
+  <requires lib="gtk" version="4.0"/>
   <template class="TypingIndicator" parent="GtkRevealer">
     <property name="transition-type">slide-up</property>
     <property name="valign">GTK_ALIGN_END</property>
     <child>
       <object class="AdwClamp">
-        <property name="visible">True</property>
-        <!-- For room for box shadow of container -->
         <property name="margin-top">2</property>
-        <!-- Copied from entry bar, not perfect due to weird margins and paddings for mobile-->
         <property name="maximum-size">800</property>
         <property name="tightening-threshold">600</property>
         <child>
-          <!-- For css styling the background within the clamp -->
           <object class="GtkBox">
-            <property name="visible">True</property>
             <property name="orientation">vertical</property>
             <child>
               <object class="GtkLabel" id="_typing_label">
-                <property name="visible">True</property>
                 <property name="ellipsize">end</property>
                 <property name="xalign">0.0</property>
                 <property name="label" translatable="yes">Noone is typing.</property>

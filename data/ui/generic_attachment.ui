@@ -1,24 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
-  <requires lib="gtk+" version="3.24" />
+  <requires lib="gtk" version="4.0" />
   <template class="GenericAttachment" parent="GtkListBox">
     <property name="selection-mode">none</property>
     <signal name="row-activated" handler="_on_listbox_row_activated" />
     <child>
       <object class="GtkListBoxRow">
-        <property name="visible">True</property>
-        <child>
+        <property name="child">
           <object class="GtkBox">
-            <property name="visible">True</property>
-            <property name="margin">5</property>
+            <property name="margin-start">5</property>
+            <property name="margin-end">5</property>
+            <property name="margin-top">5</property>
+            <property name="margin-bottom">5</property>
             <property name="spacing">5</property>
             <child>
               <object class="GtkBox">
-                <property name="visible">True</property>
                 <property name="orientation">vertical</property>
                 <child>
                   <object class="GtkLabel" id="_filename_label">
-                    <property name="visible">True</property>
                     <property name="label">unknown.bin</property>
                     <property name="ellipsize">end</property>
                     <property name="xalign">0.0</property>
@@ -28,23 +27,16 @@
                   </object>
                 </child>
                 <child>
-                  <object class="GtkProgressBar" id="_download_progress_bar">
-                    <property name="visible">True</property>
-                  </object>
-                  <packing>
-                    <property name="pack-type">end</property>
-                  </packing>
+                  <object class="GtkProgressBar" id="_download_progress_bar" />
                 </child>
               </object>
             </child>
             <child>
               <object class="GtkButton" id="_download_button">
-                <property name="visible">True</property>
                 <property name="sensitive">False</property>
                 <signal name="clicked" handler="_on_download_button_clicked" />
                 <child>
                   <object class="GtkImage" id="_download_button_image">
-                    <property name="visible">True</property>
                     <property name="icon-name">document-save-symbolic</property>
                   </object>
                 </child>
@@ -52,12 +44,9 @@
                   <class name="image-button" />
                 </style>
               </object>
-              <packing>
-                <property name="pack-type">end</property>
-              </packing>
             </child>
           </object>
-        </child>
+        </property>
       </object>
     </child>
     <style>

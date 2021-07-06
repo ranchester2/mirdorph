@@ -1,22 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
-  <requires lib="gtk+" version="3.22" />
+  <requires lib="gtk" version="4.0" />
   <requires lib="libhandy" version="1.0" />
+  <menu id="_more_actions_menu">
+    <section>
+      <item>
+        <attribute name="label" translatable="yes">Open with...</attribute>
+        <attribute name="action">image-viewer.open-in-app</attribute>
+      </item>
+    </section>
+  </menu>
   <object class="GtkPopoverMenu" id="_more_actions_popover">
-    <child>
-      <object class="GtkBox">
-        <property name="visible">True</property>
-        <property name="orientation">vertical</property>
-        <property name="margin">10</property>
-        <child>
-          <object class="GtkModelButton">
-            <property name="visible">True</property>
-            <property name="action-name">image-viewer.open-in-app</property>
-            <property name="text" translatable="yes">Open with...</property>
-          </object>
-        </child>
-      </object>
-    </child>
+    <property name="menu-model">_more_actions_menu</property>
   </object>
   <template class="ImageViewer" parent="AdwFlap">
     <property name="orientation">vertical</property>
@@ -26,18 +21,15 @@
     <property name="swipe-to-open">False</property>
     <child type="flap">
       <object class="AdwHeaderBar" id="_headerbar">
-        <property name="visible">True</property>
         <property name="show-close-button">True</property>
         <child>
           <object class="GtkButton">
-            <property name="visible">True</property>
+            <signal name="clicked" handler="_on_back_button_clicked" />
             <child>
               <object class="GtkImage">
-                <property name="visible">True</property>
                 <property name="icon-name">go-previous-symbolic</property>
               </object>
             </child>
-            <signal name="clicked" handler="_on_back_button_clicked" />
             <style>
               <class name="image-button" />
             </style>
@@ -45,11 +37,9 @@
         </child>
         <child>
           <object class="GtkButton">
-            <property name="visible">True</property>
             <property name="action-name">image-viewer.fullscreen</property>
             <child>
               <object class="GtkImage" id="_fullscreen_button_image">
-                <property name="visible">True</property>
                 <property name="icon-name">view-fullscreen-symbolic</property>
               </object>
             </child>
@@ -64,11 +54,9 @@
         </child>
         <child>
           <object class="GtkMenuButton">
-            <property name="visible">True</property>
             <property name="popover">_more_actions_popover</property>
             <child>
               <object class="GtkImage">
-                <property name="visible">True</property>
                 <property name="icon-name">view-more-symbolic</property>
               </object>
             </child>
@@ -78,110 +66,83 @@
           </object>
           <packing>
             <property name="pack-type">end</property>
-            <property name="position">1</property>
           </packing>
         </child>
       </object>
     </child>
     <child type="content">
       <object class="GtkOverlay">
-        <property name="visible">True</property>
         <child type="overlay">
           <object class="GtkRevealer" id="_loading_notif_revealer">
-            <property name="visible">True</property>
             <property name="valign">GTK_ALIGN_START</property>
             <property name="halign">GTK_ALIGN_CENTER</property>
-            <property name="transition-type">slide-down</property>
-            <child>
+            <property name="child">
               <object class="GtkBox">
-                <property name="visible">True</property>
                 <property name="spacing">6</property>
                 <child>
                   <object class="GtkLabel">
-                    <property name="visible">True</property>
                     <property name="label" translatable="yes">Loading more media...</property>
                   </object>
                 </child>
                 <child>
                   <object class="GtkSpinner">
-                    <property name="visible">True</property>
                     <property name="active">True</property>
                   </object>
-                  <packing>
-                    <property name="pack-type">end</property>
-                  </packing>
                 </child>
                 <style>
                   <class name="app-notification" />
                 </style>
               </object>
-            </child>
+            </property>
           </object>
         </child>
-        <child>
+        <property name="child">
           <object class="GtkOverlay">
-            <property name="visible">True</property>
-            <child>
-              <!-- Scrolled Window works as a "buffer zone", as AtkPicture doesn't really -->
-              <!-- work all that well. However AtkPicture bases it's size on it's container's size -->
-              <!-- so this does not change the user experience -->
-              <object class="GtkScrolledWindow" id="_picture_container">
-                <property name="visible">True</property>
-              </object>
-            </child>
+            <property name="child">
+              <object class="GtkScrolledWindow" id="_picture_container" />
+            </property>
             <child type="overlay">
-              <object class="GtkEventBox" id="_mouse_hover_eventbox">
-                <property name="visible">True</property>
-                <child>
-                  <object class="GtkRevealer" id="_catalog_buttons_revealer">
-                    <property name="visible">True</property>
-                    <property name="transition-type">crossfade</property>
+              <object class="GtkRevealer" id="_catalog_buttons_revealer">
+                <property name="transition-type">crossfade</property>
+                <property name="child">
+                  <object class="GtkBox">
+                    <property name="valign">GTK_ALIGN_CENTER</property>
+                    <property name="margin-start">12</property>
+                    <property name="margin-end">12</property>
+                    <property name="margin-top">12</property>
+                    <property name="margin-bottom">12</property>
                     <child>
-                      <object class="GtkBox">
-                        <property name="visible">True</property>
-                        <property name="valign">GTK_ALIGN_CENTER</property>
-                        <property name="margin">12</property>
+                      <object class="GtkButton" id="_catalog_forward">
+                        <signal name="clicked" handler="_on_navigate_forward" />
                         <child>
-                          <object class="GtkButton" id="_catalog_forward">
-                            <property name="visible">True</property>
-                            <signal name="clicked" handler="_on_navigate_forward" />
-                            <child>
-                              <object class="GtkImage">
-                                <property name="visible">True</property>
-                                <property name="icon-name">go-previous-symbolic</property>
-                              </object>
-                            </child>
-                            <style>
-                              <class name="osd" />
-                            </style>
+                          <object class="GtkImage">
+                            <property name="icon-name">go-previous-symbolic</property>
                           </object>
                         </child>
+                        <style>
+                          <class name="osd" />
+                        </style>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="_catalog_back">
+                        <signal name="clicked" handler="_on_navigate_back" />
                         <child>
-                          <object class="GtkButton" id="_catalog_back">
-                            <property name="visible">True</property>
-                            <signal name="clicked" handler="_on_navigate_back" />
-                            <child>
-                              <object class="GtkImage">
-                                <property name="visible">True</property>
-                                <property name="icon-name">go-next-symbolic</property>
-                              </object>
-                            </child>
-                            <style>
-                              <class name="osd" />
-                            </style>
+                          <object class="GtkImage">
+                            <property name="icon-name">go-next-symbolic</property>
                           </object>
-                          <packing>
-                            <property name="pack-type">end</property>
-                          </packing>
                         </child>
+                        <style>
+                          <class name="osd" />
+                        </style>
                       </object>
                     </child>
                   </object>
-                </child>
+                </property>
               </object>
             </child>
           </object>
-        </child>
+        </property>
       </object>
     </child>
   </template>

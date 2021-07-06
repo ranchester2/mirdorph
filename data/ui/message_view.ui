@@ -1,62 +1,48 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
-  <requires lib="gtk+" version="3.24"/>
+  <requires lib="gtk" version="4.0"/>
   <template class="MessageView" parent="GtkOverlay">
-    <child>
+    <property name="child">
       <object class="GtkOverlay" id="_typing_indicator_overlay">
-        <property name="visible">True</property>
-        <child>
+        <property name="child">
           <object class="GtkScrolledWindow" id="scroller">
-            <property name="visible">True</property>
-            <property name="hscrollbar_policy">never</property>
-            <property name="vscrollbar_policy">always</property>
-            <property name="min_content_width">300</property>
-            <property name="min_content_height">300</property>
-            <child>
+            <property name="hscrollbar-policy">never</property>
+            <property name="vscrollbar-policy">always</property>
+            <property name="min_content-width">300</property>
+            <property name="min_content-height">300</property>
+            <property name="child">
               <object class="GtkViewport">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
                 <property name="valign">end</property>
-                <property name="shadow_type">none</property>
-                <child>
+                <property name="child">
                   <object class="GtkBox" id="_message_column">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="expand">True</property>
+                    <property name="hexpand">True</property>
+                    <property name="vexpand">True</property>
                     <style>
                       <class name="message-enforcement-box"/>
                     </style>
                   </object>
-                </child>
+                </property>
               </object>
-            </child>
+            </property>
           </object>
-        </child>
+        </property>
       </object>
-    </child>
+    </property>
     <child type="overlay">
       <object class="GtkOverlay">
-        <property name="visible">True</property>
-        <property name="can_focus">False</property>
         <property name="valign">GTK_ALIGN_END</property>
         <property name="halign">GTK_ALIGN_END</property>
-        <property name="margin_end">24</property>
-        <property name="margin_bottom">24</property>
-        <child>
+        <property name="margin-end">24</property>
+        <property name="margin-bottom">24</property>
+        <property name="child">
           <object class="GtkRevealer" id="_scroll_btn_revealer">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="transition_type">crossfade</property>
-            <child>
+            <property name="transition-type">crossfade</property>
+            <property name="child">
               <object class="GtkButton" id="_scroll_btn">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
                 <signal name="clicked" handler="_on_scroll_btn_clicked"/>
                 <child>
                   <object class="GtkImage">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="icon_name">go-bottom-symbolic</property>
+                    <property name="icon-name">go-bottom-symbolic</property>
                   </object>
                 </child>
                 <child internal-child="accessible">
@@ -69,12 +55,9 @@
                   <class name="scroll-button"/>
                 </style>
               </object>
-            </child>
+            </property>
           </object>
-          <packing>
-            <property name="pass_through">False</property>
-          </packing>
-        </child>
+        </property>
       </object>
     </child>
   </template>

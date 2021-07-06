@@ -1,29 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
-  <requires lib="gtk+" version="3.24" />
+  <requires lib="gtk" version="4.0"/>
   <template class="ContextErrorDialog" parent="GtkMessageDialog">
+    <property name="default-widget">_button_ok</property>
     <child internal-child="vbox">
       <object class="GtkBox">
         <child>
           <object class="GtkScrolledWindow" id="_details_scrolled_win">
-            <property name="margin">12</property>
-            <property name="shadow-type">out</property>
+            <property name="visible">False</property>
+            <property name="margin-start">12</property>
+            <property name="margin-end">12</property>
+            <property name="margin-top">12</property>
+            <property name="margin-bottom">12</property>
+            <property name="has-frame">True</property>
             <property name="min-content-height">100</property>
             <property name="min-content-width">340</property>
-            <child>
+            <property name="child">
               <object class="GtkTextView" id="_details_textview">
-                <property name="visible">True</property>
                 <property name="monospace">True</property>
               </object>
-            </child>
+            </property>
           </object>
         </child>
       </object>
     </child>
     <child type="action">
       <object class="GtkButton" id="_button_ok">
-        <property name="visible">True</property>
-        <property name="can-default">True</property>
         <property name="label" translatable="yes">OK</property>
       </object>
     </child>

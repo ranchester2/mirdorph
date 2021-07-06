@@ -1,15 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
-    <menu id="contextMenu">
-        <section>
-            <item>
-                <attribute name="label" translatable="yes">Channel Properties</attribute>
-                <attribute name="action">context.properties</attribute>
-            </item>
-            <item>
-                <attribute name="label" translatable="yes">Advanced Search...</attribute>
-                <attribute name="action">context.search</attribute>
-            </item>
-        </section>
-    </menu>
+  <requires lib="gtk" version="4.0"/>
+  <menu id="contextMenu">
+    <section>
+      <item>
+        <attribute name="label" translatable="yes">Channel Properties</attribute>
+        <attribute name="action">context.properties</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="yes">Advanced Search...</attribute>
+        <attribute name="action">context.search</attribute>
+      </item>
+    </section>
+  </menu>
 </interface>

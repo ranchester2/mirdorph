@@ -1,16 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
-  <requires lib="gtk+" version="3.24" />
+  <requires lib="gtk" version="4.0"/>
   <template class="MirdorphChannelListEntry" parent="GtkListBoxRow">
-    <child>
+    <property name="child">
       <object class="GtkBox">
-        <property name="visible">True</property>
-        <property name="margin">10</property>
+        <property name="margin-start">10</property>
+        <property name="margin-end">10</property>
+        <property name="margin-top">10</property>
+        <property name="margin-bottom">10</property>
         <property name="orientation">vertical</property>
         <property name="spacing">3</property>
         <child>
           <object class="GtkLabel" id="_channel_label">
-            <property name="visible">True</property>
             <property name="xalign">0.0</property>
             <property name="ellipsize">end</property>
           </object>
@@ -21,12 +22,12 @@
             <property name="xalign">0.0</property>
             <property name="ellipsize">end</property>
             <style>
-              <class name="caption" />
-              <class name="dim-label" />
+              <class name="caption"/>
+              <class name="dim-label"/>
             </style>
           </object>
         </child>
       </object>
-    </child>
+    </property>
   </template>
 </interface>
