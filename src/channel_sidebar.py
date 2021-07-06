@@ -189,7 +189,7 @@ class MirdorphChannelSidebar(Gtk.Box):
         """
         Selects the row that is currently the top search result
         """
-        for row in self._search_list.get_children():
+        for row in self._search_list:
             if self._search_filter_func(row, self._guild_list_search_entry.get_text()):
                 self._search_list.select_row(row)
                 return
@@ -208,7 +208,7 @@ class MirdorphChannelSidebar(Gtk.Box):
             # There is no way to check if a row is currently filtered out,
             # however we can run the fitler_func manually, and we know the user_data
             # is the current text of the search entry.
-            for row in self._search_list.get_children():
+            for row in self._search_list:
                 if self._search_filter_func(row, self._guild_list_search_entry.get_text()):
                     any_result_found = True
 
@@ -284,8 +284,8 @@ class MirdorphChannelSidebar(Gtk.Box):
             activation_row, the MirdorphChannelListEntry you want to mark as active
         """
         active_listbox = None
-        for guild_entry in self._channel_guild_list.get_children():
-            for row in guild_entry.channel_listbox.get_children():
+        for guild_entry in self._channel_guild_list:
+            for row in guild_entry.channel_listbox:
                 # The id matters, not the specific instance, especially with search
                 if row.id == activation_row.id:
                     guild_entry.channel_listbox.select_row(row)

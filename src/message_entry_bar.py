@@ -99,7 +99,7 @@ class MessageEntryBar(Gtk.Box, EventReceiver):
         self.context.scroll_for_msg_send = True
 
         atts_to_send = []
-        for att_widg in self._attachment_container.get_children():
+        for att_widg in self._attachment_container:
             if att_widg.add_mode:
                 continue
 
@@ -119,7 +119,7 @@ class MessageEntryBar(Gtk.Box, EventReceiver):
             self.app.discord_loop
         )
 
-        for child in self._attachment_container.get_children():
+        for child in self._attachment_container:
             if not child.add_mode:
                 self._attachment_container.remove(child)
         self._attachment_togglebutton.set_active(False)

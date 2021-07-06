@@ -111,7 +111,7 @@ class MessageView(Gtk.Overlay, EventReceiver):
         that I found.
         """
         previous_row = None
-        for row in self._message_listbox.get_children():
+        for row in self._message_listbox:
             if hasattr(row, "author") and hasattr(row, "merged"):
                 if not previous_row:
                     if row.merged:
@@ -154,7 +154,7 @@ class MessageView(Gtk.Overlay, EventReceiver):
         param:
             new_id - the unique discord event id for what is being added.
         """
-        for row in self._message_listbox.get_children():
+        for row in self._message_listbox:
             if hasattr(row, "disc_id"):
                 if new_id == row.disc_id:
                     return True
@@ -186,7 +186,7 @@ class MessageView(Gtk.Overlay, EventReceiver):
                 # https://gitlab.gnome.org/GNOME/fractal/-/issues/231
                 # we work around it ;)
                 elif len(messages) == 1:
-                    last_row = self._message_listbox.get_children()[-1]
+                    *_, last_row = self._message_listbox
                     if hasattr(last_row, "timestamp") and hasattr(last_row, "author"):
                         # The message here can be from anywhere, we want to avoid
                         # blindly assuming it will be the latest message.
@@ -299,7 +299,7 @@ class MessageView(Gtk.Overlay, EventReceiver):
         amount_to_load = self._STANDARD_HISTORY_LOADING
         if additional is not None:
             amount_to_load = len(
-                [wid for wid in self._message_listbox.get_children() if isinstance(wid, MirdorphMessage)]
+                [wid for wid in self._message_listbox if isinstance(wid, MirdorphMessage)]
             ) + additional
 
         messages = asyncio.run_coroutine_threadsafe(

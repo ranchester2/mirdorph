@@ -215,7 +215,7 @@ class ImageViewer(Adw.Flap):
                 self._is_fullscreen = True
 
     def _remove_existing_image(self, *args):
-        if self._picture_container.get_children():
+        if self._picture_container.get_child():
             self._picture_container.set_child(
                 None
             )
