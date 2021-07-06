@@ -25,16 +25,6 @@ from gi.repository import Adw, Gtk, Gio, GObject, GLib, GdkPixbuf
 # Use this to filter out only text channels, which we support
 TEXT_CHANNEL_FILTER = (discord.VoiceChannel, discord.StageChannel, discord.CategoryChannel)
 
-def separator_listbox_header_func(row, before):
-    if before is None:
-        row.set_header(None)
-        return
-    current = row.get_header()
-    if current is None:
-        current = Gtk.Separator.new(Gtk.Orientation.HORIZONTAL)
-        row.set_header(current)
-
-
 @Gtk.Template(resource_path="/org/gnome/gitlab/ranchester/Mirdorph/ui/channel_list_entry.ui")
 class MirdorphChannelListEntry(Gtk.ListBoxRow):
     __gtype_name__ = "MirdorphChannelListEntry"
@@ -76,8 +66,7 @@ class MirdorphGuildEntry(Adw.ExpanderRow):
         # Public as the listbox is an extension of the sidebar, the sidebar
         # should keep track of witch is selected for example, and the sidebar
         # connects and handles row activations
-        self.channel_listbox = Gtk.ListBox()
-        self.channel_listbox.set_header_func(separator_listbox_header_func)
+        self.channel_listbox = Gtk.ListBox(show_separators=True)
         self.add(self.channel_listbox)
 
         threading.Thread(
@@ -169,7 +158,6 @@ class MirdorphChannelSidebar(Gtk.Box):
         self.app.set_accels_for_action("app.search-guilds", ["<Control>k"])
 
         self._guild_list_search_bar.connect_entry(self._guild_list_search_entry)
-        self._search_list.set_header_func(separator_listbox_header_func)
 
         threading.Thread(target=self._build_guilds_target).start()
 

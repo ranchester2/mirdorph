@@ -73,6 +73,7 @@
                                         <property name="name">results</property>
                                         <property name="child">
                                           <object class="GtkListBox" id="_search_list">
+                                            <property name="show-separators">True</property>
                                             <signal name="row-activated" handler="_on_channel_entry_activated"/>
                                           </object>
                                         </property>
