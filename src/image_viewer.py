@@ -63,7 +63,8 @@ class ImageViewer(Adw.Flap):
         self.insert_action_group("image-viewer", self._image_viewer_action_group)
 
         self._mouse_hover_eventbox.set_events(Gdk.EventMask.POINTER_MOTION_MASK)
-        self._motion_event_controller = Gtk.EventControllerMotion(widget=self._mouse_hover_eventbox)
+        self._motion_event_controller = Gtk.EventControllerMotion()
+        self._mouse_hover_eventbox.add_controller(self._motion_event_controller)
         self._motion_event_controller.connect("motion", self._on_motion)
 
     @Gtk.Template.Callback()

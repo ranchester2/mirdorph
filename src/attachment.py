@@ -155,8 +155,9 @@ class ImageAttachment(MirdorphAttachment, Gtk.EventBox):
         self._image_stack.show()
         self.add(self._image_stack)
 
-        self._gesture = Gtk.GestureSingle(widget=self)
+        self._gesture = Gtk.GestureSingle()
         self._gesture.connect("begin", self._on_clicked)
+        self.add_controller(self._gesture)
 
         self._do_template_render()
         self._do_full_render_at()
