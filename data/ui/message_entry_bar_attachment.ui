@@ -23,7 +23,6 @@
                     <property name="valign">GTK_ALIGN_CENTER</property>
                     <property name="halign">GTK_ALIGN_CENTER</property>
                     <property name="icon-name">x-office-document-symbolic</property>
-                    <property name="icon-size">6</property>
                   </object>
                 </property>
                 <child type="overlay">
