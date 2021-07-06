@@ -268,13 +268,13 @@ class MessageEntryBarAttachment(Gtk.Button):
     _mode_content_box: Gtk.Box = Gtk.Template.Child()
     _filename_label: Gtk.Label = Gtk.Template.Child()
 
-    # Passing the attachment bar here as parent_for_sign as GtkBox doesn't work correctly
+    # Passing the attachment bar here as entry_bar as GtkBox doesn't work correctly
     # with the ::add signal.
-    def __init__(self, parent_for_sign=None, add_mode=True, filename=None, *args, **kwargs):
+    def __init__(self, entry_bar=None, add_mode=True, filename=None, *args, **kwargs):
         Gtk.Button.__init__(self, *args, **kwargs)
         self.add_mode = add_mode
         self.full_filename = filename
-        self._parent_for_sign = parent_for_sign
+        self._entry_bar = entry_bar
         if self.full_filename:
             self.add_mode = False
             self.set_sensitive(False)
@@ -303,10 +303,7 @@ class MessageEntryBarAttachment(Gtk.Button):
             )
             response = filechooser.run()
             if response == Gtk.ResponseType.ACCEPT:
-                self.get_parent().pack_start(
-                    MessageEntryBarAttachment(visible=True, add_mode=False, filename=filechooser.get_filename()),
-                    False,
-                    False,
-                    0
-                )
-                self._parent_for_sign.emulate_attachment_container_change()
+                att_wid = MessageEntryBarAttachment(visible=True, add_mode=False, filename=filechooser.get_filename())
+                self.get_parent().append(att_wid)
+                self._entry_bar.added_attachments_wid.append(att_wid)
+                self._entry_bar.emulate_attachment_container_change()

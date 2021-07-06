@@ -41,6 +41,8 @@ class MessageEntryBar(Gtk.Box, EventReceiver):
         self.context = context
         self.app = Gio.Application.get_default()
 
+        self.added_attachments_wid = []
+
         self._already_displaying_user_currently_typing = False
 
         self._add_extra_attachment_button = MessageEntryBarAttachment(
@@ -98,29 +100,26 @@ class MessageEntryBar(Gtk.Box, EventReceiver):
         # Unsetting happens in on_message due to similar reasons
         self.context.scroll_for_msg_send = True
 
-        atts_to_send = []
-        for att_widg in self._attachment_container:
-            if att_widg.add_mode:
-                continue
-
+        disc_atts_to_send = []
+        for att_wid in self.added_attachments_wid:
             # Discord 10 maximum
             if len(atts_to_send) >= 10:
                 break
 
-            atts_to_send.append(
+            disc_atts_to_send.append(
                 discord.File(
-                    att_widg.full_filename,
-                    filename=Path(att_widg.full_filename).name
+                    att_wid.full_filename,
+                    filename=Path(att_wid_full_filename).name
                 )
             )
 
         asyncio.run_coroutine_threadsafe(
-            self._message_send_wrapper(message, files=atts_to_send),
+            self._message_send_wrapper(message, files=disc_atts_to_send),
             self.app.discord_loop
         )
 
         for child in self._attachment_container:
-            if not child.add_mode:
+            if child in self.added_attachments_wid:
                 self._attachment_container.remove(child)
         self._attachment_togglebutton.set_active(False)
         self._message_entry.set_text("")
@@ -165,7 +164,7 @@ class MessageEntryBar(Gtk.Box, EventReceiver):
                     self.app.discord_loop
                 )
             self._send_button.get_style_context().add_class("suggested-action")
-        elif len(self._attachment_container.get_children()) < 2:
+        elif len(self.added_attachments_wid) < 2:
             self._send_button.set_sensitive(False)
             self._send_button.get_style_context().remove_class("suggested-action")
 
@@ -181,8 +180,8 @@ class MessageEntryBar(Gtk.Box, EventReceiver):
         if self._attachment_area_revealer.get_child_revealed():
             self.context.attachment_tray_scroll_mode = False
 
-    # Gtk Box does not support Gtk.Container::add
+    # Gtk Box does not support ::add
     def emulate_attachment_container_change(self):
-        if len(self._attachment_container.get_children()) > 1:
+        if len(self.added_attachments_wid) > 1:
             self._send_button.set_sensitive(True)
             self._send_button.get_style_context().add_class("suggested-action")
