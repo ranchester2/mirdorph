@@ -32,7 +32,6 @@ class MessageContent(Gtk.Box):
 
         for component in self._do_parse_construct():
             self.exports.extend(component.exports)
-            component.show()
             self.append(component)
 
     def _do_parse_construct(self) -> list:
@@ -203,7 +202,6 @@ class MirdorphMessage(Gtk.ListBoxRow):
         self.timestamp = disc_message.created_at.timestamp()
 
         self._message_content_wid = MessageContent(self._disc_message.content)
-        self._message_content_wid.show()
         self._message_content_container.append(self._message_content_wid)
 
         if self.merged:
@@ -217,13 +215,11 @@ class MirdorphMessage(Gtk.ListBoxRow):
             if get_attachment_type(att) == AttachmentType.IMAGE:
                 att_widg = ImageAttachment(att, self._disc_message.channel.id)
                 att_widg.set_halign(Gtk.Align.START)
-                att_widg.show()
                 self._attachment_box.append(att_widg)
             # If an attachment type is unsupported yet, it becomes generic
             else:
                 att_widg = GenericAttachment(att, self._disc_message.channel.id)
                 att_widg.set_halign(Gtk.Align.START)
-                att_widg.show()
                 self._attachment_box.append(att_widg)
             # There is atleast one attachment, and it looks better with a top margin,
             # not set from the start, as it looks weird with regular messages, and hiding
@@ -231,7 +227,6 @@ class MirdorphMessage(Gtk.ListBoxRow):
             self._attachment_box.set_margin_top(5)
 
         for export in self._message_content_wid.exports:
-            export.show()
             self._attachment_box.append(export)
 
     def merge(self):
@@ -253,11 +248,9 @@ class MirdorphMessage(Gtk.ListBoxRow):
 
         if not hasattr(self, "_username_label"):
             self._username_label = UsernameLabel(self.author, self._disc_message.guild)
-            self._username_label.show()
             self._username_container.append(self._username_label)
 
         if not hasattr(self, "_avatar"):
             self._avatar = UserMessageAvatar(self.author, margin_top=3)
-            self._avatar.show()
             self._avatar_box.append(self._avatar, False, False, 0)
         self.merged = False

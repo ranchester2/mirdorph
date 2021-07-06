@@ -239,7 +239,6 @@ class ImageViewer(Adw.Flap):
             hexpand=True,
             valign=Gtk.Align.CENTER
         )
-        picture_wid.show()
         self._picture_containe.set_child(picture_wid)
 
         self._window_title.set_title(self._current_attachment.filename)

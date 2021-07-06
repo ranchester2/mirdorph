@@ -125,7 +125,6 @@ class ImageAttachmentLoadingTemplate(Adw.Bin):
         self.add_css_class("image-attachment-template")
         self._spinner = Gtk.Spinner(halign=Gtk.Align.CENTER, valign=Gtk.Align.CENTER, 
             width_request=48, height_request=48)
-        self._spinner.show()
         self.set_child(self._spinner)
         self._spinner.start()
 
@@ -152,7 +151,6 @@ class ImageAttachment(MirdorphAttachment, Adw.Bin):
         )
 
         self._image_stack = Gtk.Stack()
-        self._image_stack.show()
         self.set_child(self._image_stack)
 
         self._gesture = Gtk.GestureSingle()
@@ -214,7 +212,6 @@ class ImageAttachment(MirdorphAttachment, Adw.Bin):
             self._calculate_required_size()[0],
             self._calculate_required_size()[1]
         )
-        self._template_image.show()
         self._image_stack.add_child(self._template_image)
 
     def _do_full_render_at(self):
@@ -237,7 +234,6 @@ class ImageAttachment(MirdorphAttachment, Adw.Bin):
                 preserve_aspect_ratio=True
             )
             self._real_image = Gtk.Image.new_from_pixbuf(pixbuf)
-            self._real_image.show()
 
             self._image_stack.add_child(self._real_image)
             self._image_stack.set_visible_child(self._real_image)

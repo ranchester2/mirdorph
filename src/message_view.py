@@ -71,24 +71,19 @@ class MessageView(Gtk.Overlay, EventReceiver):
             else:
                 return 0
         self._message_listbox.set_sort_func(message_listbox_sort_func, None, False)
-        self._message_listbox.show()
 
         self._history_loading_row = Gtk.ListBoxRow(height_request=32)
         # Attribute makes detecting it in sort easy
         self._history_loading_row.is_history_row = True
-        self._history_loading_row.show()
         self._history_loading_spinner = Gtk.Spinner()
-        self._history_loading_spinner.show()
         self._history_loading_row.set_child(self._history_loading_spinner)
         self._message_listbox.append(self._history_loading_row)
 
         self._message_clamp = Adw.Clamp(maximum_size=800, tightening_threshold=600)
-        self._message_clamp.show()
         self._message_clamp.set_child(self._message_listbox)
         self._message_column.append(self._message_clamp)
 
         self._typing_indicator = TypingIndicator(self.context.channel_disc)
-        self._typing_indicator.show()
         self._typing_indicator_overlay.add_overlay(self._typing_indicator)
 
         self._adj = self.scroller.get_vadjustment()
@@ -197,7 +192,6 @@ class MessageView(Gtk.Overlay, EventReceiver):
                     message,
                     merged=should_be_merged
                 )
-                message_wid.show()
                 self.add_ad(message_wid)
                 previous_author = message.author
 

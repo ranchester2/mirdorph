@@ -32,7 +32,6 @@ def separator_listbox_header_func(row, before):
     current = row.get_header()
     if current is None:
         current = Gtk.Separator.new(Gtk.Orientation.HORIZONTAL)
-        current.show()
         row.set_header(current)
 
 
@@ -54,7 +53,6 @@ class MirdorphChannelListEntry(Gtk.ListBoxRow):
             if discord_channel.category:
                 context_text += f" -> {discord_channel.category.name}"
             self._search_context_label.set_label(context_text)
-            self._search_context_label.show()
 
 class MirdorphGuildEntry(Adw.ExpanderRow):
     __gtype_name__ = "MirdorphGuildEntry"
@@ -68,7 +66,6 @@ class MirdorphGuildEntry(Adw.ExpanderRow):
         self.set_title(self._disc_guild.name)
 
         self._loading_state_spinner = Gtk.Spinner()
-        self._loading_state_spinner.show()
         self.add_prefix(self._loading_state_spinner)
         self._loading_state_spinner.start()
 
@@ -80,7 +77,6 @@ class MirdorphGuildEntry(Adw.ExpanderRow):
         # should keep track of witch is selected for example, and the sidebar
         # connects and handles row activations
         self.channel_listbox = Gtk.ListBox()
-        self.channel_listbox.show()
         self.channel_listbox.set_header_func(separator_listbox_header_func)
         self.add(self.channel_listbox)
 
@@ -126,13 +122,11 @@ class MirdorphGuildEntry(Adw.ExpanderRow):
                 )
                 return pixbuf
             guild_image.set_image_load_func(load_image, guild_image_path)
-            guild_image.show()
             self.add_prefix(guild_image)
         # The image isn't downloaded if the guild doesn't have one
         else:
             guild_image = Adw.Avatar(size=32, show_initials=True)
             guild_image.set_text(self._disc_guild.name)
-            guild_image.show()
             self.add_prefix(guild_image)
 
         for channel in self._disc_guild.channels:
@@ -143,7 +137,6 @@ class MirdorphGuildEntry(Adw.ExpanderRow):
                 continue
 
             channel_entry = MirdorphChannelListEntry(channel)
-            channel_entry.show()
             self.channel_listbox.append(channel_entry)
 
         self.remove(self._loading_state_spinner)
@@ -255,7 +248,6 @@ class MirdorphChannelSidebar(Gtk.Box):
         for guild in guilds:
             guild_entry = MirdorphGuildEntry(guild)
             guild_entry.channel_listbox.connect("row-activated", self._on_channel_entry_activated)
-            guild_entry.show()
             self._channel_guild_list.append(guild_entry)
 
             # NOTE: may be a bit bad to performance to have such a massive listbox when not even needed,
@@ -263,7 +255,6 @@ class MirdorphChannelSidebar(Gtk.Box):
             for channel in guild.channels:
                 if not isinstance(channel, TEXT_CHANNEL_FILTER) and channel.permissions_for(guild.me).view_channel:
                     search_channel_entry = MirdorphChannelListEntry(channel, search_mode=True)
-                    search_channel_entry.show()
                     self._search_list.append(search_channel_entry)
 
         self._channel_guild_loading_stack.set_visible_child(self._channel_guild_list_container)

@@ -155,7 +155,6 @@ class Application(Gtk.Application):
             created while the main window isn't initialized yet.
         """
         context = ChannelInnerWindow(empty=False, channel=channel)
-        context.show()
         flap.connect("notify::folded", context.handle_flap_folding)
 
         self.main_win.context_stack.add_child(context)

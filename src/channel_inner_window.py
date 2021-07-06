@@ -37,7 +37,6 @@ class ContextErrorDialog(Gtk.MessageDialog):
         if details:
             # The scrolled window has a minimum size and a border, better to
             # not show it by default instead
-            self._details_scrolled_win.show()
             self._details_textview.get_buffer().set_text(details, -1)
 
 
@@ -99,11 +98,9 @@ class ChannelInnerWindow(Gtk.Box):
                 self._window_title.set_subtitle(self.channel_disc.topic)
 
             self._image_viewer = ImageViewer(context=self)
-            self._image_viewer.show()
             self._main_deck.append(self._image_viewer)
 
             self._message_view = MessageView(context=self, vexpand=True)
-            self._message_view.show()
             # It is needed to check if now the scroll should be handled differently
             # if for example the user just sent a message, for example to
             # always scroll to the bottom then.
@@ -112,7 +109,6 @@ class ChannelInnerWindow(Gtk.Box):
             self._content_box.append(self._message_view)
 
             self._message_entry_bar = MessageEntryBar(context=self, vexpand=True, valign=Gtk.Align.END)
-            self._message_entry_bar.show()
             # If the attachment tray "revealment" mode for handling scrolling is
             # used (smooth animation), users of this are expected to directly set it
             self.attachment_tray_scroll_mode = False

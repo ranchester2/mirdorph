@@ -160,7 +160,6 @@ class MessageComponent(Adw.Bin):
             )
             # Safe currently as only strings
             self._text_label.set_markup("".join(build_widget_list(self._raw_component_content)))
-            self._text_label.show()
 
             if self.component_type == ComponentType.QUOTE:
                 self._text_label.add_css_class("quote")
