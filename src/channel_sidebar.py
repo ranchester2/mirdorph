@@ -111,23 +111,18 @@ class MirdorphGuildEntry(Adw.ExpanderRow):
 
     def _build_guild_gtk_target(self):
         guild_image_path = self._get_icon_path_from_guild_id(self._disc_guild.id)
+        guild_avatar = Adw.Avatar(size=32, show_initials=True)
+        guild_avatar.set_text(self._disc_guild.name)
+
         if guild_image_path.is_file():
-            guild_image = Adw.Avatar(size=32)
-            def load_image(size, guild_image_path: Path):
-                pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(
-                    str(guild_image_path),
-                    width=size,
-                    height=size,
-                    preserve_aspect_ratio=False
-                )
-                return pixbuf
-            guild_image.set_image_load_func(load_image, guild_image_path)
-            self.add_prefix(guild_image)
-        # The image isn't downloaded if the guild doesn't have one
-        else:
-            guild_image = Adw.Avatar(size=32, show_initials=True)
-            guild_image.set_text(self._disc_guild.name)
-            self.add_prefix(guild_image)
+            guild_avatar = Adw.Avatar(size=32)
+            image_wid = Gtk.Image.new_from_file(
+                str(guild_image_path)
+            )
+            guild_avatar.set_custom_image(image_wid.get_paintable())
+            self.add_prefix(guild_avatar)
+
+        self.add_prefix(guild_avatar)
 
         for channel in self._disc_guild.channels:
             if isinstance(channel, TEXT_CHANNEL_FILTER):
