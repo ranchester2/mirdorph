@@ -114,6 +114,13 @@
                               </object>
                             </child>
                             <child type="end">
+                              <object class="GtkMenuButton">
+                                <property name="tooltip-text" translatable="yes">Menu</property>
+                                <property name="icon-name">open-menu-symbolic</property>
+                                <property name="popover">_main_menu_popover</property>
+                              </object>
+                            </child>
+                            <child type="end">
                               <object class="GtkButton" id="_add_server_button">
                                 <child>
                                   <object class="GtkImage">
@@ -123,17 +130,6 @@
                                 <style>
                                   <class name="image-button"/>
                                 </style>
-                              </object>
-                            </child>
-                            <child type="end">
-                              <object class="GtkMenuButton">
-                                <property name="tooltip-text" translatable="yes">Menu</property>
-                                <property name="popover">_main_menu_popover</property>
-                                <child>
-                                  <object class="GtkImage">
-                                    <property name="icon-name">open-menu-symbolic</property>
-                                  </object>
-                                </child>
                               </object>
                             </child>
                           </object>
