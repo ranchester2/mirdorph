@@ -100,8 +100,6 @@ class MessageView(Gtk.Overlay, EventReceiver):
         self._adj.connect("notify::upper", self._on_upper_changed)
         self._adj.connect("value-changed", self._on_adj_value_changed)
 
-        self._message_listbox.set_focus_vadjustment(self._adj)
-
     def _fix_merges(self):
         """
         Attempt to efficiently fix incorrect message merging,
