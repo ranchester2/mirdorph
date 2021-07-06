@@ -46,6 +46,7 @@ class ChannelInnerWindow(Gtk.Box):
     __gtype_name__ = "ChannelInnerWindow"
 
     _context_headerbar: Adw.HeaderBar = Gtk.Template.Child()
+    _window_title: Adw.WindowTitle = Gtk.Template.Child()
 
     _toplevel_content_stack: Gtk.Stack = Gtk.Template.Child()
     _empty_status_page: Adw.StatusPage = Gtk.Template.Child()
@@ -93,9 +94,9 @@ class ChannelInnerWindow(Gtk.Box):
             # for creating a context appears.
             self.channel_disc = self.app.discord_client.get_channel(self.channel_id)
 
-            self._context_headerbar.set_title("#" + self.channel_disc.name)
+            self._window_title.set_title("#" + self.channel_disc.name)
             if self.channel_disc.topic is not None:
-                self._context_headerbar.set_subtitle(self.channel_disc.topic)
+                self._window_title.set_subtitle(self.channel_disc.topic)
 
             self._image_viewer = ImageViewer(context=self)
             self._image_viewer.show()

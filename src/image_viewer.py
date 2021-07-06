@@ -31,6 +31,7 @@ class ImageViewer(Adw.Flap):
 
     _picture_container: Gtk.ScrolledWindow = Gtk.Template.Child()
     _headerbar: Adw.HeaderBar = Gtk.Template.Child()
+    _window_title: Adw.WindowTitle = Gtk.Template.Child()
     _fullscreen_button_image: Gtk.Image = Gtk.Template.Child()
 
     _catalog_buttons_revealer: Gtk.Revealer = Gtk.Template.Child()
@@ -241,6 +242,6 @@ class ImageViewer(Adw.Flap):
         picture_wid.show()
         self._picture_container.add(picture_wid)
 
-        self._headerbar.set_title(self._current_attachment.filename)
+        self._window_title.set_title(self._current_attachment.filename)
 
         threading.Thread(target=self._check_if_first_media_target).start()

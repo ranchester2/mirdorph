@@ -20,7 +20,11 @@
             <property name="orientation">vertical</property>
             <child>
               <object class="AdwHeaderBar" id="_context_headerbar">
-                <property name="show-close-button">True</property>
+                <property name="show-end-title-buttons">True</property>
+                <property name="title-widget">
+                  <object class="AdwWindowTitle" id="_window_title">
+                  </object>
+                </property>
                 <child>
                   <object class="GtkButton" id="_flap_toggle_button">
                     <property name="visible">False</property>

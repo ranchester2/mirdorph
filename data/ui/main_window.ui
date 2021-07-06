@@ -100,6 +100,7 @@
                         <property name="orientation">vertical</property>
                         <child>
                           <object class="AdwHeaderBar">
+                            <property name="show-end-title-buttons">False</property>
                             <child>
                               <object class="GtkToggleButton" id="_channel_search_button">
                                 <child>

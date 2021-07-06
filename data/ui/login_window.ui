@@ -5,6 +5,7 @@
     <property name="default-width">750</property>
     <property name="default-height">616</property>
     <property name="icon-name">org.gnome.gitlab.ranchester.Mirdorph</property>
+    <property name="title" translatable="yes">Connect your Account</property>
     <child>
       <object class="AdwDeck" id="_toplevel_deck">
         <property name="can-swipe-forward">False</property>
@@ -21,7 +22,6 @@
                     <property name="show-close-button">False</property>
                     <property name="width-request">370</property>
                     <property name="valign">GTK_ALIGN_CENTER</property>
-                    <property name="title" translatable="yes">Connect your Account</property>
                     <child>
                       <object class="GtkButton">
                         <property name="action-name">login.cancel</property>
@@ -34,7 +34,6 @@
                   <object class="AdwHeaderBar">
                     <property name="show-close-button">False</property>
                     <property name="valign">GTK_ALIGN_CENTER</property>
-                    <property name="title" translatable="yes">Connect your Account</property>
                   </object>
                 </child>
               </object>
@@ -130,7 +129,11 @@
                 <property name="orientation">vertical</property>
                 <child>
                   <object class="AdwHeaderBar">
-                    <property name="title" translatable="yes">Enter Credentials</property>
+                    <property name="title-widget">
+                      <object class="AdwWindowTitle">
+                        <property name="title" translatable="yes">Enter Credentials</property>
+                      </object>
+                    </property>
                     <child>
                       <object class="GtkButton">
                         <property name="action-name">login.back</property>
@@ -201,7 +204,11 @@
                 <property name="orientation">vertical</property>
                 <child>
                   <object class="AdwHeaderBar">
-                    <property name="title" translatable="yes">Enter Credentials</property>
+                    <property name="title-widget">
+                      <object class="AdwWindowTitle">
+                        <property name="title" translatable="yes">Enter Credentials</property>
+                      </object>
+                    </property>
                     <child>
                       <object class="GtkButton">
                         <property name="action-name">login.back</property>
@@ -337,7 +344,11 @@
                 <property name="orientation">vertical</property>
                 <child>
                   <object class="AdwHeaderBar">
-                    <property name="title" translatable="yes">Enter Credentials</property>
+                    <property name="title-widget">
+                      <object class="AdwWindowTitle">
+                        <property name="title" translatable="yes">Enter Credentials</property>
+                      </object>
+                    </property>
                     <child>
                       <object class="GtkButton">
                         <property name="action-name">login.back</property>

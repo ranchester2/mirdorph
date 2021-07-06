@@ -5,6 +5,7 @@
   <template class="ChannelPropertiesWindow" parent="AdwWindow">
     <property name="default-width">375</property>
     <property name="default-height">550</property>
+    <property name="title" translatabl="yes">Channel Properties</property>
     <child>
       <object class="GtkBox">
         <property name="orientation">vertical</property>
@@ -17,7 +18,6 @@
                 <property name="show-close-button">True</property>
                 <property name="width-request">362</property>
                 <property name="valign">GTK_ALIGN_CENTER</property>
-                <property name="title" translatable="yes">Channel Properties</property>
               </object>
             </child>
             <child>
