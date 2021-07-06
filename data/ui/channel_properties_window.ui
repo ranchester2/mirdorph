@@ -5,7 +5,7 @@
   <template class="ChannelPropertiesWindow" parent="AdwWindow">
     <property name="default-width">375</property>
     <property name="default-height">550</property>
-    <property name="title" translatabl="yes">Channel Properties</property>
+    <property name="title" translatable="yes">Channel Properties</property>
     <child>
       <object class="GtkBox">
         <property name="orientation">vertical</property>
@@ -24,7 +24,6 @@
               <object class="AdwHeaderBar">
                 <property name="show-end-title-buttons">True</property>
                 <property name="valign">GTK_ALIGN_CENTER</property>
-                <property name="title" translatable="yes">Channel Properties</property>
                 <child>
                   <object class="GtkButton" id="_back_button">
                     <signal name="clicked" handler="_on_back_button_clicked"/>
@@ -98,6 +97,7 @@
                           <object class="AdwPreferencesGroup">
                             <property name="title" translatable="yes">Activity</property>
                             <property name="vexpand">True</property>
+                            <property name="hexpand">True</property>
                             <child>
                               <object class="AdwActionRow">
                                 <property name="title" translatable="yes">Last Activity</property>
