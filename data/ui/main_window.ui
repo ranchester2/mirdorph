@@ -19,8 +19,7 @@
           <object class="GtkStackPage">
             <property name="name">loading</property>
             <property name="child">
-              <object class="AdwWindowHandle">
-                <property name="visible">True</property>
+              <object class="GtkWindowHandle">
                 <child>
                   <object class="GtkBox">
                     <property name="orientation">vertical</property>

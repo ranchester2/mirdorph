@@ -196,7 +196,8 @@ class ImageViewer(Adw.Flap):
                     Gtk.IconSize.BUTTON
                 )
 
-                self._headerbar.set_show_close_button(True)
+                self._headerbar.set_show_start_title_buttons(True)
+                self._headerbar.set_show_end_title_buttons(True)
                 self.set_fold_policy(Adw.FlapFoldPolicy.NEVER)
                 self.set_reveal_flap(True)
 
@@ -208,7 +209,8 @@ class ImageViewer(Adw.Flap):
                     Gtk.IconSize.BUTTON
                 )
 
-                self._headerbar.set_show_close_button(False)
+                self._headerbar.set_show_start_title_buttons(False)
+                self._headerbar.set_show_end_title_buttons(False)
                 self.set_fold_policy(Adw.FlapFoldPolicy.ALWAYS)
                 self.set_reveal_flap(True)
 

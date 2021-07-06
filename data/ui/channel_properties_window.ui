@@ -15,14 +15,14 @@
             <property name="transition-type">1</property>
             <child>
               <object class="AdwHeaderBar">
-                <property name="show-close-button">True</property>
+                <property name="show-end-title-buttons">True</property>
                 <property name="width-request">362</property>
                 <property name="valign">GTK_ALIGN_CENTER</property>
               </object>
             </child>
             <child>
               <object class="AdwHeaderBar">
-                <property name="show-close-button">True</property>
+                <property name="show-end-title-buttons">True</property>
                 <property name="valign">GTK_ALIGN_CENTER</property>
                 <property name="title" translatable="yes">Channel Properties</property>
                 <child>

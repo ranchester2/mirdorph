@@ -19,7 +19,8 @@
                 <property name="transition-type">1</property>
                 <child>
                   <object class="AdwHeaderBar">
-                    <property name="show-close-button">False</property>
+                    <property name="show-start-title-buttons">False</property>
+                    <property name="show-end-title-buttons">False</property>
                     <property name="width-request">370</property>
                     <property name="valign">GTK_ALIGN_CENTER</property>
                     <child>
@@ -32,7 +33,8 @@
                 </child>
                 <child>
                   <object class="AdwHeaderBar">
-                    <property name="show-close-button">False</property>
+                    <property name="show-end-title-buttons">False</property>
+                    <property name="show-start-title-buttons">False</property>
                     <property name="valign">GTK_ALIGN_CENTER</property>
                   </object>
                 </child>
@@ -240,7 +242,7 @@
                       <object class="GtkInfoBar">
                         <property name="valign">GTK_ALIGN_START</property>
                         <property name="message-type">warning</property>
-                        <property name="show-close-button">1</property>
+                        <property name="show-close-button">True</property>
                         <signal name="response" handler="_on_password_warning_bar_response" />
                         <child internal-child="content_area">
                           <object class="GtkBox">
