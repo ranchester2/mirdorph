@@ -90,8 +90,7 @@ class Application(Gtk.Application):
         provider.load_from_resource(
             "/org/gnome/gitlab/ranchester/Mirdorph/ui/gtk_style.css"
         )
-        display = Gdk.Display.get_default()
-        Gtk.StyleContext.add_provider_for_screen(
+        Gtk.StyleContext.add_provider_for_display(
             Gdk.Display.get_default(),
             provider,
             Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
