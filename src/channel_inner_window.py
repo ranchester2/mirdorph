@@ -50,7 +50,7 @@ class ChannelInnerWindow(Gtk.Box):
     _toplevel_content_stack: Gtk.Stack = Gtk.Template.Child()
     _empty_status_page: Adw.StatusPage = Gtk.Template.Child()
 
-    _main_deck: Adw.Deck = Gtk.Template.Child()
+    _main_deck: Adw.Leaflet = Gtk.Template.Child()
     _channel_box: Gtk.Box = Gtk.Template.Child()
 
     _content_box: Gtk.Box = Gtk.Template.Child()

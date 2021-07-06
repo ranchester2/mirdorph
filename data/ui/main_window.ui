@@ -89,7 +89,8 @@
           <object class="GtkStackPage">
             <property name="name">session</property>
             <property name="child">
-              <object class="AdwDeck">
+              <object class="AdwLeaflet">
+                <property name="can-unfold">False</property>
                 <child>
                   <object class="AdwFlap" id="main_flap">
                     <property name="swipe-to-close">False</property>

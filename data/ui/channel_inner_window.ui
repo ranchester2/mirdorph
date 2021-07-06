@@ -10,7 +10,8 @@
     <property name="orientation">vertical</property>
     <property name="width-request">355</property>
     <child>
-      <object class="AdwDeck" id="_main_deck">
+      <object class="AdwLeaflet" id="_main_deck">
+        <property name="can-unfold">False</property>
         <property name="can-swipe-back">True</property>
         <property name="can-swipe-forward">False</property>
         <property name="transition-type">over</property>

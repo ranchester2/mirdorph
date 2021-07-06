@@ -55,7 +55,7 @@ class TosNotice(Gtk.MessageDialog):
 class MirdorphLoginWindow(Adw.ApplicationWindow):
     __gtype_name__ = "MirdorphLoginWindow"
 
-    _toplevel_deck: Adw.Deck = Gtk.Template.Child()
+    _toplevel_deck: Adw.Leaflet = Gtk.Template.Child()
     _login_welcome_page: Gtk.Box = Gtk.Template.Child()
 
     _second_stage_stack: Gtk.Stack = Gtk.Template.Child()

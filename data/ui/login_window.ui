@@ -7,7 +7,8 @@
     <property name="icon-name">org.gnome.gitlab.ranchester.Mirdorph</property>
     <property name="title" translatable="yes">Connect your Account</property>
     <child>
-      <object class="AdwDeck" id="_toplevel_deck">
+      <object class="AdwLeaflet" id="_toplevel_deck">
+        <property name="can-unfold">False</property>
         <property name="can-swipe-forward">False</property>
         <property name="can-swipe-back">True</property>
         <child>
