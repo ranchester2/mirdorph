@@ -146,7 +146,7 @@ class MirdorphChannelSidebar(Gtk.Box):
     __gtype_name__ = "MirdorphChannelSidebar"
 
     _guild_list_search_entry: Gtk.SearchEntry = Gtk.Template.Child()
-    _guild_list_search_bar: Adw.SearchBar = Gtk.Template.Child()
+    _guild_list_search_bar: Gtk.SearchBar = Gtk.Template.Child()
     _channel_guild_list: Gtk.ListBox = Gtk.Template.Child()
 
     _channel_guild_loading_stack: Gtk.Stack = Gtk.Template.Child()
