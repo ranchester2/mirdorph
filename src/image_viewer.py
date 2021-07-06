@@ -216,8 +216,8 @@ class ImageViewer(Adw.Flap):
 
     def _remove_existing_image(self, *args):
         if self._picture_container.get_children():
-            self._picture_container.remove(
-                self._picture_container.get_children()[0]
+            self._picture_container.set_child(
+                None
             )
             self._current_image_path = None
 
@@ -240,7 +240,7 @@ class ImageViewer(Adw.Flap):
             valign=Gtk.Align.CENTER
         )
         picture_wid.show()
-        self._picture_container.add(picture_wid)
+        self._picture_containe.set_child(picture_wid)
 
         self._window_title.set_title(self._current_attachment.filename)
 

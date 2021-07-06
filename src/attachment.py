@@ -22,7 +22,7 @@ import os
 from gettext import gettext as _
 from enum import Enum
 from pathlib import Path
-from gi.repository import Gtk, Gio, GObject, GLib, GdkPixbuf
+from gi.repository import Adw, Gtk, Gio, GObject, GLib, GdkPixbuf
 
 
 class AttachmentType(Enum):
@@ -126,7 +126,7 @@ class ImageAttachmentLoadingTemplate(Adw.Bin):
         self._spinner = Gtk.Spinner(halign=Gtk.Align.CENTER, valign=Gtk.Align.CENTER, 
             width_request=48, height_request=48)
         self._spinner.show()
-        self.add(self._spinner)
+        self.set_child(self._spinner)
         self._spinner.start()
 
 
@@ -153,7 +153,7 @@ class ImageAttachment(MirdorphAttachment, Adw.Bin):
 
         self._image_stack = Gtk.Stack()
         self._image_stack.show()
-        self.add(self._image_stack)
+        self.set_child(self._image_stack)
 
         self._gesture = Gtk.GestureSingle()
         self._gesture.connect("begin", self._on_clicked)
@@ -215,7 +215,7 @@ class ImageAttachment(MirdorphAttachment, Adw.Bin):
             self._calculate_required_size()[1]
         )
         self._template_image.show()
-        self._image_stack.add(self._template_image)
+        self._image_stack.add_child(self._template_image)
 
     def _do_full_render_at(self):
         threading.Thread(target=self._fetch_image_target).start()
@@ -239,7 +239,7 @@ class ImageAttachment(MirdorphAttachment, Adw.Bin):
             self._real_image = Gtk.Image.new_from_pixbuf(pixbuf)
             self._real_image.show()
 
-            self._image_stack.add(self._real_image)
+            self._image_stack.add_child(self._real_image)
             self._image_stack.set_visible_child(self._real_image)
 
             self.emit("image_fully_loaded")

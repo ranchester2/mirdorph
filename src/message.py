@@ -254,10 +254,10 @@ class MirdorphMessage(Gtk.ListBoxRow):
         if not hasattr(self, "_username_label"):
             self._username_label = UsernameLabel(self.author, self._disc_message.guild)
             self._username_label.show()
-            self._username_container.add(self._username_label)
+            self._username_container.append(self._username_label)
 
         if not hasattr(self, "_avatar"):
             self._avatar = UserMessageAvatar(self.author, margin_top=3)
             self._avatar.show()
-            self._avatar_box.pack_start(self._avatar, False, False, 0)
+            self._avatar_box.append(self._avatar, False, False, 0)
         self.merged = False

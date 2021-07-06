@@ -79,13 +79,13 @@ class MessageView(Gtk.Overlay, EventReceiver):
         self._history_loading_row.show()
         self._history_loading_spinner = Gtk.Spinner()
         self._history_loading_spinner.show()
-        self._history_loading_row.add(self._history_loading_spinner)
-        self._message_listbox.add(self._history_loading_row)
+        self._history_loading_row.set_child(self._history_loading_spinner)
+        self._message_listbox.append(self._history_loading_row)
 
         self._message_clamp = Adw.Clamp(maximum_size=800, tightening_threshold=600)
         self._message_clamp.show()
-        self._message_clamp.add(self._message_listbox)
-        self._message_column.add(self._message_clamp)
+        self._message_clamp.set_child(self._message_listbox)
+        self._message_column.append(self._message_clamp)
 
         self._typing_indicator = TypingIndicator(self.context.channel_disc)
         self._typing_indicator.show()
@@ -145,7 +145,7 @@ class MessageView(Gtk.Overlay, EventReceiver):
         # when needed.
         self._inserting_message = True
 
-        self._message_listbox.add(row)
+        self._message_listbox.append(row)
 
     def object_is_dupe(self, new_id: int) -> bool:
         """

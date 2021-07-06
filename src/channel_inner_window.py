@@ -100,7 +100,7 @@ class ChannelInnerWindow(Gtk.Box):
 
             self._image_viewer = ImageViewer(context=self)
             self._image_viewer.show()
-            self._main_deck.add(self._image_viewer)
+            self._main_deck.append(self._image_viewer)
 
             self._message_view = MessageView(context=self)
             self._message_view.show()
@@ -195,7 +195,7 @@ class ChannelInnerWindow(Gtk.Box):
 
         self._popout_button_stack.set_visible_child(self._popout_button)
 
-        self._popout_window.remove(self)
+        self._popout_window.set_child(None)
         self._popout_window.destroy()
 
         self.app.main_win.unconfigure_popout_window(self)
@@ -219,7 +219,7 @@ class ChannelInnerWindow(Gtk.Box):
             title=f"Mirdorph - #{self.channel_disc.name}"
         )
         self._popout_window.connect("delete-event", lambda w, e : self.popin())
-        self._popout_window.add(self)
+        self._popout_window.set_child(self)
         self.do_first_see()
         self._popout_window.present()
 

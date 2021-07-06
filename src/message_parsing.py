@@ -165,4 +165,4 @@ class MessageComponent(Adw.Bin):
             if self.component_type == ComponentType.QUOTE:
                 self._text_label.get_style_context().add_class("quote")
 
-            self.add(self._text_label)
+            self.set_child(self._text_label)

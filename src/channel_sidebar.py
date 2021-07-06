@@ -144,7 +144,7 @@ class MirdorphGuildEntry(Adw.ExpanderRow):
 
             channel_entry = MirdorphChannelListEntry(channel)
             channel_entry.show()
-            self.channel_listbox.add(channel_entry)
+            self.channel_listbox.append(channel_entry)
 
         self.remove(self._loading_state_spinner)
 
@@ -256,7 +256,7 @@ class MirdorphChannelSidebar(Gtk.Box):
             guild_entry = MirdorphGuildEntry(guild)
             guild_entry.channel_listbox.connect("row-activated", self._on_channel_entry_activated)
             guild_entry.show()
-            self._channel_guild_list.add(guild_entry)
+            self._channel_guild_list.append(guild_entry)
 
             # NOTE: may be a bit bad to performance to have such a massive listbox when not even needed,
             # maybe better to build it on search and destroy it on search end?
@@ -264,7 +264,7 @@ class MirdorphChannelSidebar(Gtk.Box):
                 if not isinstance(channel, TEXT_CHANNEL_FILTER) and channel.permissions_for(guild.me).view_channel:
                     search_channel_entry = MirdorphChannelListEntry(channel, search_mode=True)
                     search_channel_entry.show()
-                    self._search_list.add(search_channel_entry)
+                    self._search_list.append(search_channel_entry)
 
         self._channel_guild_loading_stack.set_visible_child(self._channel_guild_list_container)
 

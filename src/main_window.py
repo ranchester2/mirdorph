@@ -52,7 +52,7 @@ class MirdorphMainWindow(Adw.ApplicationWindow, EventReceiver):
         self._empty_inner_window = ChannelInnerWindow(empty=True)
         self.main_flap.connect("notify::folded", self._empty_inner_window.handle_flap_folding)
         self._empty_inner_window.show()
-        self.context_stack.add(self._empty_inner_window)
+        self.context_stack.add_child(self._empty_inner_window)
 
         self._channel_sidebar = MirdorphChannelSidebar(channel_search_button=self._channel_search_button)
         self._channel_sidebar.show()
@@ -119,7 +119,7 @@ class MirdorphMainWindow(Adw.ApplicationWindow, EventReceiver):
         param:
             context - the ChannelInnerWindow context
         """
-        self.context_stack.add(context)
+        self.context_stack.add_child(context)
         self.context_stack.set_visible_child(context)
 
     def show_active_channel(self, channel_id):

@@ -158,7 +158,7 @@ class Application(Gtk.Application):
         context.show()
         flap.connect("notify::folded", context.handle_flap_folding)
 
-        self.main_win.context_stack.add(context)
+        self.main_win.context_stack.add_child(context)
         self._inner_window_contexts[channel] = context
 
     def retrieve_inner_window_context(self, channel: int):
