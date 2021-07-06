@@ -90,7 +90,7 @@
                 </child>
                 <child>
                   <object class="GtkSpinner" id="_guild_loading_page">
-                    <property name="active">True</property>
+                    <property name="spinning">True</property>
                     <property name="valign">GTK_ALIGN_CENTER</property>
                     <property name="height-request">256</property>
                     <property name="width-request">256</property>
