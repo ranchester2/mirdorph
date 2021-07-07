@@ -18,7 +18,6 @@ import threading
 import logging
 import discord
 import os
-import time
 from pathlib import Path
 from gi.repository import Adw, Gtk, Gio, GObject, GLib, GdkPixbuf
 
@@ -208,7 +207,7 @@ class MirdorphChannelSidebar(Gtk.Box):
             self._guild_list_search_bar.set_search_mode(False)
             self._set_channel_entry_active(self._search_list.get_selected_row())
 
-    def _get_guilds_list(self) -> list:
+    async def _get_guilds_list(self) -> list:
         """
         Helper function to get the guilds list while handling client not
         yet being connected.
@@ -216,15 +215,19 @@ class MirdorphChannelSidebar(Gtk.Box):
         The channel sidebar is created at startup, and .guilds doesn't work
         if the client isn't fully connected yet.
 
-        Must be called in separate thread (blocking if not connected).
+        It is async to ensure thread-safe usage of the .guilds attribute to
+        avoid missing guilds.
         """
         while not self.app.discord_client.guilds:
-            time.sleep(0.25)
+            await asyncio.sleep(0.25)
 
         return self.app.discord_client.guilds
 
     def _build_guilds_target(self):
-        guilds = self._get_guilds_list()
+        guilds = asyncio.run_coroutine_threadsafe(
+            self._get_guilds_list(),
+            self.app.discord_loop
+        ).result()
 
         GLib.idle_add(self._build_guilds_gtk_target, guilds)
 
