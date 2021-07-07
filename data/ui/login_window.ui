@@ -315,10 +315,10 @@
                                 <child>
                                   <object class="GtkListBoxRow">
                                     <property name="child">
-                                      <object class="GtkEntry" id="_password_entry">
+                                      <object class="GtkPasswordEntry" id="_password_entry">
                                         <property name="placeholder-text" translatable="yes">Password</property>
-                                        <property name="visibility">False</property>
                                         <property name="activates-default">True</property>
+                                        <property name="show-peek-icon">True</property>
                                         <signal name="changed" handler="_on_password_entries_changed" />
                                       </object>
                                     </property>
