@@ -115,7 +115,7 @@ class MirdorphLoginWindow(Adw.ApplicationWindow):
         self._graphical_login_button.grab_focus()
 
         if not self.props.application.confman.get_value("tos_notice_accepted"):
-            # If directly shown in __init__, the login window would not be displayed yet.
+            # The window must be created first before transient_for works
             GLib.idle_add(self._show_tos_notice)
 
     def _build_token_grabber(self):
@@ -139,11 +139,14 @@ class MirdorphLoginWindow(Adw.ApplicationWindow):
 
     def _show_tos_notice(self):
         notice = TosNotice(modal=True, transient_for=self)
-        response = notice.run()
+        notice.connect("response", self._on_tos_notice_response)
+        notice.show()
+
+    def _on_tos_notice_response(self, dialog: TosNotice, response: int):
         if response == Gtk.ResponseType.OK:
             self.props.application.confman.set_value(
                 "tos_notice_accepted", True)
-            notice.destroy()
+            dialog.destroy()
         else:
             self.props.application.quit()
 

@@ -6,7 +6,7 @@
     <property name="default-widget">_button_cancel</property>
     <property name="message-type">warning</property>
     <property name="secondary-text" translatable="yes">Use of Mirdorph is a direct violation of Discord's terms of service, and may lead to account termination.</property>
-    <child internal-child="vbox">
+    <child internal-child="content_area">
       <object class="GtkBox">
         <child>
           <object class="GtkBox">
@@ -50,7 +50,7 @@
     </child>
     <child type="action">
       <object class="GtkButton" id="_button_proceed">
-        <property name="sensitive" bind-source="_understood_checkbutton" bind-property="active" bind-flags="default"/>
+        <property name="sensitive" bind-source="_understood_checkbutton" bind-property="active" bind-flags="default">False</property>
         <property name="label" translatable="yes">Proceed</property>
         <style>
           <class name="destructive-action"/>
