@@ -8,6 +8,7 @@
         <property name="height-request">46</property>
         <child>
           <object class="AdwClamp">
+            <property name="hexpand">True</property>
             <property name="maximum-size">800</property>
             <property name="tightening-threshold">600</property>
             <child>
