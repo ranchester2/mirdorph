@@ -1,11 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
   <requires lib="gtk" version="4.0" />
-  <object class="GtkPopoverMenu" id="_context_menu_popover">
-    <child>
-      <placeholder />
-    </child>
-  </object>
+  <menu id="_context_menu">
+    <section>
+      <item>
+        <attribute name="label" translatable="yes">Channel Properties</attribute>
+        <attribute name="action">context.properties</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="yes">Advanced Search...</attribute>
+        <attribute name="action">context.search</attribute>
+      </item>
+    </section>
+  </menu>
   <template class="ChannelInnerWindow" parent="GtkBox">
     <property name="orientation">vertical</property>
     <property name="width-request">355</property>
@@ -73,8 +80,8 @@
                 </child>
                 <child type="end">
                   <object class="GtkMenuButton" id="_context_menu_button">
-                    <property name="popover">_context_menu_popover</property>
                     <property name="icon-name">view-more-symbolic</property>
+                    <property name="menu-model">_context_menu</property>
                   </object>
                 </child>
               </object>

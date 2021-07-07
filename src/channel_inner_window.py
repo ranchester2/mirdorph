@@ -60,7 +60,6 @@ class ChannelInnerWindow(Gtk.Box):
     _popin_button: Gtk.Button = Gtk.Template.Child()
 
     _context_menu_button: Gtk.MenuButton = Gtk.Template.Child()
-    _context_menu_popover: Gtk.PopoverMenu = Gtk.Template.Child()
 
     _flap_toggle_button: Gtk.Button = Gtk.Template.Child()
 
@@ -127,13 +126,6 @@ class ChannelInnerWindow(Gtk.Box):
             self._context_action_group.add_action(search_action)
 
             self.insert_action_group("context", self._context_action_group)
-            context_menu_builder = Gtk.Builder.new_from_resource(
-                "/org/gnome/gitlab/ranchester/Mirdorph/ui/context_menu.ui"
-            )
-            context_menu = context_menu_builder.get_object(
-                "contextMenu"
-            )
-            self._context_menu_popover.set_menu_model(context_menu)
         elif self.empty:
             self._context_headerbar.remove(self._context_menu_button)
             self._context_headerbar.remove(self._popout_button)

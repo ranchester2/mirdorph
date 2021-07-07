@@ -16,7 +16,6 @@
     <file>ui/channel_sidebar.ui</file>
     <file>ui/channel_list_entry.ui</file>
     <file>ui/general_menu.ui</file>
-    <file>ui/context_menu.ui</file>
     <file>ui/message_view.ui</file>
     <file>ui/channel_properties_window.ui</file>
     <file>ui/message.ui</file>
