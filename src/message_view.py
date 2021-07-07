@@ -79,7 +79,12 @@ class MessageView(Gtk.Overlay, EventReceiver):
         self._history_loading_row.set_child(self._history_loading_spinner)
         self._message_listbox.append(self._history_loading_row)
 
-        self._message_clamp = Adw.Clamp(maximum_size=800, tightening_threshold=600)
+        self._message_clamp = Adw.Clamp(
+            maximum_size=800,
+            tightening_threshold=600,
+            halign=Gtk.Align.CENTER,
+            hexpand=True
+        )
         self._message_clamp.set_child(self._message_listbox)
         self._message_column.append(self._message_clamp)
 
