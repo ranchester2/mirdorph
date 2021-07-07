@@ -91,10 +91,11 @@
                 </child>
                 <child>
                   <object class="GtkSpinner" id="_guild_loading_page">
+                    <property name="halign">center</property>
+                    <property name="valign">center</property>
+                    <property name="height-request">32</property>
+                    <property name="width-request">32</property>
                     <property name="spinning">True</property>
-                    <property name="valign">GTK_ALIGN_CENTER</property>
-                    <property name="height-request">256</property>
-                    <property name="width-request">256</property>
                   </object>
                 </child>
               </object>
