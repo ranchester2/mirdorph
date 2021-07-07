@@ -33,18 +33,15 @@
 	"modules": [
 		{
 			"name": "webkit2gtk",
-			"buildsystem": "cmake",
-			"config-opts": [
-				"-DCMAKE_BUILD_TYPE=Release",
-				"-DPORT=GTK",
-				"-DENABLE_GAMEPAD=OFF",
-				"-DUSE_GTK4=ON"
+			"buildsystem": "simple",
+			"build-commands": [
+				"tar xf webkitgtk-5.0-release-bin.tar.gz -C /app/"
 			],
 			"sources": [
 				{
-					"type": "archive",
-					"url": "https://webkitgtk.org/releases/webkitgtk-2.33.2.tar.xz",
-					"sha256": "32bb0ace3cf4df42ff805e00de3fc13a2287f173d3ff5982816a7c5b4f8b551b"
+					"type": "file",
+					"url": "https://gitlab.gnome.org/ranchester/mirdorph/uploads/3988f9afe152f0a4aa33b8573ac52592/webkitgtk-5.0-release-bin.tar.gz",
+					"sha256": "5c276353da18009a418c1ea677bd08ac48ced8f2ad5d17d6ddb6da53dd2ecbc1"
 				}
 			]
 		},
