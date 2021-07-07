@@ -20,7 +20,7 @@ import logging
 import threading
 import requests
 from gi.repository import Adw, Gtk, Gio, GLib, Pango
-#from .discord_web_grabber import DiscordGrabber
+from .discord_web_grabber import DiscordGrabber
 
 
 @Gtk.Template(resource_path="/org/gnome/gitlab/ranchester/Mirdorph/ui/tos_notice.ui")
@@ -127,14 +127,10 @@ class MirdorphLoginWindow(Adw.ApplicationWindow):
             self._login_graphical_page_webview_container.remove(
                 self._token_grabber
             )
-        # self._token_grabber = DiscordGrabber()
-        self._token_grabber = Gtk.Label(
-            label="Graphical login temporarily disabled while WebKitgtk doesn't support gtk4",
-            vexpand=True,
-            ellipsize=Pango.EllipsizeMode.END
-        )
-        # self._token_grabber.connect("login_complete", self._on_web_login_complete)
-        # self._token_grabber.connect("login_failed", self._on_web_login_failed)
+        self._token_grabber = DiscordGrabber()
+        self._token_grabber.set_hexpand(True)
+        self._token_grabber.connect("login_complete", self._on_web_login_complete)
+        self._token_grabber.connect("login_failed", self._on_web_login_failed)
         self._login_graphical_page_webview_container.append(self._token_grabber)
 
     def _show_tos_notice(self):
