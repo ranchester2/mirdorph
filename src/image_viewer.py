@@ -187,8 +187,8 @@ class ImageViewer(Adw.Flap):
         subprocess.run(["xdg-open", str(self._current_image_path)])
 
     def _action_fullscreen(self, *args):
-        window = self.get_toplevel()
-        if window.is_toplevel():
+        window = self.get_native()
+        if window:
             if self._is_fullscreen:
                 window.unfullscreen()
                 self._fullscreen_button_image.set_from_icon_name(

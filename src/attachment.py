@@ -289,10 +289,10 @@ class MessageEntryBarAttachment(Gtk.Button):
     @Gtk.Template.Callback()
     def _on_add_clicked(self, button):
         if self.add_mode:
-            window = self.get_toplevel()
+            window = self.get_native()
             filechooser = Gtk.FileChooserNative.new(
                 _("Select File to Upload"),
-                window if window.is_toplevel() else None,
+                window,
                 Gtk.FileChooserAction.OPEN,
                 None,
                 None

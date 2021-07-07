@@ -130,8 +130,8 @@ class MirdorphMainWindow(Adw.ApplicationWindow, EventReceiver):
         """
         context = self.props.application.retrieve_inner_window_context(channel_id)
         if context.is_poped:
-            temp_win_top = context.get_toplevel()
-            if temp_win_top.is_toplevel():
+            temp_win_top = context.get_native()
+            if temp_win_top:
                 temp_win_top.present()
 
             # May seem weird to use it here, however without it the previous channel

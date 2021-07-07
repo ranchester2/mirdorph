@@ -318,7 +318,7 @@ class ChannelInnerWindow(Gtk.Box):
         )
         dialog.connect("response", lambda *_ : dialog.destroy())
         dialog.set_modal(True)
-        if self.get_toplevel().is_toplevel():
-            dialog.set_transient_for(self.get_toplevel())
+        if self.get_native():
+            dialog.set_transient_for(self.get_native())
         dialog.show()
 
