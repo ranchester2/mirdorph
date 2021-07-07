@@ -82,7 +82,7 @@ class MessageView(Gtk.Overlay, EventReceiver):
         self._message_clamp = Adw.Clamp(
             maximum_size=800,
             tightening_threshold=600,
-            halign=Gtk.Align.CENTER,
+            halign=Gtk.Align.FILL,
             hexpand=True
         )
         self._message_clamp.set_child(self._message_listbox)
