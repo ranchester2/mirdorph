@@ -43,6 +43,7 @@ class MirdorphChannelListEntry(Gtk.ListBoxRow):
             if discord_channel.category:
                 context_text += f" -> {discord_channel.category.name}"
             self._search_context_label.set_label(context_text)
+            self._search_context_label.show()
 
 class MirdorphGuildEntry(Adw.ExpanderRow):
     __gtype_name__ = "MirdorphGuildEntry"
