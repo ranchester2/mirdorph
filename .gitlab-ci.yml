@@ -4,7 +4,7 @@ variables:
     BUNDLE: "mirdorph.flatpak"
 
 flatpak:
-    image: 'registry.gitlab.gnome.org/gnome/gnome-runtime-images/gnome:40'
+    image: 'registry.gitlab.gnome.org/gnome/gnome-runtime-images/gnome:master'
     before_script:
         - "flatpak install --user -y --noninteractive flathub org.freedesktop.Sdk.Extension.rust-stable//20.08"
     variables:
@@ -15,7 +15,7 @@ flatpak:
     extends: .flatpak
 
 flatpak-test:
-    image: 'registry.gitlab.gnome.org/gnome/gnome-runtime-images/gnome:40'
+    image: 'registry.gitlab.gnome.org/gnome/gnome-runtime-images/gnome:master'
     before_script:
         - "flatpak install --user -y --noninteractive flathub org.freedesktop.Sdk.Extension.rust-stable//20.08"
     script:
