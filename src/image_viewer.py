@@ -21,7 +21,6 @@ import asyncio
 import threading
 from pathlib import Path
 from gi.repository import Adw, Gtk, Gdk, GLib, Gio
-from .atkpicture import AtkPicture
 from .attachment import ImageAttachment, AttachmentType, get_attachment_type
 
 
@@ -29,7 +28,7 @@ from .attachment import ImageAttachment, AttachmentType, get_attachment_type
 class ImageViewer(Adw.Flap):
     __gtype_name__ = "ImageViewer"
 
-    _picture_container: Gtk.ScrolledWindow = Gtk.Template.Child()
+    _picture: Gtk.Picture = Gtk.Template.Child()
     _headerbar: Adw.HeaderBar = Gtk.Template.Child()
     _window_title: Adw.WindowTitle = Gtk.Template.Child()
     _fullscreen_button_image: Gtk.Image = Gtk.Template.Child()
@@ -63,7 +62,7 @@ class ImageViewer(Adw.Flap):
         self.insert_action_group("image-viewer", self._image_viewer_action_group)
 
         self._motion_event_controller = Gtk.EventControllerMotion()
-        self._picture_container.add_controller(self._motion_event_controller)
+        self._catalog_buttons_revealer.add_controller(self._motion_event_controller)
         self._motion_event_controller.connect("motion", self._on_motion)
 
     @Gtk.Template.Callback()
@@ -192,8 +191,7 @@ class ImageViewer(Adw.Flap):
             if self._is_fullscreen:
                 window.unfullscreen()
                 self._fullscreen_button_image.set_from_icon_name(
-                    "view-fullscreen-symbolic",
-                    Gtk.IconSize.BUTTON
+                    "view-fullscreen-symbolic"
                 )
 
                 self._headerbar.set_show_start_title_buttons(True)
@@ -205,8 +203,7 @@ class ImageViewer(Adw.Flap):
             else:
                 window.fullscreen()
                 self._fullscreen_button_image.set_from_icon_name(
-                    "view-restore-symbolic",
-                    Gtk.IconSize.BUTTON
+                    "view-restore-symbolic"
                 )
 
                 self._headerbar.set_show_start_title_buttons(False)
@@ -216,16 +213,7 @@ class ImageViewer(Adw.Flap):
 
                 self._is_fullscreen = True
 
-    def _remove_existing_image(self, *args):
-        if self._picture_container.get_child():
-            self._picture_container.set_child(
-                None
-            )
-            self._current_image_path = None
-
     def display_image(self, attachment: discord.Attachment):
-        self._remove_existing_image()
-
         self._current_attachment = attachment
         # It is safe to assume that the picture exists, because the click to open the ImagePreview
         # can only happen after the image is downloaded
@@ -233,16 +221,9 @@ class ImageViewer(Adw.Flap):
             self._current_attachment.id,
             self._current_attachment.filename
         )
-        picture_wid = AtkPicture(
-            str(self._current_image_path),
-            self._picture_container,
-            max_width=self._current_attachment.width if self._current_attachment.width else 0,
-            vexpand=True,
-            hexpand=True,
-            valign=Gtk.Align.CENTER
+        self._picture.set_filename(
+            str(self._current_image_path)
         )
-        self._picture_containe.set_child(picture_wid)
 
         self._window_title.set_title(self._current_attachment.filename)
-
         threading.Thread(target=self._check_if_first_media_target).start()

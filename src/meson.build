@@ -33,7 +33,6 @@ mirdorph_sources = [
   'channel_sidebar.py',
   'confman.py',
   'channel_properties_window.py',
-  'atkpicture.py',
   'discord_web_grabber.py',
   'typing_indicator.py',
   'settings_window.py',

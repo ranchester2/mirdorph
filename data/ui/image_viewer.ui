@@ -39,24 +39,20 @@
           </object>
         </child>
         <child type="end">
-          <object class="GtkButton">
-            <property name="action-name">image-viewer.fullscreen</property>
-            <child>
-              <object class="GtkImage" id="_fullscreen_button_image">
-                <property name="icon-name">view-fullscreen-symbolic</property>
-              </object>
-            </child>
+          <object class="GtkMenuButton">
+            <property name="popover">_more_actions_popover</property>
+            <property name="icon-name">view-more-symbolic</property>
             <style>
               <class name="image-button" />
             </style>
           </object>
         </child>
         <child type="end">
-          <object class="GtkMenuButton">
-            <property name="popover">_more_actions_popover</property>
+          <object class="GtkButton">
+            <property name="action-name">image-viewer.fullscreen</property>
             <child>
-              <object class="GtkImage">
-                <property name="icon-name">view-more-symbolic</property>
+              <object class="GtkImage" id="_fullscreen_button_image">
+                <property name="icon-name">view-fullscreen-symbolic</property>
               </object>
             </child>
             <style>
@@ -92,10 +88,13 @@
             </property>
           </object>
         </child>
-        <property name="child">
+        <child>
           <object class="GtkOverlay">
             <property name="child">
-              <object class="GtkScrolledWindow" id="_picture_container" />
+              <object class="GtkPicture" id="_picture">
+                <property name="valign">center</property>
+                <property name="halign">center</property>
+              </object>
             </property>
             <child type="overlay">
               <object class="GtkRevealer" id="_catalog_buttons_revealer">
@@ -122,6 +121,8 @@
                     </child>
                     <child>
                       <object class="GtkButton" id="_catalog_back">
+                        <property name="hexpand">True</property>
+                        <property name="halign">end</property>
                         <signal name="clicked" handler="_on_navigate_back" />
                         <child>
                           <object class="GtkImage">
@@ -138,7 +139,7 @@
               </object>
             </child>
           </object>
-        </property>
+        </child>
       </object>
     </child>
   </template>
