@@ -11,6 +11,7 @@
     <property name="width-request">355</property>
     <child>
       <object class="AdwLeaflet" id="_main_deck">
+        <property name="vexpand">True</property>
         <property name="can-unfold">False</property>
         <property name="can-swipe-back">True</property>
         <property name="can-swipe-forward">False</property>
