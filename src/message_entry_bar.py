@@ -102,13 +102,13 @@ class MessageEntryBar(Gtk.Box, EventReceiver):
         disc_atts_to_send = []
         for att_wid in self.added_attachments_wid:
             # Discord 10 maximum
-            if len(atts_to_send) >= 10:
+            if len(disc_atts_to_send) >= 10:
                 break
 
             disc_atts_to_send.append(
                 discord.File(
                     att_wid.full_filename,
-                    filename=Path(att_wid_full_filename).name
+                    filename=Path(att_wid.full_filename).name
                 )
             )
 
@@ -117,9 +117,8 @@ class MessageEntryBar(Gtk.Box, EventReceiver):
             self.app.discord_loop
         )
 
-        for child in self._attachment_container:
-            if child in self.added_attachments_wid:
-                self._attachment_container.remove(child)
+        for child in self.added_attachments_wid:
+            self._attachment_container.remove(child)
         self._attachment_togglebutton.set_active(False)
         self._message_entry.set_text("")
 
@@ -163,7 +162,7 @@ class MessageEntryBar(Gtk.Box, EventReceiver):
                     self.app.discord_loop
                 )
             self._send_button.add_css_class("suggested-action")
-        elif len(self.added_attachments_wid) < 2:
+        elif self.added_attachments_wid:
             self._send_button.set_sensitive(False)
             self._send_button.remove_css_class("suggested-action")
 

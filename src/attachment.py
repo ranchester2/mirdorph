@@ -297,9 +297,29 @@ class MessageEntryBarAttachment(Gtk.Button):
                 None,
                 None
             )
-            response = filechooser.run()
-            if response == Gtk.ResponseType.ACCEPT:
-                att_wid = MessageEntryBarAttachment(visible=True, add_mode=False, filename=filechooser.get_filename())
-                self.get_parent().append(att_wid)
-                self._entry_bar.added_attachments_wid.append(att_wid)
-                self._entry_bar.emulate_attachment_container_change()
+            filechooser.set_modal(True)
+            filechooser.show()
+
+            # FREEZE WORKAROUND:
+            # if we don't use idle_add, on response it immediately closes.
+            # However if we do, on_filechooser_response still gets
+            # called a billion times in a row, which is why we have to keep track of
+            # the filenames we have already added
+            self._called_filenames = []
+            GLib.idle_add(lambda *_ : filechooser.connect("response", self._on_filechooser_response))
+
+    def _on_filechooser_response(self, filechooser: Gtk.FileChooserNative, response: int):
+        if response == Gtk.ResponseType.ACCEPT and filechooser.get_file().get_path() not in self._called_filenames:
+            filename = filechooser.get_file().get_path()
+            if filename in self._called_filenames:
+                return
+
+            self._called_filenames.append(filename)
+            att_wid = MessageEntryBarAttachment(
+                visible=True,
+                add_mode=False,
+                filename=filename
+            )
+            self.get_parent().append(att_wid)
+            self._entry_bar.added_attachments_wid.append(att_wid)
+            self._entry_bar.emulate_attachment_container_change()
