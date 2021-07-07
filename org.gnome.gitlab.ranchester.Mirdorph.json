@@ -1,7 +1,7 @@
 {
 	"app-id": "org.gnome.gitlab.ranchester.Mirdorph",
 	"runtime": "org.gnome.Platform",
-	"runtime-version": "40",
+	"runtime-version": "master",
 	"sdk": "org.gnome.Sdk",
 	"sdk-extensions": [
 		"org.freedesktop.Sdk.Extension.rust-stable"
@@ -31,6 +31,23 @@
 		"*.a"
 	],
 	"modules": [
+		{
+			"name": "webkit2gtk",
+			"buildsystem": "cmake",
+			"config-opts": [
+				"-DCMAKE_BUILD_TYPE=Release",
+				"-DPORT=GTK",
+				"-DENABLE_GAMEPAD=OFF",
+				"-DUSE_GTK4=ON"
+			],
+			"sources": [
+				{
+					"type": "archive",
+					"url": "https://webkitgtk.org/releases/webkitgtk-2.33.2.tar.xz",
+					"sha256": "32bb0ace3cf4df42ff805e00de3fc13a2287f173d3ff5982816a7c5b4f8b551b"
+				}
+			]
+		},
 		{
 			"name": "python-setuptools-scm",
 			"buildsystem": "simple",
