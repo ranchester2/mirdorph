@@ -227,13 +227,15 @@ class ImageAttachment(MirdorphAttachment, Adw.Bin):
 
     def _load_image_gtk_target(self):
         if self.image_save_path.is_file():
+            # Using a pixbuf allows us to easily set the required size
             pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(
                 str(self.image_save_path),
                 self._calculate_required_size()[0],
                 self._calculate_required_size()[1],
                 preserve_aspect_ratio=True
             )
-            self._real_image = Gtk.Image.new_from_pixbuf(pixbuf)
+            self._real_image = Gtk.Picture.new_for_pixbuf(pixbuf)
+            self._real_image.set_can_shrink(False)
 
             self._image_stack.add_child(self._real_image)
             self._image_stack.set_visible_child(self._real_image)
