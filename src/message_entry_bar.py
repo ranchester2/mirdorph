@@ -162,7 +162,7 @@ class MessageEntryBar(Gtk.Box, EventReceiver):
                     self.app.discord_loop
                 )
             self._send_button.add_css_class("suggested-action")
-        elif self.added_attachments_wid:
+        elif not self.added_attachments_wid:
             self._send_button.set_sensitive(False)
             self._send_button.remove_css_class("suggested-action")
 
@@ -180,6 +180,6 @@ class MessageEntryBar(Gtk.Box, EventReceiver):
 
     # Gtk Box does not support ::add
     def emulate_attachment_container_change(self):
-        if len(self.added_attachments_wid) > 1:
+        if self.added_attachments_wid:
             self._send_button.set_sensitive(True)
             self._send_button.add_css_class("suggested-action")
