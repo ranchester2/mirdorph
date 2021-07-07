@@ -92,7 +92,7 @@ class MirdorphMainWindow(Adw.ApplicationWindow, EventReceiver):
             logging.warning("impossible to load history of empty status context")
 
     @Gtk.Template.Callback()
-    def _on_window_destroy(self, window):
+    def _on_window_close(self, window):
         # Dangerous, but we need to kill all threads instantly for now
         os._exit(1)
 

@@ -11,7 +11,7 @@
     <property name="default-height">585</property>
     <property name="title">Mirdorph</property>
     <property name="icon-name">org.gnome.gitlab.ranchester.Mirdorph</property>
-    <signal name="destroy" handler="_on_window_destroy"/>
+    <signal name="close-request" handler="_on_window_close"/>
     <child>
       <object class="GtkStack" id="_loading_stack">
         <property name="transition-type">crossfade</property>
