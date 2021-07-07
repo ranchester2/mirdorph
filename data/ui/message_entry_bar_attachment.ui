@@ -16,12 +16,15 @@
         </child>
         <child>
           <object class="GtkBox" id="_mode_content_box">
+            <property name="hexpand">False</property>
             <child>
               <object class="GtkOverlay">
+                <property name="hexpand">True</property>
                 <property name="child">
                   <object class="GtkImage">
                     <property name="valign">GTK_ALIGN_CENTER</property>
                     <property name="halign">GTK_ALIGN_CENTER</property>
+                    <property name="pixel-size">48</property>
                     <property name="icon-name">x-office-document-symbolic</property>
                   </object>
                 </property>
