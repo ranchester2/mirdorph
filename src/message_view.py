@@ -217,7 +217,12 @@ class MessageView(Gtk.Overlay, EventReceiver):
         if diff != 0.0:
             self._orig_upper = new_upper
             if self._autoscroll:
-                self._adj.set_value(self._adj.get_upper() - self._adj.get_page_size())
+                # Why + get_page_size()
+                # Because the vadjustment is **wrong** in GTK4, and thinks that the last
+                # child doesn't actually exist. (Even the scroll bar is wrong).
+                # But changing its value to a lower one, or higher than upper makes it fix
+                # itself.
+                self._adj.set_value(self._adj.get_upper() + self._adj.get_page_size())
             # Keeping scroll position when loading extra content
             elif self._inserting_message:
                 self._adj.set_value(self._adj.get_value() + diff)
