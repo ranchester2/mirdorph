@@ -198,6 +198,9 @@ class ChannelInnerWindow(Gtk.Box):
         Popout the channel into a separate window
         """
         self.app.main_win.context_stack.remove(self)
+        # GTK BUG?: After removing from it's container, the action groups seems to
+        # stop working and you need to insert it again
+        self.insert_action_group("context", self._context_action_group)
         self.app.main_win.reconfigure_for_popout_window()
 
         self._popout_window = Adw.Window(
