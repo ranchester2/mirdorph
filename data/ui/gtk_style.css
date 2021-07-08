@@ -19,13 +19,13 @@
 }
 
 .quote {
-    border-left: 2px solid @theme_selected_bg_color;
+    border-left: 2px solid @accent_bg_color;
     color: #888A85;
     padding-left: 6px;
 }
 
 .discord-message .username {
-  color: @theme_selected_bg_color;
+  color: @accent_color;
   font-weight: bold;
   font-size: small;
 }
@@ -103,7 +103,7 @@ mode
   margin-bottom: 2px;
   margin-left: 4px;
   margin-right: 4px;
-  color: @theme_selected_bg_color;
+  color: @accent_color;
 }
 
 .link_preview row {
