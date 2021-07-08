@@ -37,7 +37,7 @@ class MessageView(Gtk.Overlay, EventReceiver):
 
     _STANDARD_HISTORY_LOADING = 40
 
-    _message_column: Gtk.Box = Gtk.Template.Child()
+    _clamp: Adw.Clamp = Gtk.Template.Child()
     # Originally code was designed with message_view inheriting from
     # Gtk.ScrolledWindow, however since now that isn't the case, and people
     # expect to access this, we use it by making it public
@@ -79,14 +79,7 @@ class MessageView(Gtk.Overlay, EventReceiver):
         self._history_loading_row.set_child(self._history_loading_spinner)
         self._message_listbox.append(self._history_loading_row)
 
-        self._message_clamp = Adw.Clamp(
-            maximum_size=800,
-            tightening_threshold=600,
-            halign=Gtk.Align.FILL,
-            hexpand=True
-        )
-        self._message_clamp.set_child(self._message_listbox)
-        self._message_column.append(self._message_clamp)
+        self._clamp.set_child(self._message_listbox)
 
         self._typing_indicator = TypingIndicator(self.context.channel_disc)
         self._typing_indicator_overlay.add_overlay(self._typing_indicator)

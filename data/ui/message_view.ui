@@ -11,18 +11,14 @@
             <property name="min_content-width">300</property>
             <property name="min_content-height">300</property>
             <property name="child">
-              <object class="GtkViewport" id="_viewport">
-                <property name="valign">end</property>
-                <property name="scroll-to-focus">True</property>
-                <property name="child">
-                  <object class="GtkBox" id="_message_column">
-                    <property name="hexpand">True</property>
-                    <property name="vexpand">True</property>
-                    <style>
-                      <class name="message-enforcement-box"/>
-                    </style>
-                  </object>
-                </property>
+              <object class="AdwClamp" id="_clamp">
+                <property name="hexpand">True</property>
+                <property name="vexpand">True</property>
+                <property name="maximum-size">800</property>
+                <property name="tightening-threshold">600</property>
+                <style>
+                  <class name="message-enforcement-box" />
+                </style>
               </object>
             </property>
           </object>
