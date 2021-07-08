@@ -3,11 +3,11 @@
   <gresource prefix="/org/gnome/gitlab/ranchester/Mirdorph">
     <!-- In addition to the /icons install method, as gresource too as that -->
     <!-- doesn't work everywhere-->
-    <file>icons/org.gnome.gitlab.ranchester.Mirdorph.DiscussionsLogo.svg</file>
-    <file>icons/org.gnome.gitlab.ranchester.Mirdorph.Guilds.svg</file>
-    <file>icons/view-sidebar-symbolic.svg</file>
-    <file>icons/smile-symbolic.svg</file>
-    <file>icons/paper-plane-symbolic.svg</file>
+    <file>icons/scalable/status/org.gnome.gitlab.ranchester.Mirdorph.DiscussionsLogo.svg</file>
+    <file>icons/scalable/status/org.gnome.gitlab.ranchester.Mirdorph.Guilds.svg</file>
+    <file>icons/scalable/status/view-sidebar-symbolic.svg</file>
+    <file>icons/scalable/status/smile-symbolic.svg</file>
+    <file>icons/scalable/status/paper-plane-symbolic.svg</file>
     <file>ui/login_window.ui</file>
     <file>ui/gtk_style.css</file>
     <file>ui/main_window.ui</file>
