@@ -35,8 +35,7 @@ class ContextErrorDialog(Gtk.MessageDialog):
     def __init__(self, title: str, details: str=None, *args, **kwargs):
         Gtk.MessageDialog.__init__(self, text=title, *args, **kwargs)
         if details:
-            # The scrolled window has a minimum size and a border, better to
-            # not show it by default instead
+            self._details_scrolled_win.show()
             self._details_textview.get_buffer().set_text(details, -1)
 
 
