@@ -1,6 +1,7 @@
 **/__pycache__
 build-dir/
 .flatpak-builder/
+.flatpak
 .pytest_cache/
 unmeson-mirdorph.gresource.xml
 unmeson-mirdorph.gresource
