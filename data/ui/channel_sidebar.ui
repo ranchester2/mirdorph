@@ -5,10 +5,10 @@
     <property name="orientation">vertical</property>
     <property name="width-request">240</property>
     <child>
-      <object class="GtkStack" id="_channel_list_type_stack">
+      <object class="AdwViewStack" id="_channel_list_type_stack">
         <property name="vexpand">True</property>
         <child>
-          <object class="GtkStackPage">
+          <object class="AdwViewStackPage">
             <property name="title" translatable="yes">Guilds</property>
             <property name="icon-name">org.gnome.gitlab.ranchester.Mirdorph.Guilds</property>
             <property name="child">
@@ -103,7 +103,7 @@
           </object>
         </child>
         <child>
-          <object class="GtkStackPage">
+          <object class="AdwViewStackPage">
             <property name="title" translatable="yes">People</property>
             <property name="icon-name">avatar-default-symbolic</property>
             <property name="child">
