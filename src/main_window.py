@@ -35,19 +35,11 @@ class MirdorphMainWindow(Adw.ApplicationWindow, EventReceiver):
     context_stack: Gtk.Stack = Gtk.Template.Child()
     _flap_box: Gtk.Box = Gtk.Template.Child()
 
-    _main_menu_popover: Gtk.Popover = Gtk.Template.Child()
-
     _channel_search_button: Gtk.ToggleButton = Gtk.Template.Child()
 
     def __init__(self, *args, **kwargs):
         Adw.ApplicationWindow.__init__(self, *args, **kwargs)
         EventReceiver.__init__(self)
-
-        menu_builder = Gtk.Builder.new_from_resource(
-            "/org/gnome/gitlab/ranchester/Mirdorph/ui/general_menu.ui"
-        )
-        menu = menu_builder.get_object("generalMenu")
-        self._main_menu_popover.set_menu_model(menu)
 
         self._empty_inner_window = ChannelInnerWindow(empty=True)
         self.main_flap.connect("notify::folded", self._empty_inner_window.handle_flap_folding)

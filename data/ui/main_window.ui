@@ -1,11 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
   <requires lib="gtk" version="4.0"/>
-  <object class="GtkPopoverMenu" id="_main_menu_popover">
-    <child>
-      <placeholder/>
-    </child>
-  </object>
+  <menu id="_main_menu">
+    <section>
+      <item>
+        <attribute name="label" translatable="yes">Preferences</attribute>
+        <attribute name="action">app.settings</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="yes">Log Out</attribute>
+        <attribute name="action">app.logout</attribute>
+      </item>
+    </section>
+    <section>
+      <item>
+        <attribute name="label" translatable="yes">About Mirdorph</attribute>
+        <attribute name="action">app.about</attribute>
+      </item>
+    </section>
+  </menu>
   <template class="MirdorphMainWindow" parent="AdwApplicationWindow">
     <property name="default-width">1010</property>
     <property name="default-height">585</property>
@@ -119,7 +132,7 @@
                               <object class="GtkMenuButton">
                                 <property name="tooltip-text" translatable="yes">Menu</property>
                                 <property name="icon-name">open-menu-symbolic</property>
-                                <property name="popover">_main_menu_popover</property>
+                                <property name="menu-model">_main_menu</property>
                               </object>
                             </child>
                             <child type="end">
