@@ -98,7 +98,6 @@
                                 <property name="action-name">login.with-token</property>
                                 <property name="label" translatable="yes">Manual Token</property>
                                 <style>
-                                  <class name="circular" />
                                   <class name="login-button" />
                                 </style>
                               </object>
@@ -110,7 +109,6 @@
                                 <property name="action-name">login.with-password</property>
                                 <property name="label" translatable="yes">Username and Password</property>
                                 <style>
-                                  <class name="circular" />
                                   <class name="login-button" />
                                 </style>
                               </object>
