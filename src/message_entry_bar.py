@@ -168,15 +168,24 @@ class MessageEntryBar(Gtk.Box, EventReceiver):
 
     @Gtk.Template.Callback()
     def _on_revealer_reveal_child(self, revealer, param):
-        self.context.attachment_tray_scroll_mode = (
+        self._revealing_tray_smooth = (
             not self._attachment_area_revealer.get_child_revealed(
             ) and self.context.is_scroll_at_bottom
         )
+        if self._revealing_tray_smooth:
+            GLib.timeout_add(50, self.scroll_func)
+
+    def scroll_func(self):
+        if self._revealing_tray_smooth:
+            self.context.scroll_messages_to_bottom()
+            return True
+        else:
+            return False
 
     @Gtk.Template.Callback()
     def _on_revealer_child_revealed(self, revealer, param):
         if self._attachment_area_revealer.get_child_revealed():
-            self.context.attachment_tray_scroll_mode = False
+            self._revealing_tray_smooth = False
 
     # Gtk Box does not support ::add
     def emulate_attachment_container_change(self):

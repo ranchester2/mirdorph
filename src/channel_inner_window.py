@@ -107,9 +107,6 @@ class ChannelInnerWindow(Gtk.Box):
             self._content_box.append(self._message_view)
 
             self._message_entry_bar = MessageEntryBar(context=self)
-            # If the attachment tray "revealment" mode for handling scrolling is
-            # used (smooth animation), users of this are expected to directly set it
-            self.attachment_tray_scroll_mode = False
             self._content_box.append(Gtk.Separator())
             self._content_box.append(self._message_entry_bar)
 

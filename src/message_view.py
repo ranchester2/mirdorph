@@ -204,9 +204,6 @@ class MessageView(Gtk.Overlay, EventReceiver):
         new_upper = self._adj.get_upper()
         diff = new_upper - self._orig_upper
 
-        if self.context.attachment_tray_scroll_mode:
-            self._adj.set_value(self._adj.get_upper())
-
         if diff != 0.0:
             self._orig_upper = new_upper
             if self._autoscroll:
