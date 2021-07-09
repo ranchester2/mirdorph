@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mirdorph 0.10.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-07-05 17:43+0300\n"
+"POT-Creation-Date: 2021-07-09 19:24+0300\n"
 "PO-Revision-Date: 2021-07-01 12:00+0300\n"
 "Last-Translator: Raidro Manchester <raibo.quadrofus@gmail.com>\n"
 "Language-Team: Lithuanian <komp_lt@konferencijos.lt>\n"
@@ -18,15 +18,15 @@ msgstr ""
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && (n"
 "%100<10 || n%100>=20) ? 1 : 2);\n"
 
-#: ../src/attachment.py:299
+#: ../src/attachment.py:296
 msgid "Select File to Upload"
 msgstr "Pasirinkite failą įkelimui"
 
-#: ../src/message_entry_bar.py:83
+#: ../src/message_entry_bar.py:84
 msgid "Insufficient permissions"
 msgstr "Nepakankamos teisės"
 
-#: ../src/message_entry_bar.py:90
+#: ../src/message_entry_bar.py:91
 msgid "Sending Message Failed"
 msgstr "Nepavyko Siūsti Žinutės"
 
@@ -48,15 +48,15 @@ msgstr "Niekas nerašo."
 msgid "Make sure the window isn't narrow."
 msgstr "Įsitikinkite, kad langas nėra siauras."
 
-#: ../data/ui/context_error_dialog.ui:27
+#: ../data/ui/context_error_dialog.ui:29
 msgid "OK"
 msgstr "OK"
 
-#: ../data/ui/tos_notice.ui:6
+#: ../data/ui/tos_notice.ui:5
 msgid "Critical Warning"
 msgstr "Kritinis Įspėjimas"
 
-#: ../data/ui/tos_notice.ui:7
+#: ../data/ui/tos_notice.ui:8
 msgid ""
 "Use of Mirdorph is a direct violation of Discord's terms of service, and may "
 "lead to account termination."
@@ -64,119 +64,123 @@ msgstr ""
 "Mirdorph naudojimasis yra tiesioginis Discord paslaugų teikimo sąlygų "
 "pažeidimas ir gali nulemti paslaugos nutraukimą."
 
-#: ../data/ui/tos_notice.ui:43
+#: ../data/ui/tos_notice.ui:42
 msgid "I have understood the terms."
 msgstr "Aš supratau salygas."
 
-#: ../data/ui/tos_notice.ui:60
+#: ../data/ui/tos_notice.ui:54
 msgid "Proceed"
 msgstr "Tęsti"
 
-#: ../data/ui/tos_notice.ui:70 ../data/ui/login_window.ui:33
+#: ../data/ui/tos_notice.ui:62 ../data/ui/login_window.ui:30
 msgid "Cancel"
 msgstr "Atsisakyti"
 
-#: ../data/ui/channel_properties_window.ui:23
-#: ../data/ui/channel_properties_window.ui:31 ../data/ui/context_menu.ui:6
+#: ../data/ui/channel_properties_window.ui:8
+#: ../data/ui/channel_inner_window.ui:7
 msgid "Channel Properties"
 msgstr "Kanalo Savybės"
 
-#: ../data/ui/channel_properties_window.ui:88
+#: ../data/ui/channel_properties_window.ui:74
 msgid "Unknown usage"
 msgstr "Nežinomas naudojimas"
 
-#: ../data/ui/channel_properties_window.ui:114
+#: ../data/ui/channel_properties_window.ui:98
 msgid "Activity"
 msgstr "Aktyvumas"
 
-#: ../data/ui/channel_properties_window.ui:119
+#: ../data/ui/channel_properties_window.ui:103
 msgid "Last Activity"
 msgstr "Paskutinė Veikla"
 
-#: ../data/ui/channel_properties_window.ui:124
+#: ../data/ui/channel_properties_window.ui:107
 msgid "Unknown"
 msgstr "Nežinoma"
 
-#: ../data/ui/channel_properties_window.ui:138
+#: ../data/ui/channel_properties_window.ui:119
 msgid "Statistics"
 msgstr "Statistika"
 
-#: ../data/ui/channel_sidebar.ui:63
-msgid "No Results Found"
-msgstr "Nerasta Rezultatų"
+#: ../data/ui/channel_properties_window.ui:146
+msgid "General"
+msgstr "Bendra"
 
-#: ../data/ui/channel_sidebar.ui:64
-msgid "Try a different search"
-msgstr "Bandykite kitą paiešką"
-
-#: ../data/ui/channel_sidebar.ui:102
+#: ../data/ui/channel_sidebar.ui:12
 msgid "Guilds"
 msgstr "Serveriai"
 
-#: ../data/ui/channel_sidebar.ui:111
+#: ../data/ui/channel_sidebar.ui:64
+msgid "No Results Found"
+msgstr "Nerasta Rezultatų"
+
+#: ../data/ui/channel_sidebar.ui:65
+msgid "Try a different search"
+msgstr "Bandykite kitą paiešką"
+
+#: ../data/ui/channel_sidebar.ui:107
 msgid "People"
 msgstr "Žmonės"
 
-#: ../data/ui/settings_window.ui:10
+#: ../data/ui/settings_window.ui:9
 msgid "Privacy"
 msgstr "Privatumas"
 
-#: ../data/ui/settings_window.ui:14
+#: ../data/ui/settings_window.ui:12
 msgid "Interaction"
 msgstr "Bendravimas"
 
-#: ../data/ui/settings_window.ui:18
+#: ../data/ui/settings_window.ui:15
 msgid "Send typing events"
 msgstr "Siųsti rašymo įspėjimus"
 
-#: ../data/ui/login_window.ui:28 ../data/ui/login_window.ui:43
+#: ../data/ui/login_window.ui:8
 msgid "Connect your Account"
 msgstr "Prijunkite savo paskyrą"
 
-#: ../data/ui/login_window.ui:64
+#: ../data/ui/login_window.ui:61
 msgid "Welcome to Mirdorph"
 msgstr "Sveiki į Mirdorph"
 
-#: ../data/ui/login_window.ui:81
+#: ../data/ui/login_window.ui:76
 msgid "Log In"
 msgstr "Prisijungti"
 
-#: ../data/ui/login_window.ui:94
+#: ../data/ui/login_window.ui:88
 msgid "Advanced"
 msgstr "Išplėstiniai būdai"
 
-#: ../data/ui/login_window.ui:107
+#: ../data/ui/login_window.ui:99
 msgid "Manual Token"
 msgstr "Autentikavimo Tokenu"
 
-#: ../data/ui/login_window.ui:120
+#: ../data/ui/login_window.ui:111
 msgid "Username and Password"
 msgstr "Vartotojo Vardu ir Slaptažodžiu"
 
-#: ../data/ui/login_window.ui:152 ../data/ui/login_window.ui:236
-#: ../data/ui/login_window.ui:397
+#: ../data/ui/login_window.ui:139 ../data/ui/login_window.ui:216
+#: ../data/ui/login_window.ui:352
 msgid "Enter Credentials"
 msgstr "Įveskite Prisijungimo Duomenis"
 
-#: ../data/ui/login_window.ui:182
+#: ../data/ui/login_window.ui:170
 msgid "Insert Token"
 msgstr "Įterpkite Tokeną"
 
-#: ../data/ui/login_window.ui:207
+#: ../data/ui/login_window.ui:190
 msgid "Insert"
 msgstr "Įterpti"
 
-#: ../data/ui/login_window.ui:257
+#: ../data/ui/login_window.ui:235
 msgid "Submit"
 msgstr "Pateikti"
 
-#: ../data/ui/login_window.ui:292
+#: ../data/ui/login_window.ui:262
 msgid "WARNING: Email and password login not recommended:"
 msgstr ""
 "ĮSPĖJIMAS: Prisijungimas elektroniniu paštu ir slaptažodižiu nėra "
 "rekomenduojamas:"
 
-#: ../data/ui/login_window.ui:301
+#: ../data/ui/login_window.ui:269
 msgid ""
 "Will not work with advanced configurations (2FA/Captcha), use Graphical "
 "Login or Manual Token instead."
@@ -184,59 +188,55 @@ msgstr ""
 "Neveiks su sudėtingesnėmis konfiguriacijomis (2FA/Captcha), naudokite "
 "Grafinį Prisijungimą arba Prisijungimą Tokenu"
 
-#: ../data/ui/login_window.ui:329
+#: ../data/ui/login_window.ui:292
 msgid "Password Login"
 msgstr "Prisijungimas Slaptažodižiu"
 
-#: ../data/ui/login_window.ui:345
+#: ../data/ui/login_window.ui:305
 msgid "Email Adress"
 msgstr "Elektroninio Pašto Adresas"
 
-#: ../data/ui/login_window.ui:361
+#: ../data/ui/login_window.ui:319
 msgid "Password"
 msgstr "Slaptažodis"
 
-#: ../data/ui/about_dialog.ui.in:11
+#: ../data/ui/about_dialog.ui.in:9
 msgid "This application is not affiliated with or endorsed by Discord, Inc."
 msgstr "Ši programa nėra susijusi su Discord, Inc. ar patvirtinta."
 
-#: ../data/ui/context_menu.ui:10
+#: ../data/ui/channel_inner_window.ui:11
 msgid "Advanced Search..."
 msgstr "Pažangi Paieška..."
 
-#: ../data/ui/general_menu.ui:6
-msgid "Preferences"
-msgstr "Nustatymai"
-
-#: ../data/ui/general_menu.ui:10
-msgid "Log Out"
-msgstr "Atsijungti"
-
-#: ../data/ui/general_menu.ui:16
-msgid "About Mirdorph"
-msgstr "Apie Mirdorph"
-
-#: ../data/ui/message_view.ui:64
-msgid "Scroll to bottom"
-msgstr "Nuslinkti į apačią"
-
-#: ../data/ui/channel_inner_window.ui:107
+#: ../data/ui/channel_inner_window.ui:100
 msgid "Choose a channel"
 msgstr "Pasirinkite kanalą"
 
-#: ../data/ui/main_window.ui:73
-msgid "Connecting to Discord"
-msgstr "Jungiamai prie Discord"
+#: ../data/ui/main_window.ui:7
+msgid "Preferences"
+msgstr "Nustatymai"
 
-#: ../data/ui/main_window.ui:144
+#: ../data/ui/main_window.ui:11
+msgid "Log Out"
+msgstr "Atsijungti"
+
+#: ../data/ui/main_window.ui:17
+msgid "About Mirdorph"
+msgstr "Apie Mirdorph"
+
+#: ../data/ui/main_window.ui:83
+msgid "Connecting to Discord"
+msgstr "Jungiamasi prie Discord"
+
+#: ../data/ui/main_window.ui:133
 msgid "Menu"
 msgstr "Meniu"
 
-#: ../data/ui/image_viewer.ui:15
+#: ../data/ui/image_viewer.ui:8
 msgid "Open with..."
 msgstr "Atverti su..."
 
-#: ../data/ui/image_viewer.ui:102
+#: ../data/ui/image_viewer.ui:76
 msgid "Loading more media..."
 msgstr "Kraunama daugiau grafinio turinio..."
 

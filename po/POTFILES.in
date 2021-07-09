@@ -2,15 +2,11 @@ data/org.gnome.gitlab.ranchester.Mirdorph.desktop.in
 data/ui/about_dialog.ui.in
 data/ui/channel_inner_window.ui
 data/ui/channel_properties_window.ui
-data/ui/context_menu.ui
 data/ui/channel_sidebar.ui
 data/ui/context_error_dialog.ui
-data/ui/context_menu.ui
-data/ui/general_menu.ui
 data/ui/image_viewer.ui
 data/ui/login_window.ui
 data/ui/main_window.ui
-data/ui/message_view.ui
 data/ui/settings_window.ui
 data/ui/tos_notice.ui
 data/ui/login_window.ui
