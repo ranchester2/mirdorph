@@ -5,6 +5,9 @@
     <property name="orientation">vertical</property>
     <child>
       <object class="GtkBox">
+        <!-- For initial alignment with the guild/people viewswitcher -->
+        <!-- hardcoded for now, it seems to be the size of the viewswitcher -->
+        <!-- breaks themes I guess -->
         <property name="height-request">46</property>
         <child>
           <object class="AdwClamp">
