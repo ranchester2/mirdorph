@@ -37,6 +37,8 @@ class ContextErrorDialog(Gtk.MessageDialog):
         if details:
             self._details_scrolled_win.show()
             self._details_textview.get_buffer().set_text(details, -1)
+            # Doesn't work in UI file after setting text
+            self._details_textview.set_editable(False)
 
 
 @Gtk.Template(resource_path="/org/gnome/gitlab/ranchester/Mirdorph/ui/channel_inner_window.ui")
