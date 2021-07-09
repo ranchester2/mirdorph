@@ -29,7 +29,7 @@
             <property name="orientation">vertical</property>
             <child>
               <object class="AdwHeaderBar" id="_context_headerbar">
-                <property name="show-end-title-buttons">True</property>
+                <property name="show-start-title-buttons">False</property>
                 <property name="title-widget">
                   <object class="AdwWindowTitle" id="_window_title">
                   </object>

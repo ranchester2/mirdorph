@@ -133,6 +133,7 @@ class ChannelInnerWindow(Gtk.Box):
         if flap.get_folded():
             self._flap_toggle_button.set_visible(True)
             self._popout_button_stack.set_visible(False)
+            self._context_headerbar.set_show_start_title_buttons(True)
             flap.set_swipe_to_close(True)
             # Expected that going into "mobile mode" unpops
             # all the popped out windows.
@@ -140,6 +141,7 @@ class ChannelInnerWindow(Gtk.Box):
         else:
             self._flap_toggle_button.set_visible(False)
             self._popout_button_stack.set_visible(True)
+            self._context_headerbar.set_show_start_title_buttons(False)
             flap.set_swipe_to_close(False)
         flap.set_swipe_to_open(True)
 
@@ -178,6 +180,7 @@ class ChannelInnerWindow(Gtk.Box):
             return
 
         self._popout_button_stack.set_visible_child(self._popout_button)
+        self._context_headerbar.set_show_start_title_buttons(False)
 
         self._popout_window.set_child(None)
         self._popout_window.destroy()
@@ -198,6 +201,7 @@ class ChannelInnerWindow(Gtk.Box):
         # stop working and you need to insert it again
         self.insert_action_group("context", self._context_action_group)
         self.app.main_win.reconfigure_for_popout_window()
+        self._context_headerbar.set_show_start_title_buttons(True)
 
         self._popout_window = Adw.Window(
             default_width=650,

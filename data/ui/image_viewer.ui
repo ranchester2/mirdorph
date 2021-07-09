@@ -21,7 +21,6 @@
     <property name="swipe-to-open">False</property>
     <child type="flap">
       <object class="AdwHeaderBar" id="_headerbar">
-        <property name="show-end-title-buttons">True</property>
         <property name="title-widget">
           <object class="AdwWindowTitle" id="_window_title"></object>
         </property>
