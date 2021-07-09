@@ -93,6 +93,10 @@ class MessageEntryBar(Gtk.Box, EventReceiver):
 
     def _do_attempt_send(self):
         message = self._message_entry.get_text()
+        if not message:
+            # Empty messages are an error and can't be sent
+            return
+
         # Done here, not with a separate async wrapper with idle_add
         # because it doesn't help because if we do it like that
         # and it executes in the wrong order.
