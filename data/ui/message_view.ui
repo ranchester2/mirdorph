@@ -11,11 +11,19 @@
             <property name="min_content-width">300</property>
             <property name="min_content-height">300</property>
             <property name="child">
-              <object class="AdwClamp" id="_clamp">
+              <object class="AdwClampScrollable">
                 <property name="hexpand">True</property>
                 <property name="vexpand">True</property>
                 <property name="maximum-size">800</property>
                 <property name="tightening-threshold">600</property>
+                <child>
+                  <object class="GtkListView" id="_listview">
+                    <property name="valign">end</property>
+                    <style>
+                      <class name="message-history" />
+                    </style>
+                  </object>
+                </child>
                 <style>
                   <class name="message-enforcement-box" />
                 </style>

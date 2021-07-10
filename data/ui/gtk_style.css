@@ -9,7 +9,6 @@
 }
 
 .discord-message {
-  border-radius: 7px;
   padding: 3px;
 }
 
@@ -45,6 +44,10 @@ mode
   padding: 0 8px 8px;
   /* For room for typing indicator, unfortunatej*/
   padding-bottom: 20px;
+}
+
+.message-history > row {
+  border-radius: 7px;
 }
 
 #message-entry-button-box {

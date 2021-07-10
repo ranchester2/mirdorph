@@ -20,7 +20,7 @@ import discord
 import sys
 from gi.repository import Adw, Gtk, Gio, GLib
 from .event_receiver import EventReceiver
-from .message import MirdorphMessage
+from .message import MessageWidget, MessageMobject
 from .typing_indicator import TypingIndicator
 
 
@@ -37,7 +37,8 @@ class MessageView(Gtk.Overlay, EventReceiver):
 
     _STANDARD_HISTORY_LOADING = 40
 
-    _clamp: Adw.Clamp = Gtk.Template.Child()
+    _listview: Gtk.ListView = Gtk.Template.Child()
+
     # Originally code was designed with message_view inheriting from
     # Gtk.ScrolledWindow, however since now that isn't the case, and people
     # expect to access this, we use it by making it public
@@ -52,34 +53,37 @@ class MessageView(Gtk.Overlay, EventReceiver):
         self.context = context
         self.app = Gio.Application.get_default()
         self._loading_history = False
+        # After first populating the listview, we appear at the top of the history,
+        # not the bottom
+        self._first_load = True
 
-        self._message_listbox = Gtk.ListBox(hexpand=True, selection_mode=Gtk.SelectionMode.NONE)
-        self._message_listbox.add_css_class("message-history")
-        # With nearly empty channel, messages should not pile up on top
-        self._message_listbox.set_valign(Gtk.Align.END)
-        # It is better to always ensure the order is correct, instead of manually fidling with
-        # it when adding children.
-        def message_listbox_sort_func(row_1, row_2, data, notify_destroy):
-            # The history row should always be at the end
-            if hasattr(row_1, "is_history_row"):
+        self._model = Gio.ListStore()
+        def data_sort_func(first: MessageMobject, second: MessageMobject, user_data):
+            if first.timestamp < second.timestamp:
                 return -1
-
-            if row_1.timestamp < row_2.timestamp:
-                return -1
-            elif row_1.timestamp > row_2.timestamp:
+            elif first.timestamp > second.timestamp:
                 return 1
             else:
                 return 0
-        self._message_listbox.set_sort_func(message_listbox_sort_func, None, False)
+        self._sorted_model = Gtk.SortListModel(
+            model=self._model,
+            sorter=Gtk.CustomSorter.new(data_sort_func)
+        )
+
+        self._factory = Gtk.SignalListItemFactory()
+        self._factory.connect("setup", self._data_setup)
+        self._factory.connect("bind", self._data_bind)
+        self._factory.connect("unbind", self._data_unbind)
+        self._factory.connect("teardown", self._data_teardown)
+
+        self._listview.set_model(Gtk.NoSelection.new(self._sorted_model))
+        self._listview.set_factory(self._factory)
 
         self._history_loading_row = Gtk.ListBoxRow(height_request=32)
         # Attribute makes detecting it in sort easy
         self._history_loading_row.is_history_row = True
         self._history_loading_spinner = Gtk.Spinner()
         self._history_loading_row.set_child(self._history_loading_spinner)
-        self._message_listbox.append(self._history_loading_row)
-
-        self._clamp.set_child(self._message_listbox)
 
         self._typing_indicator = TypingIndicator(self.context.channel_disc)
         self._typing_indicator_overlay.add_overlay(self._typing_indicator)
@@ -92,6 +96,18 @@ class MessageView(Gtk.Overlay, EventReceiver):
         self._autoscroll = False
         self._adj.connect("notify::upper", self._on_upper_changed)
         self._adj.connect("value-changed", self._on_adj_value_changed)
+
+    def _data_setup(self, factor, listitem: Gtk.ListItem):
+        listitem.set_child(MessageWidget())
+
+    def _data_bind(self, factor, listitem: Gtk.ListItem):
+        listitem.get_child().do_bind(listitem.get_item())
+
+    def _data_unbind(self, factor, listitem: Gtk.ListItem):
+        listitem.get_child().do_unbind()
+
+    def _data_teardown(self, factor, listitem: Gtk.ListItem):
+        listitem.set_child(None)
 
     def _fix_merges(self):
         """
@@ -114,44 +130,23 @@ class MessageView(Gtk.Overlay, EventReceiver):
                         row.merge()
                 previous_row = row
 
-    def remove_ad(self, row: Gtk.Widget):
+    def filter_messages_dupes(self, messages: list) -> list:
         """
-        Remove a row, advanced helper function
-        """
-        self._message_listbox.remove(row)
-
-    def add_ad(self, row: Gtk.Widget):
-        """
-        Add a row, advanced helper function.
-
-        The main reason is for there to be a unified function
-        for updating the contents, and this is useful to
-        for example automatically handle scorlling.
+        Filter a list of `discord.Message` to only contain non-duplicates.
 
         param:
-            row - the row to add.
+            messages: list of `discord.Message` to filter
+        returns:
+            a list of `discord.Message` that is not duplicated
         """
-        # Workaround: https://gitlab.gnome.org/GNOME/gtk/merge_requests/395
-        self.scroller.set_kinetic_scrolling(False)
-        # The added widget is expected to change the size of the listbox,
-        # causing the handling of the ::notify::upper signal to revert this
-        # when needed.
-        self._inserting_message = True
+        ids = [message.id for message in messages]
+        dupe_ids = []
+        for it in range(self._model.get_n_items()):
+            item = self._model.get_item(it)
+            if item.id in ids:
+                dupe_ids.append(item.id)
 
-        self._message_listbox.append(row)
-
-    def object_is_dupe(self, new_id: int) -> bool:
-        """
-        Figure out if adding a row based on this object will be
-        a dupe.
-        param:
-            new_id - the unique discord event id for what is being added.
-        """
-        for row in self._message_listbox:
-            if hasattr(row, "disc_id"):
-                if new_id == row.disc_id:
-                    return True
-        return False
+        return [message for message in messages if message.id not in dupe_ids]
 
     def _load_messages(self, messages: list):
         """
@@ -162,60 +157,61 @@ class MessageView(Gtk.Overlay, EventReceiver):
             messages - list of `discord.Message`. NOTE: all messages
             must be in a row as they actually are, you can't leave some out.
         """
-        # Fallback, sorting errors more likely than unhandled holes.
+        messages = self.filter_messages_dupes(messages)
+        # Fallback, needed for merging
         messages.sort(key=lambda x : x.created_at)
+
+        # Why list+splice? The performance is SIGNIFICANTLY
+        # better when doing it like this
+        message_widgets = []
 
         previous_author = None
         for message in messages:
-            if not self.object_is_dupe(message.id):
-                should_be_merged = False
-                if previous_author:
-                    should_be_merged = (previous_author == message.author)
-                # When adding only a single message, for example on send,
-                # we really want to avoid merging/unmerging the message
-                # after it is already displayed, as that will be needed
-                # 100% of the time.
-                # Fractal has an issue about this:
-                # https://gitlab.gnome.org/GNOME/fractal/-/issues/231
-                # we work around it ;)
-                elif len(messages) == 1:
-                    *_, last_row = self._message_listbox
-                    if hasattr(last_row, "timestamp") and hasattr(last_row, "author"):
+            should_be_merged = False
+            if previous_author:
+                should_be_merged = (previous_author == message.author)
+
+            # When adding only a single message, for example on send,
+            # we really want to avoid merging/unmerging the message
+            # after it is already displayed, as that will be needed
+            # 100% of the time.
+            # Fractal has an issue about this:
+            # https://gitlab.gnome.org/GNOME/fractal/-/issues/231
+            # we work around it ;)
+            elif len(messages) == 1:
+                number_of = self._model.get_n_items()
+                if number_of > 0:
+                    last_mobject: MessageMobject = self._model.get_item(number_of - 1)
+                    if message.created_at.timestamp() > last_mobject.timestamp:
                         # The message here can be from anywhere, we want to avoid
                         # blindly assuming it will be the latest message.
-                        if message.created_at.timestamp() > last_row.timestamp:
-                            should_be_merged = (last_row.author == message.author)
+                        should_be_merged = (message.author == last_mobject.author)
 
-                message_wid = MirdorphMessage(
-                    message,
-                    merged=should_be_merged
-                )
-                self.add_ad(message_wid)
-                previous_author = message.author
+            message_widgets.append(MessageMobject(message))
+            previous_author = message.author
+
+        # Workaround: https://gitlab.gnome.org/GNOME/gtk/merge_requests/395
+        self.scroller.set_kinetic_scrolling(False)
+        self._model.splice(0, 0, message_widgets)
+        if self._first_load:
+            GLib.idle_add(self.context.scroll_messages_to_bottom)
 
         if messages:
-            # This can change the size of the listbox,
+            # This can change the size of the view,
             # however no time for the GLib loop to process idle events
             # (update the scroll position) is between adding the rows
             # and fixing the merges.
-            self._fix_merges()
+            #self._fix_merges()
+            pass
+
+        self._first_load = False
 
     def _on_upper_changed(self, upper: float, adjparam):
-        new_upper = self._adj.get_upper()
-        diff = new_upper - self._orig_upper
-
-        if diff != 0.0:
-            self._orig_upper = new_upper
-            if self._autoscroll:
-                # The vadjustment is wrong in GTK4 as with autoscroll it seems to not have
-                # the new value accepted. (Even the scrollbar is wrong!)
-                # Which is why we need to use GLib.idle_add here
-                GLib.idle_add(self._adj.set_value, self._adj.get_upper())
-            # Keeping scroll position when loading extra content
-            elif self._inserting_message:
-                self._adj.set_value(self._adj.get_value() + diff)
-                self.scroller.set_kinetic_scrolling(True)
-                self._inserting_message = False
+        self.scroller.set_kinetic_scrolling(True)
+        if self._autoscroll:
+            # When using listbox this caused issues as the vadjustment
+            # hadn't been updated with the new upper
+            GLib.idle_add(self._adj.set_value, self._adj.get_upper())
 
     def _on_adj_value_changed(self, adj):
         self._autoscroll = self.context.is_scroll_at_bottom

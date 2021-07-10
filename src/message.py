@@ -20,7 +20,8 @@ import discord
 import os
 from pathlib import Path
 from xml.sax.saxutils import escape as escape_xml
-from gi.repository import Adw, Gtk, Gio, GLib, Gdk, GdkPixbuf
+from gi.repository import Adw, Gtk, GObject, Gio, GLib, Gdk, GdkPixbuf
+from .event_receiver import EventReceiver
 from .attachment import GenericAttachment, ImageAttachment, AttachmentType, get_attachment_type
 from .message_parsing import MessageComponent, calculate_msg_parts
 
@@ -54,7 +55,7 @@ class UserMessageAvatar(Adw.Avatar):
             self._avatar_icon_dir_path / Path("user" + "_" + str(self._user_disc.id) + ".png")
         )
 
-        threading.Thread(target=self._fetch_avatar_target).start()
+        #threading.Thread(target=self._fetch_avatar_target).start()
 
     def _fetch_avatar_target(self):
         avatar_asset = self._user_disc.avatar_url_as(size=1024, format="png")
@@ -165,9 +166,26 @@ class UsernameLabel(Gtk.Label):
                 f"<span foreground='{color}'>{escape_xml(self._author.name)}</span>"
             )
 
+
+class MessageMobject(GObject.GObject, EventReceiver):
+    def __init__(self, disc_message: discord.Message):
+        GObject.GObject.__init__(self)
+        EventReceiver.__init__(self)
+        self._disc_message = disc_message
+        self.timestamp = self._disc_message.created_at.timestamp()
+
+        # Recommended attributes exposed selectively, this will
+        # also allow us to handle events well
+        self.content = self._disc_message.content
+        self.author = self._disc_message.author
+        self.attachments = self._disc_message.attachments
+        self.channel = self._disc_message.channel
+        self.guild = self._disc_message.guild
+        self.id = self._disc_message.id
+
 @Gtk.Template(resource_path="/org/gnome/gitlab/ranchester/Mirdorph/ui/message.ui")
-class MirdorphMessage(Gtk.ListBoxRow):
-    __gtype_name__ = "MirdorphMessage"
+class MessageWidget(Gtk.Box):
+    __gtype_name__ = "MessageWidget"
 
     _avatar_box: Gtk.Box = Gtk.Template.Child()
 
@@ -176,43 +194,45 @@ class MirdorphMessage(Gtk.ListBoxRow):
 
     _attachment_box: Gtk.Box = Gtk.Template.Child()
 
-    def __init__(self, disc_message, merged=False, *args, **kwargs):
+    def __init__(self, merged=False, *args, **kwargs):
         Gtk.ListBoxRow.__init__(self, *args, **kwargs)
         self.app = Gio.Application.get_default()
-        self._disc_message = disc_message
         self.merged = merged
-        # It can be needed to check the author of already existing
-        # messages. For example, when adding a message to check
-        # if the previous message is from the same user.
-        self.author: discord.abc.User = self._disc_message.author
 
-        # Basically shows that this corresponds to a specific
-        # Discord event. Can be used to avoid constructing duplicates,
-        # for example check if a widget based on a message is already created.
-        self.disc_id = disc_message.id
+        # Workaround to a weird state where attachments are added, but they do not
+        # count towards the box, so they are not correctly removed
+        self._added_att_exp = []
 
-        # Very useful for sorting
-        self.timestamp = disc_message.created_at.timestamp()
+        # if self.merged:
+        #     self.merge()
+        # else:
+        #     # Unmerging also builds all of the widgets that are only constructed
+        #     # if the message isn't merged.
+        #     self.unmerge()
 
-        self._message_content_wid = MessageContent(self._disc_message.content)
+    def do_bind(self, item: MessageMobject):
+        self._item = item
+
+        self._message_content_wid = MessageContent(self._item.content)
         self._message_content_container.append(self._message_content_wid)
 
-        if self.merged:
-            self.merge()
-        else:
-            # Unmerging also builds all of the widgets that are only constructed
-            # if the message isn't merged.
-            self.unmerge()
+        self._username_label = UsernameLabel(self._item.author, self._item.guild)
+        self._username_container.append(self._username_label)
 
-        for att in self._disc_message.attachments:
+        self._avatar = UserMessageAvatar(self._item.author, margin_top=3)
+        self._avatar_box.append(self._avatar)
+
+        for att in self._item.attachments:
             if get_attachment_type(att) == AttachmentType.IMAGE:
-                att_widg = ImageAttachment(att, self._disc_message.channel.id)
+                att_widg = ImageAttachment(att, self._item.channel.id)
                 att_widg.set_halign(Gtk.Align.START)
+                self._added_att_exp.append(att_widg)
                 self._attachment_box.append(att_widg)
             # If an attachment type is unsupported yet, it becomes generic
             else:
-                att_widg = GenericAttachment(att, self._disc_message.channel.id)
+                att_widg = GenericAttachment(att, self._item.channel.id)
                 att_widg.set_halign(Gtk.Align.START)
+                self._added_att_exp.append(att_widg)
                 self._attachment_box.append(att_widg)
             # There is atleast one attachment, and it looks better with a top margin,
             # not set from the start, as it looks weird with regular messages, and hiding
@@ -220,30 +240,47 @@ class MirdorphMessage(Gtk.ListBoxRow):
             self._attachment_box.set_margin_top(5)
 
         for export in self._message_content_wid.exports:
+            self._added_att_exp.append(export)
             self._attachment_box.append(export)
 
-    def merge(self):
-        # Width = Avatar Size (32)
-        self._avatar_box.props.width_request = 32
-        self.add_css_class("merged-discord-message")
+    def do_unbind(self):
+        self._item = None
 
-        if hasattr(self, "_username_label"):
-            self._username_container.remove(self._username_label)
-            del(self._username_label)
-        if hasattr(self, "_avatar"):
-            self._avatar_box.remove(self._avatar)
-            del(self._avatar)
-        self.merged = True
+        for exp_att_wid in self._added_att_exp:
+            if exp_att_wid in self._attachment_box:
+                self._attachment_box.remove(exp_att_wid)
 
-    def unmerge(self):
-        self._avatar_box.props.width_request = -1
-        self.remove_css_class("merged-discord-message")
+        self._avatar_box.remove(self._avatar)
+        del(self._avatar)
 
-        if not hasattr(self, "_username_label"):
-            self._username_label = UsernameLabel(self.author, self._disc_message.guild)
-            self._username_container.append(self._username_label)
+        self._message_content_container.remove(self._message_content_wid)
+        del(self._message_content_wid)
 
-        if not hasattr(self, "_avatar"):
-            self._avatar = UserMessageAvatar(self.author, margin_top=3)
-            self._avatar_box.append(self._avatar)
-        self.merged = False
+        self._username_container.remove(self._username_label)
+        del(self._username_label)
+
+    # def merge(self):
+    #     # Width = Avatar Size (32)
+    #     self._avatar_box.props.width_request = 32
+    #     self.add_css_class("merged-discord-message")
+# 
+    #     if hasattr(self, "_username_label"):
+    #         self._username_container.remove(self._username_label)
+    #         del(self._username_label)
+    #     if hasattr(self, "_avatar"):
+    #         self._avatar_box.remove(self._avatar)
+    #         del(self._avatar)
+    #     self.merged = True
+# 
+    # def unmerge(self):
+    #     self._avatar_box.props.width_request = -1
+    #     self.remove_css_class("merged-discord-message")
+# 
+    #     if not hasattr(self, "_username_label"):
+    #         self._username_label = UsernameLabel(self.author, self._disc_message.guild)
+    #         self._username_container.append(self._username_label)
+# 
+    #     if not hasattr(self, "_avatar"):
+    #         self._avatar = UserMessageAvatar(self.author, margin_top=3)
+    #         self._avatar_box.append(self._avatar)
+    #     self.merged = False

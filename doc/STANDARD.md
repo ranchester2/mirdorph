@@ -56,7 +56,7 @@ messages.
 The objects are themselves meant to keep themselves in sync with their on-discord state.
 
 Messageview at it's heart uses a GtkListBox, with children like message representations with
-`MirdorphMessage`, and is sorted automatically, you don't have to worry about that.
+`MessageWidget`, and is sorted automatically, you don't have to worry about that.
 
 A context itself is a Gtk widget too, and is the whole headerbar+area thing you see
 on the left. The popoit windows are simpy a `ChannelInnerWindow` inside a `AdwWindow`.
