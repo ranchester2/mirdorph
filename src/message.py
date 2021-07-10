@@ -168,11 +168,12 @@ class UsernameLabel(Gtk.Label):
 
 
 class MessageMobject(GObject.GObject, EventReceiver):
-    def __init__(self, disc_message: discord.Message):
+    def __init__(self, disc_message: discord.Message, merged=False):
         GObject.GObject.__init__(self)
         EventReceiver.__init__(self)
         self._disc_message = disc_message
         self.timestamp = self._disc_message.created_at.timestamp()
+        self._merged = merged
 
         # Recommended attributes exposed selectively, this will
         # also allow us to handle events well
@@ -182,6 +183,15 @@ class MessageMobject(GObject.GObject, EventReceiver):
         self.channel = self._disc_message.channel
         self.guild = self._disc_message.guild
         self.id = self._disc_message.id
+
+    @GObject.Property(type=bool, default=False)
+    def merged(self):
+        """If the message should be merged (common grouping method)"""
+        return self._merged
+
+    @merged.setter
+    def merged(self, merge: bool):
+        self._merged = merge
 
 @Gtk.Template(resource_path="/org/gnome/gitlab/ranchester/Mirdorph/ui/message.ui")
 class MessageWidget(Gtk.Box):
@@ -197,30 +207,40 @@ class MessageWidget(Gtk.Box):
     def __init__(self, merged=False, *args, **kwargs):
         Gtk.ListBoxRow.__init__(self, *args, **kwargs)
         self.app = Gio.Application.get_default()
-        self.merged = merged
 
         # Workaround to a weird state where attachments are added, but they do not
         # count towards the box, so they are not correctly removed
         self._added_att_exp = []
 
-        # if self.merged:
-        #     self.merge()
-        # else:
-        #     # Unmerging also builds all of the widgets that are only constructed
-        #     # if the message isn't merged.
-        #     self.unmerge()
+    def _handle_merge(self, *args):
+        if self._item.get_property("merged"):
+            self.add_css_class("merged-discord-message")
+            if hasattr(self, "_username_label"):
+                self._username_container.remove(self._username_label)
+                del(self._username_label)
+            if hasattr(self, "_avatar"):
+                self._avatar_box.remove(self._avatar)
+                del(self._avatar)
+            self._avatar_box.props.width_request = 32
+        else:
+            self.remove_css_class("merged-discord-message")
+            if not hasattr(self, "_username_label"):
+                self._username_label = UsernameLabel(self._item.author, self._item.guild)
+                self._username_container.append(self._username_label)
+            if not hasattr(self, "_avatar"):
+                self._avatar = UserMessageAvatar(self._item.author, margin_top=3)
+                self._avatar_box.append(self._avatar)
+            self._avatar_box.props.width_request = -1
 
     def do_bind(self, item: MessageMobject):
         self._item = item
+        self._item.connect("notify::merged", self._handle_merge)
 
         self._message_content_wid = MessageContent(self._item.content)
         self._message_content_container.append(self._message_content_wid)
 
-        self._username_label = UsernameLabel(self._item.author, self._item.guild)
-        self._username_container.append(self._username_label)
-
-        self._avatar = UserMessageAvatar(self._item.author, margin_top=3)
-        self._avatar_box.append(self._avatar)
+        # Handling merging takes care of building the username and avatar widgets
+        self._handle_merge()
 
         for att in self._item.attachments:
             if get_attachment_type(att) == AttachmentType.IMAGE:
@@ -246,41 +266,23 @@ class MessageWidget(Gtk.Box):
     def do_unbind(self):
         self._item = None
 
+        # Not always connected, even with handler id
+        try:
+            self.disconnect_by_func(self._handle_merge)
+        except TypeError:
+            pass
+
         for exp_att_wid in self._added_att_exp:
             if exp_att_wid in self._attachment_box:
                 self._attachment_box.remove(exp_att_wid)
 
-        self._avatar_box.remove(self._avatar)
-        del(self._avatar)
+        if hasattr(self, "_avatar"):
+            self._avatar_box.remove(self._avatar)
+            del(self._avatar)
+
+        if hasattr(self, "_username_label"):
+            self._username_container.remove(self._username_label)
+            del(self._username_label)
 
         self._message_content_container.remove(self._message_content_wid)
         del(self._message_content_wid)
-
-        self._username_container.remove(self._username_label)
-        del(self._username_label)
-
-    # def merge(self):
-    #     # Width = Avatar Size (32)
-    #     self._avatar_box.props.width_request = 32
-    #     self.add_css_class("merged-discord-message")
-# 
-    #     if hasattr(self, "_username_label"):
-    #         self._username_container.remove(self._username_label)
-    #         del(self._username_label)
-    #     if hasattr(self, "_avatar"):
-    #         self._avatar_box.remove(self._avatar)
-    #         del(self._avatar)
-    #     self.merged = True
-# 
-    # def unmerge(self):
-    #     self._avatar_box.props.width_request = -1
-    #     self.remove_css_class("merged-discord-message")
-# 
-    #     if not hasattr(self, "_username_label"):
-    #         self._username_label = UsernameLabel(self.author, self._disc_message.guild)
-    #         self._username_container.append(self._username_label)
-# 
-    #     if not hasattr(self, "_avatar"):
-    #         self._avatar = UserMessageAvatar(self.author, margin_top=3)
-    #         self._avatar_box.append(self._avatar)
-    #     self.merged = False

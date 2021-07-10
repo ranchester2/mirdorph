@@ -112,23 +112,22 @@ class MessageView(Gtk.Overlay, EventReceiver):
     def _fix_merges(self):
         """
         Attempt to efficiently fix incorrect message merging,
-        this only affects in correct rows and only itterates
-        through the listbox once.
+        this only affects in correct mobjects and only itterates
+        through the liststore once.
 
         It is needed because it is extremely hard to handle cross-load
         merging in `self._load_messages`, and this was the best solution
         that I found.
         """
-        previous_row = None
-        for row in self._message_listbox:
-            if hasattr(row, "author") and hasattr(row, "merged"):
-                if not previous_row:
-                    if row.merged:
-                        row.unmerge()
-                elif previous_row.author == row.author:
-                    if not row.merged:
-                        row.merge()
-                previous_row = row
+        previous_mobject = None
+        for mobject in self._model:
+            if not previous_mobject:
+                if mobject.get_property("merged"):
+                    mobject.set_property("merged", False)
+            elif previous_mobject.author == mobject.author:
+                if not mobject.get_property("merged"):
+                    mobject.set_property("merged", True)
+            previous_mobject = mobject
 
     def filter_messages_dupes(self, messages: list) -> list:
         """
@@ -141,8 +140,7 @@ class MessageView(Gtk.Overlay, EventReceiver):
         """
         ids = [message.id for message in messages]
         dupe_ids = []
-        for it in range(self._model.get_n_items()):
-            item = self._model.get_item(it)
+        for item in self._model:
             if item.id in ids:
                 dupe_ids.append(item.id)
 
@@ -187,7 +185,7 @@ class MessageView(Gtk.Overlay, EventReceiver):
                         # blindly assuming it will be the latest message.
                         should_be_merged = (message.author == last_mobject.author)
 
-            message_widgets.append(MessageMobject(message))
+            message_widgets.append(MessageMobject(message, merged=should_be_merged))
             previous_author = message.author
 
         # Workaround: https://gitlab.gnome.org/GNOME/gtk/merge_requests/395
@@ -197,12 +195,7 @@ class MessageView(Gtk.Overlay, EventReceiver):
             GLib.idle_add(self.context.scroll_messages_to_bottom)
 
         if messages:
-            # This can change the size of the view,
-            # however no time for the GLib loop to process idle events
-            # (update the scroll position) is between adding the rows
-            # and fixing the merges.
-            #self._fix_merges()
-            pass
+            self._fix_merges()
 
         self._first_load = False
 
