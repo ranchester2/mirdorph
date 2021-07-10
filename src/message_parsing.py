@@ -112,6 +112,7 @@ def _extract_discord_components(message_string) -> list:
 
 def _generate_exports(message_string: str):
     links = re.findall(r"(?P<url>https?://[^\s]+)", message_string)
+    return []
     return [LinkPreviewExport(link) for link in links]
 
 
