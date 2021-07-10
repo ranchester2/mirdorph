@@ -222,7 +222,7 @@ class MessageView(Gtk.Overlay, EventReceiver):
         self._scroll_btn_revealer.set_reveal_child(not self.context.is_scroll_at_bottom)
 
         # Near top of loaded history
-        if adj.get_value() < adj.get_page_size() * 1.5:
+        if adj.get_value() < adj.get_page_size() * 2:
             if not self._loading_history:
                 self.load_history(additional=15)
 
@@ -290,9 +290,7 @@ class MessageView(Gtk.Overlay, EventReceiver):
     def _history_loading_target(self, additional):
         amount_to_load = self._STANDARD_HISTORY_LOADING
         if additional is not None:
-            amount_to_load = len(
-                [wid for wid in self._message_listbox if isinstance(wid, MirdorphMessage)]
-            ) + additional
+            amount_to_load = self._model.get_n_items() + additional
 
         messages = asyncio.run_coroutine_threadsafe(
             self._get_history_messages_to_list(
