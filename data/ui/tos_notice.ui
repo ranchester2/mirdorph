@@ -22,6 +22,7 @@
                 <property name="has-frame">True</property>
                 <property name="child">
                   <object class="GtkTextView" id="_tos_textview">
+                    <property name="editable">False</property>
                     <property name="monospace">True</property>
                   </object>
                 </property>
