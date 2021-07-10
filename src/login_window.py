@@ -48,7 +48,7 @@ class TosNotice(Gtk.MessageDialog):
     def _on_adj_value_changed(self, adj: Gtk.Adjustment):
         bottom = adj.get_upper() - adj.get_page_size()
         if (abs(adj.get_value() - bottom) < sys.float_info.epsilon):
-            self._understood_checkbutton.get_parent().set_sensitive(True)
+            self._understood_checkbutton.set_sensitive(True)
 
 
 @Gtk.Template(resource_path="/org/gnome/gitlab/ranchester/Mirdorph/ui/login_window.ui")
