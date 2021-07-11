@@ -282,8 +282,15 @@ class MessageView(Gtk.Overlay, EventReceiver):
         self._history_loading_spinner.stop()
         self._loading_history = False
 
-    def _history_loading_target(self, before: None):
-        amount_to_load = self._STANDARD_HISTORY_LOADING
+    def _history_loading_target(self, additional: None, before: None):
+        # Additional is only there if we want to "add" to the history,
+        # and before is also only if we want to "add" to the history,
+        # not start from scratch. Which is why we have to change the amount
+        # passed to the getting messages history function.
+        if before:
+            amount_to_load = additional
+        else:
+            amount_to_load = self._STANDARD_HISTORY_LOADING
 
         messages = asyncio.run_coroutine_threadsafe(
             self._get_history_messages_to_list(
@@ -316,5 +323,5 @@ class MessageView(Gtk.Overlay, EventReceiver):
         if additional:
             before = self._model.get_item(0).created_at
         else:
-            before=None
-        threading.Thread(target=self._history_loading_target, args=(before,)).start()
+            before = None
+        threading.Thread(target=self._history_loading_target, args=(additional, before,)).start()
