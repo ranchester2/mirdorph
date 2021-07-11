@@ -43,50 +43,6 @@ class MessageContent(Gtk.Box):
             for comp in calculate_msg_parts(self._message_content)
         ]
 
-class UserMessageAvatar(Adw.Avatar):
-    __gtype_name__ = "UserMessageAvatar"
-
-    _avatar_icon_dir_path = Path(os.environ["XDG_CACHE_HOME"] / Path("mirdorph"))
-
-    def __init__(self, user: discord.User, *args, **kwargs):
-        Adw.Avatar.__init__(self, size=32, text=user.name, show_initials=True, *args, **kwargs)
-        self.app = Gio.Application.get_default()
-
-        self._user_disc = user
-        self._avatar_icon_path = Path(
-            self._avatar_icon_dir_path / Path("user" + "_" + str(self._user_disc.id) + ".png")
-        )
-
-        #threading.Thread(target=self._fetch_avatar_target).start()
-
-    def _fetch_avatar_target(self):
-        avatar_asset = self._user_disc.avatar_url_as(size=1024, format="png")
-
-        # Unlike with guilds, we will have many, many things attempting to download
-        # and save it there, which causes weird errors due to incomplete save while
-        # the other is loading.
-        # This is a KNOWN BUG, can be mitigated by sleeping a random amount before,
-        # however that ruins the user experience a lot.
-        # I think the real solution in the future is to have a global avatar lock.
-        if not self._avatar_icon_path.is_file():
-            asyncio.run_coroutine_threadsafe(
-                avatar_asset.save(str(self._avatar_icon_path)),
-                self.app.discord_loop
-            ).result()
-
-        GLib.idle_add(self._set_avatar_gtk_target)
-
-    def _set_avatar_gtk_target(self):
-        if self._avatar_icon_path.is_file():
-            try:
-                image = Gtk.Image.new_from_file(
-                    str(self._avatar_icon_path)
-                )
-                self.set_custom_image(image.get_paintable())
-            except GLib.Error as e:
-                logging.warning(
-                    f"encountered unkown avatar error as {e}. Probably loading partially downloaded file."
-                )
 
 class MessageMobject(GObject.GObject, EventReceiver):
     """
@@ -94,7 +50,17 @@ class MessageMobject(GObject.GObject, EventReceiver):
     a GObject bsed on the discord message object, with special handling
     for GObject signals, username label generation, headers, and selectively
     exposes Discord attributes.
+
+    properties:
+        merged: if the message should be merged (grouping)
+        username-color: the hex color of the username, intelligentlly gathered
+        at runtime
+        avatar-file: the location of the downloaded avatar, None if not yet downloaded
     """
+
+    merged = GObject.Property(type=bool, default=False)
+    username_color = GObject.Property(type=str)
+    avatar_file = GObject.Property(type=str)
 
     def __init__(self, disc_message: discord.Message, merged=False, is_header=False):
         """
@@ -116,7 +82,7 @@ class MessageMobject(GObject.GObject, EventReceiver):
             return
 
         self._disc_message = disc_message
-        self._merged = merged
+        self.props.merged = merged
         self._username_color = None
 
         # Recommended attributes exposed selectively, this will
@@ -129,27 +95,10 @@ class MessageMobject(GObject.GObject, EventReceiver):
         self.guild = self._disc_message.guild
         self.id = self._disc_message.id
 
-        # Additional "lazy" loading of properties like the username color
+        # Additional "lazy" loading of properties like the username color, avatar
         # should happen in the Mobject, not the widget
         threading.Thread(target=self._fetch_label_color_target).start()
-
-    @GObject.Property(type=bool, default=False)
-    def merged(self):
-        """If the message should be merged (common grouping method)"""
-        return self._merged
-
-    @merged.setter
-    def merged(self, merge: bool):
-        self._merged = merge
-
-    @GObject.Property(type=str)
-    def username_color(self):
-        """The username color, intelligently gathered at runtime"""
-        return self._username_color
-
-    @username_color.setter
-    def username_color(self, color: str):
-        self._username_color = color
+        threading.Thread(target=self._fetch_avatar_target).start()
 
     def _helper_get_member(self) -> discord.Member:
         """
@@ -214,7 +163,27 @@ class MessageMobject(GObject.GObject, EventReceiver):
         GLib.idle_add(self._label_color_gtk_target, color_formatted)
 
     def _label_color_gtk_target(self, color: str):
-        self.set_property("username-color", color)
+        self.props.username_color = color
+
+    def _fetch_avatar_target(self):
+        avatar_asset = self.author.avatar_url_as(size=1024, format="png")
+
+        # Not directly set to the property here, as it needs to be downloaded
+        avatar_icon_path = Path(
+            os.environ["XDG_CACHE_HOME"] / Path("mirdorph")
+            / f"user_{str(self.author.id)}.png"
+        )
+
+        if not avatar_icon_path.is_file():
+            asyncio.run_coroutine_threadsafe(
+                avatar_asset.save(str(avatar_icon_path)),
+                self.app.discord_loop
+            ).result()
+
+        GLib.idle_add(self._avatar_gtk_target, avatar_icon_path)
+
+    def _avatar_gtk_target(self, avatar_icon_path: str):
+        self.props.avatar_file = avatar_icon_path
 
 
 @Gtk.Template(resource_path="/org/gnome/gitlab/ranchester/Mirdorph/ui/message.ui")
@@ -222,6 +191,7 @@ class MessageWidget(Gtk.Box):
     __gtype_name__ = "MessageWidget"
 
     _avatar_box: Gtk.Box = Gtk.Template.Child()
+    _avatar: Adw.Avatar = Gtk.Template.Child()
 
     _username_label: Gtk.Label = Gtk.Template.Child()
     _message_content_container: Adw.Bin = Gtk.Template.Child()
@@ -240,16 +210,12 @@ class MessageWidget(Gtk.Box):
         if self._item.get_property("merged"):
             self.add_css_class("merged-discord-message")
             self._username_label.hide()
-            if hasattr(self, "_avatar"):
-                self._avatar_box.remove(self._avatar)
-                del(self._avatar)
+            self._avatar.hide()
             self._avatar_box.props.width_request = 32
         else:
             self.remove_css_class("merged-discord-message")
             self._username_label.show()
-            if not hasattr(self, "_avatar"):
-                self._avatar = UserMessageAvatar(self._item.author, margin_top=3)
-                self._avatar_box.append(self._avatar)
+            self._avatar.show()
             self._avatar_box.props.width_request = -1
 
     def _handle_username_color(self, *args):
@@ -259,17 +225,33 @@ class MessageWidget(Gtk.Box):
                 f"<span foreground='{color}'>{escape_xml(self._item.author.name)}</span>"
             )
 
+    def _handle_avatar(self, *args):
+        avatar_icon_path = Path(self._item.get_property("avatar-file"))
+        if avatar_icon_path and avatar_icon_path.is_file():
+            try:
+                image = Gtk.Image.new_from_file(
+                    str(avatar_icon_path)
+                )
+                self._avatar.set_custom_image(image.get_paintable())
+            except GLib.Error as e:
+                logging.warning(
+                    f"encountered unkown avatar error as {e}. Probably loading partially downloaded file."
+                )
+
     def do_bind(self, item: MessageMobject):
         self._item = item
         self._item.connect("notify::merged", self._handle_merge)
         self._item.connect("notify::username-color", self._handle_username_color)
+        self._item.connect("notify::avatar-file", self._handle_avatar)
 
         self._message_content_wid = MessageContent(self._item.content)
         self._message_content_container.append(self._message_content_wid)
 
         self._username_label.set_label(escape_xml(self._item.author.name))
+        self._avatar.set_text(self._item.author.name)
         # For initial setup if widget created after mobject already fetched
         self._handle_username_color()
+        self._handle_avatar()
 
         # Handling merging takes care of building the avatar if it does not exist
         self._handle_merge()
@@ -302,6 +284,7 @@ class MessageWidget(Gtk.Box):
         try:
             self.disconnect_by_func(self._handle_merge)
             self.disconnect_by_func(self._handle_username_color)
+            self.disconnect_by_func(self._handle_avatar)
         except TypeError:
             pass
 
@@ -309,9 +292,8 @@ class MessageWidget(Gtk.Box):
             if exp_att_wid in self._attachment_box:
                 self._attachment_box.remove(exp_att_wid)
 
-        if hasattr(self, "_avatar"):
-            self._avatar_box.remove(self._avatar)
-            del(self._avatar)
+        self._avatar.set_text("")
+        self._avatar.set_custom_image(None)
 
         self._username_label.set_label("")
 

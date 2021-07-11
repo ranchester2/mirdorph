@@ -6,6 +6,12 @@
     <child>
       <object class="GtkBox" id="_avatar_box">
         <property name="valign">GTK_ALIGN_START</property>
+        <child>
+          <object class="AdwAvatar" id="_avatar">
+            <property name="size">32</property>
+            <property name="show-initials">True</property>
+          </object>
+        </child>
       </object>
     </child>
     <child>
