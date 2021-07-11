@@ -13,7 +13,13 @@
         <property name="hexpand">True</property>
         <property name="orientation">vertical</property>
         <child>
-          <object class="GtkBox" id="_username_container" />
+          <object class="GtkLabel" id="_username_label">
+            <property name="use-markup">True</property>
+            <property name="xalign">0.0</property>
+            <style>
+              <class name="username" />
+            </style>
+          </object>
         </child>
         <child>
           <object class="GtkBox" id="_message_content_container" />

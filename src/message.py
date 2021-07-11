@@ -13,6 +13,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import random
+import time
 import asyncio
 import logging
 import threading
@@ -86,93 +88,14 @@ class UserMessageAvatar(Adw.Avatar):
                     f"encountered unkown avatar error as {e}. Probably loading partially downloaded file."
                 )
 
-class UsernameLabel(Gtk.Label):
-    __gtype_name__ = "UsernameLabel"
-
-    def __init__(self, author: discord.abc.User, guild: discord.Guild, *args, **kwargs):
-        Gtk.Label.__init__(self, *args, **kwargs)
-        self.app = Gio.Application.get_default()
-        self._author = author
-        self._guild = guild
-
-        self.set_use_markup(True)
-        self.set_xalign(0.0)
-        self.add_css_class("username")
-
-        self.set_label(escape_xml(self._author.name))
-
-        threading.Thread(target=self._fetch_label_color_target).start()
-
-    # NOTE: only call this from the non blocking thread
-    def _helper_get_member(self) -> discord.Member:
-        """
-        Efficiently get our discord member.
-
-        Such complication is required becaused .author isn't always one,
-        and it is easy to make a lot of API calls getting one.
-
-        returns:
-            discord.Member - if it worked,
-            None - if everything failed (sometimes happens, 404 bug)
-        """
-        # When we receive a message, it is a Member, however from history
-        # it is a user.
-        if isinstance(self._author, discord.Member):
-            member = self._author
-            self.app.custom_member_cache[member.id] = member
-        else:
-            if self._author.id in self.app.custom_member_cache:
-                member = self.app.custom_member_cache[self._author.id]
-            else:
-                member = self._guild.get_member(self._author.id)
-                if member:
-                    self.app.custom_member_cache[member.id] = member
-                else:
-                    # Sometimes when fetching members like this it simply isn't found for
-                    # seemingly no reason. Maybe it is todo with if they are online?
-                    try:
-                        member = asyncio.run_coroutine_threadsafe(
-                            self._guild.fetch_member(
-                                self._author.id
-                            ),
-                            self.app.discord_loop
-                        ).result()
-                        self.app.custom_member_cache[self._author.id] = member
-                    except discord.errors.NotFound:
-                        logging.warning(f"could not get member info of {self._author}, 404?")
-                        return
-        return member
-
-    def _fetch_label_color_target(self):
-        # Those with 0000 are generally "fake" members that are invalid
-        if self._author.discriminator == "0000":
-            return
-
-        member = self._helper_get_member()
-        if member is None:
-            return
-        top_role = member.roles[-1]
-        color_formatted = "#%02x%02x%02x" % top_role.color.to_rgb()
-
-        # @everyone is completely black, we should fix that, to be the default
-        # theme color instead
-        color_is_default = (color_formatted == "#000000")
-
-        GLib.idle_add(self._label_color_gtk_target, color_formatted, color_is_default)
-
-    def _label_color_gtk_target(self, color: str, color_is_default: bool):
-        if not color_is_default:
-            self.set_markup(
-                f"<span foreground='{color}'>{escape_xml(self._author.name)}</span>"
-            )
-
-
 class MessageMobject(GObject.GObject, EventReceiver):
     def __init__(self, disc_message: discord.Message, merged=False):
         GObject.GObject.__init__(self)
         EventReceiver.__init__(self)
+        self.app = Gio.Application.get_default()
         self._disc_message = disc_message
         self._merged = merged
+        self._username_color = None
 
         # Recommended attributes exposed selectively, this will
         # also allow us to handle events well
@@ -184,6 +107,10 @@ class MessageMobject(GObject.GObject, EventReceiver):
         self.guild = self._disc_message.guild
         self.id = self._disc_message.id
 
+        # Additional "lazy" loading of properties like the username color
+        # should happen in the Mobject, not the widget
+        threading.Thread(target=self._fetch_label_color_target).start()
+
     @GObject.Property(type=bool, default=False)
     def merged(self):
         """If the message should be merged (common grouping method)"""
@@ -193,13 +120,88 @@ class MessageMobject(GObject.GObject, EventReceiver):
     def merged(self, merge: bool):
         self._merged = merge
 
+    @GObject.Property(type=str)
+    def username_color(self):
+        """The username color, intelligently gathered at runtime"""
+        return self._username_color
+
+    @username_color.setter
+    def username_color(self, color: str):
+        self._username_color = color
+
+    def _helper_get_member(self) -> discord.Member:
+        """
+        Efficiently get our discord member.
+
+        Such complication is required becaused .author isn't always one,
+        and it is easy to make a lot of API calls getting one.
+
+        NOTE: only call this from the non blocking thread
+
+        returns:
+            discord.Member - if it worked,
+            None - if everything failed (sometimes happens, 404 bug)
+        """
+        # When we receive a message, it is a Member, however from history
+        # it is a user.
+        if isinstance(self.author, discord.Member):
+            member = self.author
+            self.app.custom_member_cache[member.id] = member
+        else:
+            if self.author.id in self.app.custom_member_cache:
+                member = self.app.custom_member_cache[self.author.id]
+            else:
+                member = self.guild.get_member(self.author.id)
+                if member:
+                    self.app.custom_member_cache[member.id] = member
+                else:
+                    # Sometimes when fetching members like this it simply isn't found for
+                    # seemingly no reason. Maybe it is todo with if they are online?
+                    try:
+                        member = asyncio.run_coroutine_threadsafe(
+                            self.guild.fetch_member(
+                                self.author.id
+                            ),
+                            self.app.discord_loop
+                        ).result()
+                        self.app.custom_member_cache[self.author.id] = member
+                    except discord.errors.NotFound:
+                        logging.warning(f"could not get member info of {self.author}, 404?")
+                        return
+        return member
+
+    def _fetch_label_color_target(self):
+        # Those with 0000 are generally "fake" members that are invalid
+        if self.author.discriminator == "0000":
+            return
+
+        # Really needed especially with all Mobjects attempting to fetch it
+        time.sleep(random.uniform(0.25, 3))
+
+        member = self._helper_get_member()
+        if member is None:
+            return
+        top_role = member.roles[-1]
+        color_formatted = "#%02x%02x%02x" % top_role.color.to_rgb()
+
+        # @everyone is completely black, that should be the default theme
+        # color instead.
+        if color_formatted == "#000000":
+            return
+
+        GLib.idle_add(self._label_color_gtk_target, color_formatted)
+
+    def _label_color_gtk_target(self, color: str):
+        self.set_property("username-color", color)
+
+
 @Gtk.Template(resource_path="/org/gnome/gitlab/ranchester/Mirdorph/ui/message.ui")
 class MessageWidget(Gtk.Box):
     __gtype_name__ = "MessageWidget"
 
     _avatar_box: Gtk.Box = Gtk.Template.Child()
 
-    _username_container: Gtk.Box = Gtk.Template.Child()
+    _username_label: Gtk.Label = Gtk.Template.Child()
     _message_content_container: Adw.Bin = Gtk.Template.Child()
 
     _attachment_box: Gtk.Box = Gtk.Template.Child()
@@ -215,31 +217,39 @@ class MessageWidget(Gtk.Box):
     def _handle_merge(self, *args):
         if self._item.get_property("merged"):
             self.add_css_class("merged-discord-message")
-            if hasattr(self, "_username_label"):
-                self._username_container.remove(self._username_label)
-                del(self._username_label)
+            self._username_label.hide()
             if hasattr(self, "_avatar"):
                 self._avatar_box.remove(self._avatar)
                 del(self._avatar)
             self._avatar_box.props.width_request = 32
         else:
             self.remove_css_class("merged-discord-message")
-            if not hasattr(self, "_username_label"):
-                self._username_label = UsernameLabel(self._item.author, self._item.guild)
-                self._username_container.append(self._username_label)
+            self._username_label.show()
             if not hasattr(self, "_avatar"):
                 self._avatar = UserMessageAvatar(self._item.author, margin_top=3)
                 self._avatar_box.append(self._avatar)
             self._avatar_box.props.width_request = -1
 
+    def _handle_username_color(self, *args):
+        color = self._item.get_property("username-color")
+        if color:
+            self._username_label.set_markup(
+                f"<span foreground='{color}'>{escape_xml(self._item.author.name)}</span>"
+            )
+
     def do_bind(self, item: MessageMobject):
         self._item = item
         self._item.connect("notify::merged", self._handle_merge)
+        self._item.connect("notify::username-color", self._handle_username_color)
 
         self._message_content_wid = MessageContent(self._item.content)
         self._message_content_container.append(self._message_content_wid)
 
-        # Handling merging takes care of building the username and avatar widgets
+        self._username_label.set_label(escape_xml(self._item.author.name))
+        # For initial setup if widget created after mobject already fetched
+        self._handle_username_color()
+
+        # Handling merging takes care of building the avatar if it does not exist
         self._handle_merge()
 
         for att in self._item.attachments:
@@ -269,6 +279,7 @@ class MessageWidget(Gtk.Box):
         # Not always connected, even with handler id
         try:
             self.disconnect_by_func(self._handle_merge)
+            self.disconnect_by_func(self._handle_username_color)
         except TypeError:
             pass
 
@@ -280,9 +291,7 @@ class MessageWidget(Gtk.Box):
             self._avatar_box.remove(self._avatar)
             del(self._avatar)
 
-        if hasattr(self, "_username_label"):
-            self._username_container.remove(self._username_label)
-            del(self._username_label)
+        self._username_label.set_label("")
 
         self._message_content_container.remove(self._message_content_wid)
         del(self._message_content_wid)
