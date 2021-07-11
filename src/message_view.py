@@ -17,6 +17,7 @@ import asyncio
 import logging
 import threading
 import discord
+import datetime
 import sys
 from gi.repository import Adw, Gtk, Gio, GLib
 from .event_receiver import EventReceiver
@@ -59,9 +60,9 @@ class MessageView(Gtk.Overlay, EventReceiver):
 
         self._model = Gio.ListStore()
         def data_sort_func(first: MessageMobject, second: MessageMobject, user_data):
-            if first.timestamp < second.timestamp:
+            if first.created_at < second.created_at:
                 return -1
-            elif first.timestamp > second.timestamp:
+            elif first.created_at > second.created_at:
                 return 1
             else:
                 return 0
@@ -180,7 +181,7 @@ class MessageView(Gtk.Overlay, EventReceiver):
                 number_of = self._model.get_n_items()
                 if number_of > 0:
                     last_mobject: MessageMobject = self._model.get_item(number_of - 1)
-                    if message.created_at.timestamp() > last_mobject.timestamp:
+                    if message.created_at > last_mobject.created_at:
                         # The message here can be from anywhere, we want to avoid
                         # blindly assuming it will be the latest message.
                         should_be_merged = (message.author == last_mobject.author)
@@ -258,7 +259,7 @@ class MessageView(Gtk.Overlay, EventReceiver):
             # reason executes in the wrong order then and misses the message.
             self.context.scroll_for_msg_send = False
 
-    async def _get_history_messages_to_list(self, channel: discord.TextChannel, amount_to_load: int) -> list:
+    async def _get_history_messages_to_list(self, channel: discord.TextChannel, amount_to_load: int, before: datetime.datetime=None) -> list:
         """
         Return a list of Discord messages in current history,
         useful to call in other thread and use the list to build
@@ -266,9 +267,14 @@ class MessageView(Gtk.Overlay, EventReceiver):
 
         param:
             channel: the discord channel
-            amount_to_load: how many messages you want to get (from history start)
+            amount_to_load: how many messages you want to get,
+            before: if it exists, before which message to load
         """
-        return [message async for message in channel.history(limit=amount_to_load)]
+        if before:
+            messages = await channel.history(limit=amount_to_load, before=before).flatten()
+        else:
+            messages = await channel.history(limit=amount_to_load).flatten()
+        return messages
 
     def _history_loading_gtk_target(self, messages: list):
         self._load_messages(messages)
@@ -276,15 +282,14 @@ class MessageView(Gtk.Overlay, EventReceiver):
         self._history_loading_spinner.stop()
         self._loading_history = False
 
-    def _history_loading_target(self, additional):
+    def _history_loading_target(self, before: None):
         amount_to_load = self._STANDARD_HISTORY_LOADING
-        if additional is not None:
-            amount_to_load = self._model.get_n_items() + additional
 
         messages = asyncio.run_coroutine_threadsafe(
             self._get_history_messages_to_list(
                 self.context.channel_disc,
-                amount_to_load
+                amount_to_load,
+                before=before
             ),
             self.app.discord_loop
         ).result()
@@ -306,4 +311,10 @@ class MessageView(Gtk.Overlay, EventReceiver):
             return
         self._loading_history = True
         self._history_loading_spinner.start()
-        threading.Thread(target=self._history_loading_target, args=(additional,)).start()
+        # Better to get here to avoid GLib.ilde_add, as the model can only be used
+        # on the main thread.
+        if additional:
+            before = self._model.get_item(0).created_at
+        else:
+            before=None
+        threading.Thread(target=self._history_loading_target, args=(before,)).start()

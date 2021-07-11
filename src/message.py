@@ -172,12 +172,12 @@ class MessageMobject(GObject.GObject, EventReceiver):
         GObject.GObject.__init__(self)
         EventReceiver.__init__(self)
         self._disc_message = disc_message
-        self.timestamp = self._disc_message.created_at.timestamp()
         self._merged = merged
 
         # Recommended attributes exposed selectively, this will
         # also allow us to handle events well
         self.content = self._disc_message.content
+        self.created_at = self._disc_message.created_at
         self.author = self._disc_message.author
         self.attachments = self._disc_message.attachments
         self.channel = self._disc_message.channel
