@@ -65,7 +65,7 @@ mode
 }
 
 .scroll-button {
-  border-radius: 99999px;
+  padding: 6px;
 }
 
 .reverse-text {
