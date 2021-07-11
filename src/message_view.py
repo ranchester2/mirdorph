@@ -117,7 +117,7 @@ class MessageView(Gtk.Overlay, EventReceiver):
             listitem.get_child().do_bind(listitem.get_item())
         else:
             listitem.set_activatable(False)
-            spinner = Gtk.Spinner()
+            spinner = Gtk.Spinner(margin_top=10, margin_bottom=10)
             self.bind_property("loading-history", spinner, "spinning")
             listitem.set_child(spinner)
 
