@@ -19,7 +19,7 @@ import threading
 import discord
 import datetime
 import sys
-from gi.repository import Adw, Gtk, Gio, GLib
+from gi.repository import Adw, Gtk, Gio, GObject, GLib
 from .event_receiver import EventReceiver
 from .message import MessageWidget, MessageMobject
 from .typing_indicator import TypingIndicator
@@ -38,6 +38,8 @@ class MessageView(Gtk.Overlay, EventReceiver):
 
     _STANDARD_HISTORY_LOADING = 40
 
+    loading_history = GObject.Property(type=bool, default=False)
+
     _listview: Gtk.ListView = Gtk.Template.Child()
 
     # Originally code was designed with message_view inheriting from
@@ -53,7 +55,6 @@ class MessageView(Gtk.Overlay, EventReceiver):
         EventReceiver.__init__(self)
         self.context = context
         self.app = Gio.Application.get_default()
-        self._loading_history = False
         # After first populating the listview, we appear at the top of the history,
         # not the bottom
         self._first_load = True
@@ -71,20 +72,25 @@ class MessageView(Gtk.Overlay, EventReceiver):
             sorter=Gtk.CustomSorter.new(data_sort_func)
         )
 
+        # It is not simple to set a header widget of a listmodel, so instead we have
+        # a flattened model containing the header model and then our real model.
+        # The message Mobject also needs to be adapted to support this functionality
+        # as all items must be of the same type
+        self._header_model = Gio.ListStore()
+        self._header_model.append(MessageMobject(None, is_header=True))
+        model_list = Gio.ListStore()
+        model_list.append(self._header_model)
+        model_list.append(self._model)
+        flattened_abstraction_model = Gtk.FlattenListModel.new(model_list)
+
         self._factory = Gtk.SignalListItemFactory()
         self._factory.connect("setup", self._data_setup)
         self._factory.connect("bind", self._data_bind)
         self._factory.connect("unbind", self._data_unbind)
         self._factory.connect("teardown", self._data_teardown)
 
-        self._listview.set_model(Gtk.NoSelection.new(self._sorted_model))
+        self._listview.set_model(Gtk.NoSelection.new(flattened_abstraction_model))
         self._listview.set_factory(self._factory)
-
-        self._history_loading_row = Gtk.ListBoxRow(height_request=32)
-        # Attribute makes detecting it in sort easy
-        self._history_loading_row.is_history_row = True
-        self._history_loading_spinner = Gtk.Spinner()
-        self._history_loading_row.set_child(self._history_loading_spinner)
 
         self._typing_indicator = TypingIndicator(self.context.channel_disc)
         self._typing_indicator_overlay.add_overlay(self._typing_indicator)
@@ -101,11 +107,24 @@ class MessageView(Gtk.Overlay, EventReceiver):
     def _data_setup(self, factor, listitem: Gtk.ListItem):
         listitem.set_child(MessageWidget())
 
+    # Special handling of the header widget is required, which causes bind
+    # to actually be equivelent to "setup" normally.
     def _data_bind(self, factor, listitem: Gtk.ListItem):
-        listitem.get_child().do_bind(listitem.get_item())
+        if not listitem.get_item().is_header:
+            listitem.get_child().do_bind(listitem.get_item())
+        else:
+            listitem.set_activatable(False)
+            spinner = Gtk.Spinner()
+            self.bind_property("loading-history", spinner, "spinning")
+            listitem.set_child(spinner)
 
     def _data_unbind(self, factor, listitem: Gtk.ListItem):
-        listitem.get_child().do_unbind()
+        if isinstance(listitem.get_child(), MessageWidget):
+            listitem.get_child().do_unbind()
+        else:
+            # When unbinding the header we have to recreate what setup does
+            listitem.set_activatable(True)
+            listitem.set_child(MessageWidget())
 
     def _data_teardown(self, factor, listitem: Gtk.ListItem):
         listitem.set_child(None)
@@ -213,7 +232,7 @@ class MessageView(Gtk.Overlay, EventReceiver):
 
         # Near top of loaded history
         if adj.get_value() < adj.get_page_size() * 2:
-            if not self._loading_history:
+            if not self.props.loading_history:
                 self.load_history(additional=15)
 
     ### Smooth scroll animation code taken from Fractal, but converted from rust to Python
@@ -279,8 +298,7 @@ class MessageView(Gtk.Overlay, EventReceiver):
     def _history_loading_gtk_target(self, messages: list):
         self._load_messages(messages)
 
-        self._history_loading_spinner.stop()
-        self._loading_history = False
+        self.props.loading_history = False
 
     def _history_loading_target(self, additional: None, before: None):
         # Additional is only there if we want to "add" to the history,
@@ -313,11 +331,10 @@ class MessageView(Gtk.Overlay, EventReceiver):
             additional - additional ammount of messages to load, useful
             only if previously loaded, for example more history when scrolling.
         """
-        if self._loading_history:
+        if self.props.loading_history:
             logging.warning("attempted to load history even if already loading")
             return
-        self._loading_history = True
-        self._history_loading_spinner.start()
+        self.props.loading_history = True
         # Better to get here to avoid GLib.ilde_add, as the model can only be used
         # on the main thread.
         if additional:

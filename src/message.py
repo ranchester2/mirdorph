@@ -89,10 +89,32 @@ class UserMessageAvatar(Adw.Avatar):
                 )
 
 class MessageMobject(GObject.GObject, EventReceiver):
-    def __init__(self, disc_message: discord.Message, merged=False):
+    """
+    A representation of an object in the message data model,
+    a GObject bsed on the discord message object, with special handling
+    for GObject signals, username label generation, headers, and selectively
+    exposes Discord attributes.
+    """
+
+    def __init__(self, disc_message: discord.Message, merged=False, is_header=False):
+        """
+        Create a Mobject for a discord message event.
+        param:
+            disc_message: the `discord.Message` of the message, if `is_header` is True, this
+            should be None
+            merged: if the message should originally be merged (part of a group, some things
+            are then not displayed)
+            is_header: is this the view header widget, done in this awkward way because all
+            objects must be of the same type. Other functionality of the Mobject won't work
+            as expected with this enabled
+        """
         GObject.GObject.__init__(self)
         EventReceiver.__init__(self)
         self.app = Gio.Application.get_default()
+        self.is_header = is_header
+        if self.is_header:
+            return
+
         self._disc_message = disc_message
         self._merged = merged
         self._username_color = None
