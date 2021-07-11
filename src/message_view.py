@@ -59,6 +59,9 @@ class MessageView(Gtk.Overlay, EventReceiver):
         # not the bottom
         self._first_load = True
 
+        # NOTE: this model is the main model that supports appending and simillar,
+        # however it isn't sorted. For use that requires the order to be correct,
+        # use _sorted_model
         self._model = Gio.ListStore()
         def data_sort_func(first: MessageMobject, second: MessageMobject, user_data):
             if first.created_at < second.created_at:
@@ -80,7 +83,7 @@ class MessageView(Gtk.Overlay, EventReceiver):
         self._header_model.append(MessageMobject(None, is_header=True))
         model_list = Gio.ListStore()
         model_list.append(self._header_model)
-        model_list.append(self._model)
+        model_list.append(self._sorted_model)
         flattened_abstraction_model = Gtk.FlattenListModel.new(model_list)
 
         self._factory = Gtk.SignalListItemFactory()
@@ -140,7 +143,7 @@ class MessageView(Gtk.Overlay, EventReceiver):
         that I found.
         """
         previous_mobject = None
-        for mobject in self._model:
+        for mobject in self._sorted_model:
             if not previous_mobject:
                 if mobject.get_property("merged"):
                     mobject.set_property("merged", False)
@@ -199,7 +202,7 @@ class MessageView(Gtk.Overlay, EventReceiver):
             elif len(messages) == 1:
                 number_of = self._model.get_n_items()
                 if number_of > 0:
-                    last_mobject: MessageMobject = self._model.get_item(number_of - 1)
+                    last_mobject: MessageMobject = self._sorted_model.get_item(number_of - 1)
                     if message.created_at > last_mobject.created_at:
                         # The message here can be from anywhere, we want to avoid
                         # blindly assuming it will be the latest message.
@@ -338,7 +341,7 @@ class MessageView(Gtk.Overlay, EventReceiver):
         # Better to get here to avoid GLib.ilde_add, as the model can only be used
         # on the main thread.
         if additional:
-            before = self._model.get_item(0).created_at
+            before = self._sorted_model.get_item(0).created_at
         else:
             before = None
         threading.Thread(target=self._history_loading_target, args=(additional, before,)).start()
