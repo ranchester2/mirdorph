@@ -118,6 +118,7 @@
                             <property name="title-widget"><object class="GtkLabel"></object></property>
                             <child>
                               <object class="GtkToggleButton" id="_channel_search_button">
+                                <signal name="notify::active" handler="_on_channel_search" />
                                 <child>
                                   <object class="GtkImage">
                                     <property name="icon-name">edit-find-symbolic</property>

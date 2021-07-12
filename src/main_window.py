@@ -67,6 +67,15 @@ class MirdorphMainWindow(Adw.ApplicationWindow, EventReceiver):
             logging.warning("impossible to set default focus of empty status context")
 
     @Gtk.Template.Callback()
+    # When toggling search, the sidebar with the search should always be revealed,
+    # and the button being active is an indication of that
+    def _on_channel_search(self, button, gparam):
+        if self._channel_search_button.get_active():
+            # When in stack navigation, we don't want to reveal the flap
+            if self.main_flap.get_folded():
+                self.main_flap.set_reveal_flap(True)
+
+    @Gtk.Template.Callback()
     def _on_loading_close_btn_clicked(self, button):
         self.destroy()
 
