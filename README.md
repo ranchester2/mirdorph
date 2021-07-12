@@ -29,7 +29,7 @@ flatpak run org.gnome.gitlab.ranchester.Mirdorph
 
 ## Screenshots
 
-Here are a few screenshots of 0.12.0:
+Here are a few screenshots of 0.13.0:
 
 ![image](./doc/asset/mirdorph-login.png)
 ![image](./doc/asset/mirdorph-login-gui.png)

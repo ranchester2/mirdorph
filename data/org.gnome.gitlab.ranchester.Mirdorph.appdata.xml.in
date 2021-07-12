@@ -32,6 +32,26 @@
   </screenshots>
 
   <releases>
+    <release version="0.13.0" date="2021-06-12">
+      <description>
+        <p>Incremental release with targeted changes:</p>
+        <ul>
+          <li>Performance has been in most cases significantly improved</li>
+          <li>Everything looks slightly different</li>
+          <li>The image viewer now correctly scales vertically-constrained images</li>
+          <li>The Terms of Service notice understood checkbutton is now more easy to click</li>
+          <li>It is now possible to disable link previews</li>
+          <li>The history loading indicator has been improved</li>
+          <li>More history is loaded at a time when scrolling</li>
+          <li>Toggling search with the shortcut when "folded" now reveals the sidebar</li>
+          <li>Known regression: scrolling to load more history has noticeable, short freeze</li>
+          <li>Large under-the-hood changes</li>
+          <li>Jargon: first "GTK4" release</li>
+          <li>Updated translations</li>
+          <li>Updated screenshots</li>
+        </ul>
+      </description>
+    </release>
     <release version="0.12.0" date="2021-06-05">
       <description>
         <p>Small incremental release, released because I want to port to GTK4:</p>

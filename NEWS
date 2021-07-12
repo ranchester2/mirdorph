@@ -1,3 +1,22 @@
+Version 0.13.0
+~~~~~~~~~~~~~~
+Released: 2021-06-12
+
+Incremental release with targeted changes:
+ * Performance has been in most cases significantly improved
+ * Everything looks slightly different
+ * The image viewer now correctly scales vertically-constrained images
+ * The Terms of Service notice understood checkbutton is now more easy to click
+ * It is now possible to disable link previews
+ * The history loading indicator has been improved
+ * More history is loaded at a time when scrolling
+ * Toggling search with the shortcut when "folded" now reveals the sidebar
+ * Known regression: scrolling to load more history has noticeable, short freeze
+ * Large under-the-hood changes
+ * Jargon: first "GTK4" release
+ * Updated translations
+ * Updated screenshots
+
 Version 0.12.0
 ~~~~~~~~~~~~~~
 Released: 2021-06-05
