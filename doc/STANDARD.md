@@ -55,8 +55,11 @@ messages.
 
 The objects are themselves meant to keep themselves in sync with their on-discord state.
 
-Messageview at it's heart uses a GtkListBox, with children like message representations with
-`MessageWidget`, and is sorted automatically, you don't have to worry about that.
+Messageview at it's heart uses a listview with a Gio.ListStore with GObject "Mobject"
+representations of messages, they are sorted automatically, and the row that you see
+are rebinded to be any specific message. The widget itself is`MessageWidget`.
+Things like the loading spinner are in a separate model, and both are part of a flattened
+model.
 
 A context itself is a Gtk widget too, and is the whole headerbar+area thing you see
 on the left. The popoit windows are simpy a `ChannelInnerWindow` inside a `AdwWindow`.
@@ -64,5 +67,4 @@ on the left. The popoit windows are simpy a `ChannelInnerWindow` inside a `AdwWi
 Global state is application, yada yada, etc. There are quite a few things like that
 
 Also `ConfMan` is used for configuration, the application has an instance of it as an
-attribute. Simply use `confman.get_value("example")` or
-`confman.set_value("new_value", data)`.
+attribute. Simply use `confman.get_value("example")` or `confman.set_value("new_value", data)`.
