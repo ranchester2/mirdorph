@@ -28,14 +28,25 @@ from .attachment import GenericAttachment, ImageAttachment, AttachmentType, get_
 from .message_parsing import MessageComponent, calculate_msg_parts
 
 class MessageContent(Gtk.Box):
-    def __init__(self, message_content: str, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         Gtk.Box.__init__(self, orientation=Gtk.Orientation.VERTICAL, *args, **kwargs)
-        self._message_content = message_content
+        self._message_content = None
         self.exports = []
 
-        for component in self._do_parse_construct():
+    def bind(self, content: str):
+        self._message_content = content
+
+        for found_part in calculate_msg_parts(self._message_content):
+            component = MessageComponent(found_part[1], component_type=found_part[0])
             self.exports.extend(component.exports)
             self.append(component)
+
+    def unbind(self):
+        self._message_content = None
+
+        self.exports.clear()
+        for component in self:
+            self.remove(component)
 
     def _do_parse_construct(self) -> list:
         return [
@@ -202,6 +213,9 @@ class MessageWidget(Gtk.Box):
         Gtk.ListBoxRow.__init__(self, *args, **kwargs)
         self.app = Gio.Application.get_default()
 
+        self._message_content_wid = MessageContent()
+        self._message_content_container.append(self._message_content_wid)
+
         # Workaround to a weird state where attachments are added, but they do not
         # count towards the box, so they are not correctly removed
         self._added_att_exp = []
@@ -228,15 +242,18 @@ class MessageWidget(Gtk.Box):
     def _handle_avatar(self, *args):
         avatar_icon_path = Path(self._item.get_property("avatar-file"))
         if avatar_icon_path and avatar_icon_path.is_file():
-            try:
-                image = Gtk.Image.new_from_file(
-                    str(avatar_icon_path)
-                )
-                self._avatar.set_custom_image(image.get_paintable())
-            except GLib.Error as e:
-                logging.warning(
-                    f"encountered unkown avatar error as {e}. Probably loading partially downloaded file."
-                )
+    # I am not sure how much this async stuff actually helps, but I think it does somewhat
+            file = Gio.File.new_for_path(str(avatar_icon_path))
+            file.read_async(GLib.PRIORITY_DEFAULT, None, self._avatar_file_callback)
+
+    def _avatar_file_callback(self, file: Gio.File, res: Gio.AsyncResult):
+        stream = file.read_finish(res)
+        pixbuf = GdkPixbuf.Pixbuf.new_from_stream_async(stream, None, self._avatar_pixbuf_callback)
+
+    def _avatar_pixbuf_callback(self, stream: Gio.InputStream, res: Gio.AsyncResult):
+        self._avatar.set_custom_image(Gdk.Texture.new_for_pixbuf(
+            GdkPixbuf.Pixbuf.new_from_stream_finish(res)
+        ))
 
     def do_bind(self, item: MessageMobject):
         self._item = item
@@ -244,8 +261,7 @@ class MessageWidget(Gtk.Box):
         self._item.connect("notify::username-color", self._handle_username_color)
         self._item.connect("notify::avatar-file", self._handle_avatar)
 
-        self._message_content_wid = MessageContent(self._item.content)
-        self._message_content_container.append(self._message_content_wid)
+        self._message_content_wid.bind(self._item.content)
 
         self._username_label.set_label(escape_xml(self._item.author.name))
         self._avatar.set_text(self._item.author.name)
@@ -255,6 +271,7 @@ class MessageWidget(Gtk.Box):
 
         # Handling merging takes care of building the avatar if it does not exist
         self._handle_merge()
+
 
         for att in self._item.attachments:
             if get_attachment_type(att) == AttachmentType.IMAGE:
@@ -297,5 +314,4 @@ class MessageWidget(Gtk.Box):
 
         self._username_label.set_label("")
 
-        self._message_content_container.remove(self._message_content_wid)
-        del(self._message_content_wid)
+        self._message_content_wid.unbind()
