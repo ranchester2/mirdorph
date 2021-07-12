@@ -221,6 +221,12 @@ class MessageWidget(Gtk.Box):
         self._added_att_exp = []
 
     def _handle_merge(self, *args):
+        """
+        Update the layout of the widget to the correctly show the merged
+        status of the mobject.
+
+        This should be a signal handler
+        """
         if self._item.get_property("merged"):
             self.add_css_class("merged-discord-message")
             self.get_parent().set_margin_top(0)
@@ -238,6 +244,12 @@ class MessageWidget(Gtk.Box):
             self._avatar_box.props.width_request = -1
 
     def _handle_username_color(self, *args):
+        """
+        Update the username color of the widget based on the fetched username
+        color of the mobject.
+
+        This should be a signal handler
+        """
         color = self._item.get_property("username-color")
         if color:
             self._username_label.set_markup(
@@ -245,6 +257,12 @@ class MessageWidget(Gtk.Box):
             )
 
     def _handle_avatar(self, *args):
+        """
+        Update the avatar image to be of the correct user based on the fetched
+        version in the mobject.
+
+        This should be a signal handler
+        """
         avatar_icon_path = Path(self._item.get_property("avatar-file"))
         if avatar_icon_path and avatar_icon_path.is_file():
     # I am not sure how much this async stuff actually helps, but I think it does somewhat
@@ -261,6 +279,13 @@ class MessageWidget(Gtk.Box):
         ))
 
     def do_bind(self, item: MessageMobject):
+        """
+        Bind the widget to a specific mobject, this for example updates
+        all the content to be from that specific message.
+
+        param:
+            item: the mobject you want to bind to
+        """
         self._item = item
         self._item.connect("notify::merged", self._handle_merge)
         self._item.connect("notify::username-color", self._handle_username_color)
@@ -300,6 +325,10 @@ class MessageWidget(Gtk.Box):
             self._attachment_box.append(export)
 
     def do_unbind(self):
+        """
+        Lose all state specific to a mobject, this allows the widget to be
+        reused for another message
+        """
         self._item = None
 
         # Not always connected, even with handler id
