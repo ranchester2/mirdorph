@@ -37,64 +37,55 @@ class LinkPreviewExport(Gtk.ListBox):
     def __init__(self, link: str, *args, **kwargs):
         Gtk.ListBox.__init__(self, *args, **kwargs)
         self.link = link
-        self.image_path = None
         self._link_label.set_label(link)
 
         threading.Thread(target=self._fetch_preview).start()
 
     def _fetch_preview(self):
-        # NOTE: this seems to cause slowdown with lots of previews,
-        # however it doesn't make much sense as this should be all in
-        # this thread. Maybe lazy loading?
-        # TODO: profile Gtk main thread
         try:
             preview = linkpreview.link_preview(self.link)
         except:
             logging.warning(f"could not get preview for {self.link}")
             return
-        GLib.idle_add(self._display_preview, preview)
 
-    def _display_preview(self, preview: linkpreview.LinkPreview):
-        if preview.title:
-            self._link_label.set_label(preview.title)
+        image_path = None
         if preview.image:
-            threading.Thread(target=self._save_image,
-                             args=(preview.image,)).start()
+            try:
+                r = requests.get(preview.image)
+            except requests.exceptions.MissingSchema:
+                # Some websites use relative links, which is why this is needed
+                parsed = urllib.parse.urlparse(self.link)
+                url_with_schema = parsed.scheme + "://" + parsed.netloc + preview.image
+                r = requests.get(url_with_schema)
 
-    def _save_image(self, url: str):
-        try:
-            r = requests.get(url)
-        except requests.exceptions.MissingSchema:
-            # Some websites use relative links, which is why this is needed
-            parsed = urllib.parse.urlparse(self.link)
-            url_with_schema = parsed.scheme + "://" + parsed.netloc + url
-            r = requests.get(url_with_schema)
+            web_image_path = urllib.parse.urlparse(preview.image).path
+            ext = os.path.split(web_image_path)[1]
+            file_hash = hashlib.sha256(preview.image.encode("utf-8")).hexdigest()
 
-        web_image_path = urllib.parse.urlparse(url).path
-        ext = os.path.split(web_image_path)[1]
-        file_hash = hashlib.sha256(url.encode("utf-8")).hexdigest()
+            image_path = self._image_dir_path / \
+                Path(f"link_image_{file_hash}.{ext}")
 
-        self.image_path = self._image_dir_path / \
-            Path(f"link_image_{file_hash}.{ext}")
+            with open(image_path, "wb") as f:
+                f.write(r.content)
 
-        with open(self.image_path, "wb") as f:
-            f.write(r.content)
+        GLib.idle_add(self._display_preview, preview.title, image_path)
 
-        GLib.idle_add(self._load_image)
-
-    def _load_image(self):
-        try:
-            image_pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(
-                str(self.image_path),
-                # 120 = request(140) - some phantom 20 - the padding (optional??)
-                120,
-                120,
-                False
-            )
-        except gi.repository.GLib.Error:
-            logging.warning(f"attempted to load load GIF preview for {self.link}")
-            return
-        self._link_image.set_from_pixbuf(image_pixbuf)
+    def _display_preview(self, title: str, image_path: str):
+        if title:
+            self._link_label.set_label(title)
+        if image_path:
+            try:
+                image_pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(
+                    str(image_path),
+                    # 120 = request(140) - some phantom 20 - the padding (optional??)
+                    120,
+                    120,
+                    False
+                )
+            except gi.repository.GLib.Error:
+                logging.warning(f"attempted to load load GIF preview for {self.link}")
+                return
+            self._link_image.set_from_pixbuf(image_pixbuf)
 
     @Gtk.Template.Callback()
     def _on_row_activated(self, listbox, row):
