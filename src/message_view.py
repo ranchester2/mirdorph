@@ -182,8 +182,17 @@ class MessageView(Gtk.Overlay, EventReceiver):
         # Fallback, needed for merging
         messages.sort(key=lambda x : x.created_at)
 
-        # Why list+splice? The performance is SIGNIFICANTLY
-        # better when doing it like this
+        # Performance issue of adding to the liststore. I don't understand why,
+        # and it isn't creating the objects that takes a while, but adding them.
+        # Sorting on or off doesn't matter.
+        # However using splice instead of insert/append after creating every one
+        # significantly reduces the performance hit.
+        # I asked on IRC and was asked to profile, but I couldn't get that to work.
+        # Sysprof even after installing all the debug symbols and stuff showed most
+        # time spent in /app/bin/mirdorph, and then libgtk4. However the functions
+        # themselves in libgtk4 were basically 0%, so I don't understand.
+        # Python cProfile also useless, but alteast I am 100% sure the cause for the
+        # slowdown is adding to the liststore.
         message_widgets = []
 
         previous_author = None
