@@ -223,11 +223,16 @@ class MessageWidget(Gtk.Box):
     def _handle_merge(self, *args):
         if self._item.get_property("merged"):
             self.add_css_class("merged-discord-message")
+            self.get_parent().set_margin_top(0)
             self._username_label.hide()
             self._avatar.hide()
             self._avatar_box.props.width_request = 32
         else:
             self.remove_css_class("merged-discord-message")
+            # This is for spacing between rows with listview.
+            # It seems a lot like a "hack" and we need it on the listitem,
+            # not on us because then that will just make our row bigger.
+            self.get_parent().set_margin_top(5)
             self._username_label.show()
             self._avatar.show()
             self._avatar_box.props.width_request = -1
