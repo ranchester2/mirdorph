@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mirdorph 0.10.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-07-09 19:24+0300\n"
+"POT-Creation-Date: 2021-07-12 18:08+0300\n"
 "PO-Revision-Date: 2021-07-01 12:00+0300\n"
 "Last-Translator: Raidro Manchester <raibo.quadrofus@gmail.com>\n"
 "Language-Team: Lithuanian <komp_lt@konferencijos.lt>\n"
@@ -64,15 +64,15 @@ msgstr ""
 "Mirdorph naudojimasis yra tiesioginis Discord paslaugų teikimo sąlygų "
 "pažeidimas ir gali nulemti paslaugos nutraukimą."
 
-#: ../data/ui/tos_notice.ui:42
+#: ../data/ui/tos_notice.ui:37
 msgid "I have understood the terms."
 msgstr "Aš supratau salygas."
 
-#: ../data/ui/tos_notice.ui:54
+#: ../data/ui/tos_notice.ui:47
 msgid "Proceed"
 msgstr "Tęsti"
 
-#: ../data/ui/tos_notice.ui:62 ../data/ui/login_window.ui:30
+#: ../data/ui/tos_notice.ui:55 ../data/ui/login_window.ui:30
 msgid "Cancel"
 msgstr "Atsisakyti"
 
@@ -81,27 +81,27 @@ msgstr "Atsisakyti"
 msgid "Channel Properties"
 msgstr "Kanalo Savybės"
 
-#: ../data/ui/channel_properties_window.ui:74
+#: ../data/ui/channel_properties_window.ui:72
 msgid "Unknown usage"
 msgstr "Nežinomas naudojimas"
 
-#: ../data/ui/channel_properties_window.ui:98
+#: ../data/ui/channel_properties_window.ui:96
 msgid "Activity"
 msgstr "Aktyvumas"
 
-#: ../data/ui/channel_properties_window.ui:103
+#: ../data/ui/channel_properties_window.ui:101
 msgid "Last Activity"
 msgstr "Paskutinė Veikla"
 
-#: ../data/ui/channel_properties_window.ui:107
+#: ../data/ui/channel_properties_window.ui:105
 msgid "Unknown"
 msgstr "Nežinoma"
 
-#: ../data/ui/channel_properties_window.ui:119
+#: ../data/ui/channel_properties_window.ui:117
 msgid "Statistics"
 msgstr "Statistika"
 
-#: ../data/ui/channel_properties_window.ui:146
+#: ../data/ui/channel_properties_window.ui:144
 msgid "General"
 msgstr "Bendra"
 
@@ -122,14 +122,30 @@ msgid "People"
 msgstr "Žmonės"
 
 #: ../data/ui/settings_window.ui:9
+msgid "Display"
+msgstr "Vaizdas"
+
+#: ../data/ui/settings_window.ui:12
+msgid "Messaging"
+msgstr "Susirašinėjimas"
+
+#: ../data/ui/settings_window.ui:15
+msgid "Preview links"
+msgstr "Rengti nuoradų peržiūras"
+
+#: ../data/ui/settings_window.ui:16
+msgid "Previewing links can decrease performance."
+msgstr "Nuorodų peržiūrų rengimas gali sumažinti našumą."
+
+#: ../data/ui/settings_window.ui:33
 msgid "Privacy"
 msgstr "Privatumas"
 
-#: ../data/ui/settings_window.ui:12
+#: ../data/ui/settings_window.ui:36
 msgid "Interaction"
 msgstr "Bendravimas"
 
-#: ../data/ui/settings_window.ui:15
+#: ../data/ui/settings_window.ui:39
 msgid "Send typing events"
 msgstr "Siųsti rašymo įspėjimus"
 
@@ -153,34 +169,34 @@ msgstr "Išplėstiniai būdai"
 msgid "Manual Token"
 msgstr "Autentikavimo Tokenu"
 
-#: ../data/ui/login_window.ui:111
+#: ../data/ui/login_window.ui:110
 msgid "Username and Password"
 msgstr "Vartotojo Vardu ir Slaptažodžiu"
 
-#: ../data/ui/login_window.ui:139 ../data/ui/login_window.ui:216
-#: ../data/ui/login_window.ui:352
+#: ../data/ui/login_window.ui:137 ../data/ui/login_window.ui:214
+#: ../data/ui/login_window.ui:350
 msgid "Enter Credentials"
 msgstr "Įveskite Prisijungimo Duomenis"
 
-#: ../data/ui/login_window.ui:170
+#: ../data/ui/login_window.ui:168
 msgid "Insert Token"
 msgstr "Įterpkite Tokeną"
 
-#: ../data/ui/login_window.ui:190
+#: ../data/ui/login_window.ui:188
 msgid "Insert"
 msgstr "Įterpti"
 
-#: ../data/ui/login_window.ui:235
+#: ../data/ui/login_window.ui:233
 msgid "Submit"
 msgstr "Pateikti"
 
-#: ../data/ui/login_window.ui:262
+#: ../data/ui/login_window.ui:260
 msgid "WARNING: Email and password login not recommended:"
 msgstr ""
 "ĮSPĖJIMAS: Prisijungimas elektroniniu paštu ir slaptažodižiu nėra "
 "rekomenduojamas:"
 
-#: ../data/ui/login_window.ui:269
+#: ../data/ui/login_window.ui:267
 msgid ""
 "Will not work with advanced configurations (2FA/Captcha), use Graphical "
 "Login or Manual Token instead."
@@ -188,15 +204,15 @@ msgstr ""
 "Neveiks su sudėtingesnėmis konfiguriacijomis (2FA/Captcha), naudokite "
 "Grafinį Prisijungimą arba Prisijungimą Tokenu"
 
-#: ../data/ui/login_window.ui:292
+#: ../data/ui/login_window.ui:290
 msgid "Password Login"
 msgstr "Prisijungimas Slaptažodižiu"
 
-#: ../data/ui/login_window.ui:305
+#: ../data/ui/login_window.ui:303
 msgid "Email Adress"
 msgstr "Elektroninio Pašto Adresas"
 
-#: ../data/ui/login_window.ui:319
+#: ../data/ui/login_window.ui:317
 msgid "Password"
 msgstr "Slaptažodis"
 
@@ -228,7 +244,7 @@ msgstr "Apie Mirdorph"
 msgid "Connecting to Discord"
 msgstr "Jungiamasi prie Discord"
 
-#: ../data/ui/main_window.ui:133
+#: ../data/ui/main_window.ui:134
 msgid "Menu"
 msgstr "Meniu"
 
@@ -236,7 +252,7 @@ msgstr "Meniu"
 msgid "Open with..."
 msgstr "Atverti su..."
 
-#: ../data/ui/image_viewer.ui:76
+#: ../data/ui/image_viewer.ui:75
 msgid "Loading more media..."
 msgstr "Kraunama daugiau grafinio turinio..."
 
