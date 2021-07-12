@@ -40,7 +40,8 @@ class ConfManager(GObject.GObject):
         # Example and for testing
         "example": 0,
         "tos_notice_accepted": False,
-        "send_typing_events": True
+        "send_typing_events": True,
+        "preview_links": True
     }
 
     def __init__(self, path: Path = None):

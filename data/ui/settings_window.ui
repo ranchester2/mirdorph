@@ -5,6 +5,30 @@
   <template class="MirdorphSettingsWindow" parent="AdwPreferencesWindow">
     <child>
       <object class="AdwPreferencesPage">
+        <property name="icon-name">video-display-symbolic</property>
+        <property name="title" translatable="yes">Display</property>
+        <child>
+          <object class="AdwPreferencesGroup">
+            <property name="title" translatable="yes">Messaging</property>
+            <child>
+              <object class="AdwActionRow">
+                <property name="title" translatable="yes">Preview links</property>
+                <property name="subtitle" translatable="yes">Previewing links can decrease performance.</property>
+                <property name="activatable-widget">_preview_links_switch</property>
+                <child>
+                  <object class="GtkSwitch" id="_preview_links_switch">
+                    <property name="valign">GTK_ALIGN_CENTER</property>
+                    <signal name="state-set" handler="_on_preview_links_switch_state_set" />
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+    <child>
+      <object class="AdwPreferencesPage">
         <property name="icon-name">preferences-system-privacy-symbolic</property>
         <property name="title" translatable="yes">Privacy</property>
         <child>

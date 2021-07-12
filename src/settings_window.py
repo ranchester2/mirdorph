@@ -21,6 +21,7 @@ class MirdorphSettingsWindow(Adw.PreferencesWindow):
     __gtype_name__ = "MirdorphSettingsWindow"
 
     _send_typing_switch: Gtk.Switch = Gtk.Template.Child()
+    _preview_links_switch: Gtk.Switch = Gtk.Template.Child()
 
     def __init__(self, *args, **kwargs):
         Adw.PreferencesWindow.__init__(self, *args, **kwargs)
@@ -30,7 +31,14 @@ class MirdorphSettingsWindow(Adw.PreferencesWindow):
         self._send_typing_switch.set_state(
             self.props.application.confman.get_value("send_typing_events")
         )
+        self._preview_links_switch.set_state(
+            self.props.application.confman.get_value("preview_links")
+        )
 
     @Gtk.Template.Callback()
     def _on_send_typing_switch_state_set(self, switch: Gtk.Switch, state: bool):
         self.props.application.confman.set_value("send_typing_events", state)
+
+    @Gtk.Template.Callback()
+    def _on_preview_links_switch_state_set(self, switch: Gtk.Switch, state: bool):
+        self.props.application.confman.set_value("preview_links", state)

@@ -19,7 +19,7 @@ import re
 import gi
 import html2pango
 import mistune
-from gi.repository import Adw, Gtk, Pango
+from gi.repository import Adw, Gtk, Gio, Pango
 from enum import Enum
 from .link_preview import LinkPreviewExport
 
@@ -110,8 +110,10 @@ def _extract_discord_components(message_string) -> list:
     return []
 
 
-def _generate_exports(message_string: str):
-    links = re.findall(r"(?P<url>https?://[^\s]+)", message_string)
+def _generate_exports(message_string: str, include_links: bool=True):
+    links = []
+    if include_links:
+        links = re.findall(r"(?P<url>https?://[^\s]+)", message_string)
     return [LinkPreviewExport(link) for link in links]
 
 
@@ -146,10 +148,14 @@ def build_widget_list(message_string: str) -> list:
 class MessageComponent(Adw.Bin):
     def __init__(self, component_content: str, component_type: ComponentType, *args, **kwargs):
         Adw.Bin.__init__(self, *args, **kwargs)
+        self.app = Gio.Application.get_default()
         self.component_type = component_type
         self._raw_component_content = component_content
         # Exports are based on non-sescaped, non-processed content
-        self.exports = _generate_exports(self._raw_component_content)
+        self.exports = _generate_exports(
+            self._raw_component_content,
+            include_links=self.app.confman.get_value("preview_links")
+        )
 
         if self.component_type in [ComponentType.STANDARD, ComponentType.QUOTE]:
             self._text_label = Gtk.Label(
