@@ -4,7 +4,7 @@
     <!-- In addition to the /icons install method, as gresource too as that -->
     <!-- doesn't work everywhere-->
     <file>icons/scalable/status/org.gnome.gitlab.ranchester.Mirdorph.DiscussionsLogo.svg</file>
-    <file>icons/scalable/status/org.gnome.gitlab.ranchester.Mirdorph.Guilds.svg</file>
+    <file>icons/scalable/status/org.gnome.gitlab.ranchester.Mirdorph.Guilds-symbolic.svg</file>
     <file>icons/scalable/status/view-sidebar-symbolic.svg</file>
     <file>icons/scalable/status/smile-symbolic.svg</file>
     <file>icons/scalable/status/paper-plane-symbolic.svg</file>
