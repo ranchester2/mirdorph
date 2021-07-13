@@ -1,5 +1,6 @@
 pkgdatadir = join_paths(get_option('prefix'), get_option('datadir'), meson.project_name())
 moduledir = join_paths(pkgdatadir, 'mirdorph')
+plugindir = join_paths(moduledir, 'plugins')
 gnome = import('gnome')
 python = import('python')
 
@@ -38,9 +39,11 @@ mirdorph_sources = [
   'settings_window.py',
   'link_preview.py',
   'image_viewer.py',
+  'plugin.py',
   'get_token.js'
 ]
 
 install_data(mirdorph_sources, install_dir: moduledir)
 
 subdir('disc_cogs')
+subdir('plugins')

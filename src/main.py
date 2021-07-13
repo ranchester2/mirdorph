@@ -20,7 +20,7 @@ import shutil
 import keyring
 import asyncio
 import discord.ext.commands
-from gi.repository import Adw, Gtk, Gdk, GLib, Gio
+from gi.repository import Adw, Gtk, Gdk, GLib, Gio, Peas
 from pathlib import Path
 from .login_window import MirdorphLoginWindow
 from .main_window import MirdorphMainWindow
@@ -28,6 +28,7 @@ from .event_manager import EventManager
 from .channel_inner_window import ChannelInnerWindow
 from .settings_window import MirdorphSettingsWindow
 from .confman import ConfManager
+from .plugin import MrdPluginEngine
 
 
 class Application(Gtk.Application):
@@ -41,6 +42,7 @@ class Application(Gtk.Application):
         self.discord_client: discord.ext.commands.Bot = discord_client
         self.keyring_exists = keyring_exists
 
+        self._plugin_manager = MrdPluginEngine()
         self.confman = ConfManager()
         self.event_manager = EventManager()
 
@@ -56,6 +58,14 @@ class Application(Gtk.Application):
     def do_startup(self):
         Gtk.Application.do_startup(self)
         Adw.init()
+        self._extension_set = Peas.ExtensionSet.new(
+            Peas.Engine.get_default(),
+            Peas.Activatable.__gtype__,
+            ["object"], [self]
+        )
+        self._extension_set.connect("extension-added", self._on_extension_add)
+        self._extension_set.connect("extension-removed", self._on_extension_remove)
+        self._extension_set.foreach(self._on_extension_add)
         # These are only the extremely "global" actions,
         # where it is significantly more convenient, the widget
         # itself adds the action (for example channel sidebar search)
@@ -84,6 +94,9 @@ class Application(Gtk.Application):
                     f"app.{a['name']}",
                     [a["accel"]]
                 )
+
+        for plugin in self._plugin_manager.get_plugin_list():
+            self._plugin_manager.load_plugin(plugin)
 
     def do_activate(self):
         provider = Gtk.CssProvider()
@@ -122,6 +135,12 @@ class Application(Gtk.Application):
             if not win:
                 win = MirdorphLoginWindow(application=self)
             win.present()
+
+    def _on_extension_add(self, extension_set, info: Peas.PluginInfo, extension: Peas.Activatable):
+        extension.activate()
+
+    def _on_extension_remove(self, extenion_set, info: Peas.PluginInfo, extension: Peas.Activatable):
+        extension.deactivate()
 
     def show_settings_window(self, *args):
         settings_window = MirdorphSettingsWindow(application=self)
