@@ -419,7 +419,7 @@
 				"cargo --offline fetch --manifest-path Cargo.toml --verbose",
 				"cargo --offline build --release --verbose",
 				"mv ./target/release/libhtml2pango.so ./target/release/html2pango.so",
-				"install -Dm755 ./target/release/html2pango.so -t /app/lib/python3.8/site-packages/"
+				"install -Dm755 ./target/release/html2pango.so -t /app/lib/python3.9/site-packages/"
 			],
 			"sources": [
 				{
