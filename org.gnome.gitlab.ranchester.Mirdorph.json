@@ -35,13 +35,13 @@
 			"name": "webkit2gtk",
 			"buildsystem": "simple",
 			"build-commands": [
-				"tar xf webkitgtk-5.0-release-bin.tar.gz -C /app/"
+				"tar xf webkit2gtk-5.0-bin-21.08.tar.gz -C /app/"
 			],
 			"sources": [
 				{
 					"type": "file",
-					"url": "https://gitlab.gnome.org/ranchester/mirdorph/uploads/3988f9afe152f0a4aa33b8573ac52592/webkitgtk-5.0-release-bin.tar.gz",
-					"sha256": "5c276353da18009a418c1ea677bd08ac48ced8f2ad5d17d6ddb6da53dd2ecbc1"
+					"url": "https://gitlab.gnome.org/ranchester/mirdorph/uploads/1df334200cb2473d69c11929ab5cefe5/webkit2gtk-5.0-bin-21.08.tar.gz",
+					"sha256": "715aba75fc17b205f1ff46452486b6211898985dbae2b510968da1b86af033c1"
 				}
 			]
 		},
