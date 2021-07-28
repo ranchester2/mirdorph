@@ -1,11 +1,11 @@
 import sys
-# Workaround from stackoverflow to allow importing from src
+# Workaround from stackoverflow to allow importing the program
 sys.path.append("..")
 
 # Message parsing has gresource templates, and linkpreview uses handy
 import tests.load_gtk
-from src.link_preview import LinkPreviewExport
-from src.message_parsing import _create_pango_markup, calculate_msg_parts, _generate_exports, ComponentType
+from mirdorph.link_preview import LinkPreviewExport
+from mirdorph.message_parsing import _create_pango_markup, calculate_msg_parts, _generate_exports, ComponentType
 
 def test_create_pango_markup_links():
     test_text = """\

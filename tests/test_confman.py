@@ -1,9 +1,9 @@
 import sys
 import pytest
-# Workaround from stackoverflow to allow importing from src
+# Workaround from stackoverflow to allow importing the program
 sys.path.append("..")
 
-from src.confman import ConfManager
+from mirdorph.confman import ConfManager
 
 @pytest.fixture()
 def confman(tmp_path):
