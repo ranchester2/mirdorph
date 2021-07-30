@@ -76,10 +76,6 @@ class MirdorphMainWindow(Adw.ApplicationWindow, EventReceiver):
                 self.main_flap.set_reveal_flap(True)
 
     @Gtk.Template.Callback()
-    def _on_loading_close_btn_clicked(self, button):
-        self.destroy()
-
-    @Gtk.Template.Callback()
     def _on_context_stack_focus_change(self, stack, strpar):
         # I have been trying to set the default focus when swithing to a child to be the entry bar
         # However, you can't do it here, as you need to wait for GTK to finish everything,

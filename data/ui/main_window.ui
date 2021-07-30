@@ -37,29 +37,12 @@
                   <object class="GtkBox">
                     <property name="orientation">vertical</property>
                     <child>
-                      <object class="GtkBox">
-                        <child>
-                          <object class="GtkButton">
-                            <property name="width-request">34</property>
-                            <property name="height-request">34</property>
-                            <property name="margin-start">6</property>
-                            <property name="margin-end">6</property>
-                            <property name="margin-top">6</property>
-                            <property name="margin-bottom">6</property>
-                            <property name="halign">end</property>
-                            <property name="hexpand">True</property>
-                            <signal name="clicked" handler="_on_loading_close_btn_clicked"/>
-                            <child>
-                              <object class="GtkImage">
-                                <property name="icon-name">window-close-symbolic</property>
-                              </object>
-                            </child>
-                            <style>
-                              <class name="flat"/>
-                              <class name="circular"/>
-                            </style>
-                          </object>
-                        </child>
+                      <object class="GtkHeaderBar">
+                        <!-- No title -->
+                        <property name="title-widget"><object class="GtkLabel"></object></property>
+                        <style>
+                          <class name="flat"/>
+                        </style>
                       </object>
                     </child>
                     <child>
