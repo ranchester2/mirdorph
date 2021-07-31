@@ -1,6 +1,8 @@
-[Plugin]
-Name=Hello Wolrd
-Module=helloworld
-Loader=python3
-Description=A simple example plugin printing helloworld (or a selectable string) on startup
-Author=Raidro Manchester
+{
+	"name": "Hello World",
+	"module": "helloworld",
+	"description": "A simple example plugin printing helloworld (or a selectable string) on startup",
+	"authors": [
+		"Raidro Manchester"
+	]
+}

@@ -90,8 +90,7 @@ class MirdorphMainWindow(Adw.ApplicationWindow, EventReceiver):
 
     @Gtk.Template.Callback()
     def _on_window_close(self, window):
-        # Dangerous, but we need to kill all threads instantly for now
-        os._exit(1)
+        self.props.application.quit()
 
     def reconfigure_for_popout_window(self):
         """

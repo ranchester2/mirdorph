@@ -20,7 +20,7 @@ import shutil
 import keyring
 import asyncio
 import discord.ext.commands
-from gi.repository import Adw, Gtk, Gdk, GLib, Gio, Peas
+from gi.repository import Adw, Gtk, Gdk, GLib, Gio
 from pathlib import Path
 from .login_window import MirdorphLoginWindow
 from .main_window import MirdorphMainWindow
@@ -28,7 +28,7 @@ from .event_manager import EventManager
 from .channel_inner_window import ChannelInnerWindow
 from .settings_window import MirdorphSettingsWindow
 from .confman import ConfManager
-from .plugin import MrdPluginEngine
+from .plugin import MrdPluginEngine, MrdExtensionSet, MrdApplicationPlugin
 
 
 class Application(Gtk.Application):
@@ -42,7 +42,7 @@ class Application(Gtk.Application):
         self.discord_client: discord.ext.commands.Bot = discord_client
         self.keyring_exists = keyring_exists
 
-        self._plugin_manager = MrdPluginEngine()
+        self.plugin_engine = MrdPluginEngine()
         self.confman = ConfManager()
         self.event_manager = EventManager()
 
@@ -58,14 +58,18 @@ class Application(Gtk.Application):
     def do_startup(self):
         Gtk.Application.do_startup(self)
         Adw.init()
-        self._extension_set = Peas.ExtensionSet.new(
-            Peas.Engine.get_default(),
-            Peas.Activatable.__gtype__,
-            ["object"], [self]
+        for plugin in self.plugin_engine.get_available_plugins():
+            self.plugin_engine.load_plugin(plugin)
+
+        self._extension_set = MrdExtensionSet(
+            self.plugin_engine,
+            MrdApplicationPlugin
         )
-        self._extension_set.connect("extension-added", self._on_extension_add)
-        self._extension_set.connect("extension-removed", self._on_extension_remove)
-        self._extension_set.foreach(self._on_extension_add)
+        for plugin in self._extension_set:
+            plugin.u_activatable.load()
+        self._extension_set.connect("extension_added", lambda set, plugin : plugin.u_activatable.load())
+        self._extension_set.connect("extension_removed", lambda set, plugin : plugin.u_activatable.unload())
+
         # These are only the extremely "global" actions,
         # where it is significantly more convenient, the widget
         # itself adds the action (for example channel sidebar search)
@@ -94,9 +98,6 @@ class Application(Gtk.Application):
                     f"app.{a['name']}",
                     [a["accel"]]
                 )
-
-        for plugin in self._plugin_manager.get_plugin_list():
-            self._plugin_manager.load_plugin(plugin)
 
     def do_activate(self):
         provider = Gtk.CssProvider()
@@ -136,11 +137,11 @@ class Application(Gtk.Application):
                 win = MirdorphLoginWindow(application=self)
             win.present()
 
-    def _on_extension_add(self, extension_set, info: Peas.PluginInfo, extension: Peas.Activatable):
-        extension.activate()
-
-    def _on_extension_remove(self, extenion_set, info: Peas.PluginInfo, extension: Peas.Activatable):
-        extension.deactivate()
+    def do_shutdown(self, *args):
+        for plugin in self.plugin_engine.get_enabled_plugins():
+            self.plugin_engine.unload_plugin(plugin)
+        # Dangerous, but we need to kill the discord thread for now
+        os._exit(0)
 
     def show_settings_window(self, *args):
         settings_window = MirdorphSettingsWindow(application=self)

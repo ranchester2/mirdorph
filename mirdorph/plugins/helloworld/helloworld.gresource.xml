@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gresources>
-  <gresource prefix="/org/gnome/gitlab/ranchester/Mirdorph/plugins">
+  <gresource prefix="/org/gnome/gitlab/ranchester/Mirdorph/plugins/helloworld">
+    <file>welcome_message.txt</file>
   </gresource>
 </gresources>

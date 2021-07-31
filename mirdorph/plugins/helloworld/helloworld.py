@@ -14,19 +14,18 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import gi
-from gi.repository import GObject, Peas
+from gi.repository import Gio, GObject
+from mirdorph.plugin import MrdApplicationPlugin
 
-class HelloWorldPlugin(GObject.GObject, Peas.Activatable):
-    __gtype_name__ = "HelloWorldPlugin"
-
-    # For a standard activatable this is the application
-    object = GObject.Property(type=GObject.GObject)
-
+class HelloWorldPlugin(MrdApplicationPlugin):
     def __init__(self):
-        GObject.GObject.__init__(self)
+        super().__init__()
+        self._welcome_message = Gio.resources_lookup_data(
+            "/org/gnome/gitlab/ranchester/Mirdorph/plugins/helloworld/welcome_message.txt", 0
+        ).get_data().decode("utf-8")
 
-    def do_activate(self):
-        print("Hello World")
+    def load(self):
+        print(self._welcome_message)
 
-    def do_deactivate(self):
-        print("Buy world")
+    def unload(self):
+        print("Bye, World!")
