@@ -334,7 +334,7 @@
 			"name": "python-pytest",
 			"buildsystem": "simple",
 			"build-commands": [
-				"pip3 install --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"pytest\" --no-build-isolation"
+				"pip3 install --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"pytest-mock\" --no-build-isolation"
 			],
 			"sources": [
 				{
@@ -366,6 +366,11 @@
 					"type": "file",
 					"url": "https://files.pythonhosted.org/packages/5b/98/92bbda5f83ed995ef8953349ef30c77c934abcc251c42ab3d7787a40c49c/pytest-6.2.4.tar.gz",
 					"sha256": "50bcad0a0b9c5a72c8e4e7c9855a3ad496ca6a881a3641b4260605450772c54b"
+				},
+				{
+					"type": "file",
+					"url": "https://files.pythonhosted.org/packages/b3/08/b131e1b5c628a7d46c9b8d676a86a8d235bced79b9d90845500e39df81b9/pytest-mock-3.6.1.tar.gz",
+					"sha256": "40217a058c52a63f1042f0784f62009e976ba824c418cced42e88d5f40ab0e62"
 				}
 			]
 		},
