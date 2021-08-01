@@ -252,23 +252,19 @@
 		{
 			"name": "python-cryptography",
 			"buildsystem": "simple",
-			"build-options": {
-				"build-args": [
-					"--share=network"
-				]
-			},
 			"build-commands": [
-				"# ReE, resorting to pip instlall with network. First I can't install the latest version because outdated pip, and I tried upgrading it",
-				"# but reee that. I tried so many things for seemingly hours and can't get it to work. And if I install older version then also weird",
-				"# crypting install error. Fuck this",
-				"pip3 install --prefix=/app --root=/ cryptography"
+				"pip3 install --prefix=/app cryptography-3.4.7-cp36-abi3-manylinux2014_x86_64.whl"
 			],
 			"sources": [
 				{
-					"type": "git",
-					"url": "https://github.com/pyca/cryptography.git",
-					"tag": "3.4.7",
-					"commit": "a19014a087759f3df72b2cd70ed7a0d8a6481340"
+					"type": "file",
+					"url": "https://files.pythonhosted.org/packages/b2/26/7af637e6a7e87258b963f1731c5982fb31cd507f0d90d91836e446955d02/cryptography-3.4.7-cp36-abi3-manylinux2014_x86_64.whl",
+					"sha256": "1e056c28420c072c5e3cb36e2b23ee55e260cb04eee08f702e0edfec3fb51959"
+				},
+				{
+					"type": "file",
+					"url": "https://files.pythonhosted.org/packages/9b/77/461087a514d2e8ece1c975d8216bc03f7048e6090c5166bc34115afdaa53/cryptography-3.4.7.tar.gz",
+					"sha256": "3d10de8116d25649631977cb37da6cbdd2d6fa0e0281d014a5b7d337255ca713"
 				}
 			]
 		},
