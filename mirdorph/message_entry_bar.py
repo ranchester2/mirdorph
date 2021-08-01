@@ -93,7 +93,7 @@ class MessageEntryBar(Gtk.Box, EventReceiver):
 
     def _do_attempt_send(self):
         message = self._message_entry.get_text()
-        if not message:
+        if not message and not self.added_attachments_wid:
             # Empty messages are an error and can't be sent
             return
 
