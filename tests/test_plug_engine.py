@@ -50,6 +50,13 @@ def test_is_plugin_compatible():
     )
     assert not engine.is_plugin_compatible(plugin, extension_set)
 
+def test_get_plugin_by_module():
+    engine = MrdPluginEngine()
+    plugin = engine.get_available_plugins()[0]
+
+    plugin_by_mod_name = engine.get_plugin_from_module(plugin.module_name)
+
+    assert plugin is plugin_by_mod_name
 
 def test_extension_set_discovery():
     engine = MrdPluginEngine()

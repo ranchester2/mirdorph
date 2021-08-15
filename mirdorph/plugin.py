@@ -113,6 +113,17 @@ class MrdPluginEngine:
         """
         return [plugin for plugin in list(self._plugins.values()) if plugin.active]
 
+    def get_plugin_from_module(self, module_name: str) -> MrdPluginInfo:
+        """
+        Get a `MrdPluginInfo` by the name of its module.
+
+        param:
+            module_name: `str` the module name of the plugin you want
+        returns:
+            a `MrdPluginInfo`
+        """
+        return self._plugins[module_name]
+
     def _handle_extension_set_plug_signal(self, mode: str, plugin: MrdPluginInfo):
         if mode not in ["add", "remove"]:
             raise Exception(f"mode {mode} is not supported")
