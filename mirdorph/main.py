@@ -58,8 +58,22 @@ class Application(Gtk.Application):
     def do_startup(self):
         Gtk.Application.do_startup(self)
         Adw.init()
+        # Better to do this here as extensions can have the running lifetime of
+        # the entire application
         for plugin in self.plugin_engine.get_available_plugins():
-            self.plugin_engine.load_plugin(plugin)
+            plugin.connect("notify::active", lambda *_ :
+                self.confman.set_value(
+                    "enabled_extensions",
+                    [plugin.module_name for plugin in self.plugin_engine.get_enabled_plugins()]
+                )
+            )
+
+        [
+            self.plugin_engine.load_plugin(
+                self.plugin_engine.get_plugin_from_module(module_name)
+            )
+            for module_name in self.confman.get_value("enabled_extensions")
+        ]
 
         self._extension_set = MrdExtensionSet(
             self.plugin_engine,

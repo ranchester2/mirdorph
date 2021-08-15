@@ -41,7 +41,8 @@ class ConfManager(GObject.GObject):
         "example": 0,
         "tos_notice_accepted": False,
         "send_typing_events": True,
-        "preview_links": True
+        "preview_links": True,
+        "enabled_extensions": []
     }
 
     def __init__(self, path: Path = None):
