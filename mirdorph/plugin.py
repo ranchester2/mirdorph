@@ -168,6 +168,7 @@ class MrdPluginInfo(GObject.Object):
         use your loading calls on it as appropriate.
     properties:
         name: `str` the human-readable name of the plugin
+        description: `str` the human-readable more-detailed description of the plugin
         module_name: `str` the machine name of the plugin (directory and python module)
         active: `bool` if the plugin should be used (is enabled)
         configurable: `bool` if the plugin has configuration settings
@@ -175,6 +176,7 @@ class MrdPluginInfo(GObject.Object):
     __gtype_name__ = "MrdPluginInfo"
 
     name = GObject.Property(type=str)
+    description = GObject.Property(type=str)
     module_name = GObject.Property(type=str)
     configurable = GObject.Property(type=bool, default=False)
 
@@ -183,6 +185,7 @@ class MrdPluginInfo(GObject.Object):
         self.plugin_engine = plugin_engine
 
         self.name = plugin_init["name"]
+        self.description = plugin_init["description"]
         self.module_name = plugin_init["module"]
         self.dir = os.path.join(self.plugin_engine.plugins_dir, self.module_name)
 
