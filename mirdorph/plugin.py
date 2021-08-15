@@ -220,8 +220,9 @@ class MrdPluginInfo(GObject.Object):
 
     @active.setter
     def active(self, value: bool):
-        self.plugin_engine.handle_plugin_load_status_change(self, value)
-        self._active = value
+        if value != self.active:
+            self.plugin_engine.handle_plugin_load_status_change(self, value)
+            self._active = value
 
     def _setup_gresource(self):
         """
