@@ -81,8 +81,7 @@ class MrdPluginEngine:
             except NotADirectoryError:
                 continue
             if plugin_init:
-                plugin = MrdPluginInfo(
-                    plugin_init, os.path.join(self.plugins_dir, pdir))
+                plugin = MrdPluginInfo(plugin_init, self)
                 self._plugins[plugin.module_name] = plugin
 
     def add_extension_point(self, extension_set: MrdExtensionSet):
@@ -134,7 +133,6 @@ class MrdPluginEngine:
         It will also emit the ::extension_added signal for relevant ExtensionSets
         """
         plugin_info.active = True
-        self._handle_extension_set_plug_signal("add", plugin_info)
 
     def unload_plugin(self, plugin_info: MrdPluginInfo):
         """
@@ -144,10 +142,17 @@ class MrdPluginEngine:
 
         It will emit the ::extension_removed signal for relevant ExtensionSets
         """
-        if not plugin_info.active:
-            raise Exception("{plugin_info}: unloading is not attempted for not-loaded plugins")
         plugin_info.active = False
-        self._handle_extension_set_plug_signal("remove", plugin_info)
+
+    def handle_plugin_load_status_change(self, plugin_info: MrdPluginInfo, new_status: bool):
+        """
+        Handle changing of a plugin's active state, this is not what you should usually
+        call to change it yourself, but a way for methods that change it to behave consistently
+        by calling this method under-the-hood.
+
+        You should not use this alone, as the `active` property of the plugin isn't affected
+        """
+        self._handle_extension_set_plug_signal("add" if new_status else "remove", plugin_info)
 
 
 class MrdPluginInfo(GObject.Object):
@@ -157,25 +162,33 @@ class MrdPluginInfo(GObject.Object):
     by the plugin engine.
 
     attributes:
-        name: `str` the human-readable name of the plugin
-        module_name: `str` the machine name of the plugin (directory and python module)
         dir: `str` the directory where the plugin is located
-        active: `bool` if the plugin should be used (is enabled)
         type: the underlying class (type) that the plugin implementation uses
         u_activatable: `MrdPlugin` the underlying plugin object, you should
         use your loading calls on it as appropriate.
+    properties:
+        name: `str` the human-readable name of the plugin
+        module_name: `str` the machine name of the plugin (directory and python module)
+        active: `bool` if the plugin should be used (is enabled)
+        configurable: `bool` if the plugin has configuration settings
     """
-    # Custom objects in signals must be GObjects
     __gtype_name__ = "MrdPluginInfo"
 
-    def __init__(self, plugin_init: dict, plugin_dir: str):
+    name = GObject.Property(type=str)
+    module_name = GObject.Property(type=str)
+    configurable = GObject.Property(type=bool, default=False)
+
+    def __init__(self, plugin_init: dict, plugin_engine: MrdPluginEngine):
         GObject.Object.__init__(self)
+        self.plugin_engine = plugin_engine
+
         self.name = plugin_init["name"]
         self.module_name = plugin_init["module"]
-        self.dir = plugin_dir
-        self.active = False
+        self.dir = os.path.join(self.plugin_engine.plugins_dir, self.module_name)
+
         self.type = None
         self.u_activatable = None
+        self._active = False
         # Default location, doesn't meen it is used
         self._gresource_path = Path(self.dir) / Path(f"{self.module_name}.gresource.xml")
         self._gresource = None
@@ -197,6 +210,15 @@ class MrdPluginInfo(GObject.Object):
                 raise Exception(f"couldn't find plugin in {self.module_name}")
         except Exception as e:
             logging.warn(f"Initializing plugin failed {e}")
+
+    @GObject.Property(type=bool, default=False)
+    def active(self):
+        return self._active
+
+    @active.setter
+    def active(self, value: bool):
+        self.plugin_engine.handle_plugin_load_status_change(self, value)
+        self._active = value
 
     def _setup_gresource(self):
         """

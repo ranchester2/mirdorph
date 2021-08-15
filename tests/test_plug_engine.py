@@ -86,6 +86,22 @@ def test_extension_set_signals(mocker):
     engine.unload_plugin(plugin)
     mock.assert_called_with("extension_removed", plugin)
 
+def test_extension_state_change_via_property(mocker):
+    # Signals are best as a showcase of the affects of enabling,
+    # simply setting the active property (useful for binding) should
+    # also do this.
+    engine = MrdPluginEngine()
+    plugin = engine.get_available_plugins()[0]
+    extension_set = MrdExtensionSet(
+        engine,
+        plugin.type
+    )
+
+    mock = mocker.patch.object(extension_set, "emit")
+    plugin.active = True
+    mock.assert_called_with("extension_added", plugin)
+    plugin.active = False
+    mock.assert_called_with("extension_removed", plugin)
 
 def test_gresource(mocker):
     engine = MrdPluginEngine()
