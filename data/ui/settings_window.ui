@@ -50,5 +50,14 @@
         </child>
       </object>
     </child>
+    <child>
+      <object class="AdwPreferencesPage">
+        <property name="icon-name">application-x-addon-symbolic</property>
+        <property name="title" translatable="yes">Extensions</property>
+        <child>
+          <object class="AdwPreferencesGroup" id="_extensions_pref_group"></object>
+        </child>
+      </object>
+    </child>
   </template>
 </interface>

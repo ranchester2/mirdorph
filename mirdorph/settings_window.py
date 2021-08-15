@@ -13,7 +13,32 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from gi.repository import Adw, Gtk, Gio
+from gi.repository import Adw, Gtk, Gio, GObject
+from mirdorph.plugin import MrdPluginInfo
+
+
+@Gtk.Template(resource_path="/org/gnome/gitlab/ranchester/Mirdorph/ui/extension_row.ui")
+class ExtensionRow(Adw.ActionRow):
+    __gtype_name__ = "ExtensionRow"
+
+    plugin = GObject.Property(type=MrdPluginInfo)
+
+    _settings_button: Gtk.Button = Gtk.Template.Child()
+    _is_active_switch: Gtk.Switch = Gtk.Template.Child()
+
+    def __init__(self, plugin: MrdPluginInfo, *args, **kwargs):
+        Adw.ExpanderRow.__init__(self, *args, **kwargs)
+        self.plugin = plugin
+        # GtkExpression directly in the UI file would be better, however after a lot
+        # of trying I found out it doesn't work in PyGObject. When it gets support,
+        # this should be easily changable to <binding> and <lookup> in the UI file
+        self.plugin.bind_property("name", self, "title", GObject.BindingFlags.SYNC_CREATE)
+        self.plugin.bind_property("description", self, "subtitle", GObject.BindingFlags.SYNC_CREATE)
+        self.plugin.bind_property("configurable", self._settings_button, "sensitive", GObject.BindingFlags.SYNC_CREATE)
+        # SYNC_CREATE alone isn't enough for changing the property here to change it on the plugin object,
+        # so for properties that can change at runtime, binding them again with different flags is needed too.
+        self.plugin.bind_property("active", self._is_active_switch, "active", GObject.BindingFlags.SYNC_CREATE)
+        self.plugin.bind_property("active", self._is_active_switch, "active", GObject.BindingFlags.BIDIRECTIONAL)
 
 
 @Gtk.Template(resource_path="/org/gnome/gitlab/ranchester/Mirdorph/ui/settings_window.ui")
@@ -23,9 +48,12 @@ class MirdorphSettingsWindow(Adw.PreferencesWindow):
     _send_typing_switch: Gtk.Switch = Gtk.Template.Child()
     _preview_links_switch: Gtk.Switch = Gtk.Template.Child()
 
+    _extensions_pref_group: Adw.PreferencesGroup = Gtk.Template.Child()
+
     def __init__(self, *args, **kwargs):
         Adw.PreferencesWindow.__init__(self, *args, **kwargs)
         self._init_values()
+        self._init_extensions()
 
     def _init_values(self):
         self._send_typing_switch.set_state(
@@ -34,6 +62,11 @@ class MirdorphSettingsWindow(Adw.PreferencesWindow):
         self._preview_links_switch.set_state(
             self.props.application.confman.get_value("preview_links")
         )
+
+    def _init_extensions(self):
+        for plugin in self.props.application.plugin_engine.get_available_plugins():
+            extension_row = ExtensionRow(plugin)
+            self._extensions_pref_group.add(extension_row)
 
     @Gtk.Template.Callback()
     def _on_send_typing_switch_state_set(self, switch: Gtk.Switch, state: bool):

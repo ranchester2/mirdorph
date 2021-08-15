@@ -8,6 +8,7 @@
     <file>icons/scalable/status/view-sidebar-symbolic.svg</file>
     <file>icons/scalable/status/smile-symbolic.svg</file>
     <file>icons/scalable/status/paper-plane-symbolic.svg</file>
+    <file>icons/scalable/status/gear-symbolic.svg</file>
     <file>ui/login_window.ui</file>
     <file>ui/gtk_style.css</file>
     <file>ui/main_window.ui</file>
@@ -24,6 +25,7 @@
     <file>ui/link_preview.ui</file>
     <file>ui/tos_notice.ui</file>
     <file>ui/settings_window.ui</file>
+    <file>ui/extension_row.ui</file>
     <file>ui/image_viewer.ui</file>
     <file>ui/context_error_dialog.ui</file>
     <!-- Not in /ui due to cryptic meson error-->

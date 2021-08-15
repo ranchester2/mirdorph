@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <requires lib="gtk" version="4.0"/>
+  <requires lib="libadwaita" version="1.0"/>
+  <template class="ExtensionRow" parent="AdwActionRow">
+    <property name="activatable-widget">_is_active_switch</property>
+    <child type="suffix">
+      <object class="GtkBox">
+        <property name="spacing">12</property>
+        <child>
+          <object class="GtkButton" id="_settings_button">
+            <property name="valign">center</property>
+            <property name="icon-name">gear-symbolic</property>
+            <style>
+              <class name="image-button" />
+              <class name="list-button" />
+            </style>
+          </object>
+        </child>
+        <child>
+          <object class="GtkSwitch" id="_is_active_switch">
+            <property name="valign">center</property>
+          </object>
+        </child>
+      </object>
+    </child>
+  </template>
+</interface>
