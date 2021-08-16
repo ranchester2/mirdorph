@@ -2,6 +2,30 @@
 <interface>
   <requires lib="gtk" version="4.0"/>
   <requires lib="libadwaita" version="1.0"/>
+  <object class="GtkBox" id="_configuration_page">
+    <property name="orientation">vertical</property>
+    <child>
+      <object class="AdwHeaderBar">
+        <property name="title-widget">
+          <object class="AdwWindowTitle" id="_configuration_window_title"></object>
+        </property>
+        <child>
+          <object class="GtkButton">
+            <property name="icon-name">go-previous-symbolic</property>
+            <signal name="clicked" handler="_on_configuration_close" />
+            <style>
+              <class name="image-button" />
+            </style>
+          </object>
+        </child>
+      </object>
+    </child>
+    <child>
+      <object class="AdwBin" id="_configuration_content">
+        <property name="vexpand">True</property>
+      </object>
+    </child>
+  </object>
   <template class="MirdorphSettingsWindow" parent="AdwPreferencesWindow">
     <child>
       <object class="AdwPreferencesPage">

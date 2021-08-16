@@ -11,6 +11,7 @@
           <object class="GtkButton" id="_settings_button">
             <property name="valign">center</property>
             <property name="icon-name">gear-symbolic</property>
+            <signal name="clicked" handler="_on_settings_button_clicked" />
             <style>
               <class name="image-button" />
               <class name="list-button" />

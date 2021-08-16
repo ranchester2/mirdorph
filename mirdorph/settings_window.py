@@ -13,6 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from gettext import gettext as _
 from gi.repository import Adw, Gtk, Gio, GObject
 from mirdorph.plugin import MrdPluginInfo
 
@@ -26,9 +27,10 @@ class ExtensionRow(Adw.ActionRow):
     _settings_button: Gtk.Button = Gtk.Template.Child()
     _is_active_switch: Gtk.Switch = Gtk.Template.Child()
 
-    def __init__(self, plugin: MrdPluginInfo, *args, **kwargs):
+    def __init__(self, plugin: MrdPluginInfo, preferences_window: Adw.PreferencesWindow, *args, **kwargs):
         Adw.ExpanderRow.__init__(self, *args, **kwargs)
         self.plugin = plugin
+        self._preferences_window = preferences_window
         # GtkExpression directly in the UI file would be better, however after a lot
         # of trying I found out it doesn't work in PyGObject. When it gets support,
         # this should be easily changable to <binding> and <lookup> in the UI file
@@ -40,6 +42,10 @@ class ExtensionRow(Adw.ActionRow):
         self.plugin.bind_property("active", self._is_active_switch, "active", GObject.BindingFlags.SYNC_CREATE)
         self.plugin.bind_property("active", self._is_active_switch, "active", GObject.BindingFlags.BIDIRECTIONAL)
 
+    @Gtk.Template.Callback()
+    def _on_settings_button_clicked(self, button):
+        self._preferences_window.present_extension_configuration(self.plugin)
+
 
 @Gtk.Template(resource_path="/org/gnome/gitlab/ranchester/Mirdorph/ui/settings_window.ui")
 class MirdorphSettingsWindow(Adw.PreferencesWindow):
@@ -49,6 +55,10 @@ class MirdorphSettingsWindow(Adw.PreferencesWindow):
     _preview_links_switch: Gtk.Switch = Gtk.Template.Child()
 
     _extensions_pref_group: Adw.PreferencesGroup = Gtk.Template.Child()
+
+    _configuration_page: Gtk.Box = Gtk.Template.Child()
+    _configuration_window_title: Adw.WindowTitle = Gtk.Template.Child()
+    _configuration_content: Adw.Bin = Gtk.Template.Child()
 
     def __init__(self, *args, **kwargs):
         Adw.PreferencesWindow.__init__(self, *args, **kwargs)
@@ -65,8 +75,26 @@ class MirdorphSettingsWindow(Adw.PreferencesWindow):
 
     def _init_extensions(self):
         for plugin in self.props.application.plugin_engine.get_available_plugins():
-            extension_row = ExtensionRow(plugin)
+            extension_row = ExtensionRow(plugin, self)
             self._extensions_pref_group.add(extension_row)
+
+    def present_extension_configuration(self, plugin: MrdPluginInfo):
+        """
+        Present the configuration settings of a configurable plugin to
+        the user.
+
+        param:
+            plugin: the configurable `MrdPluginInfo` settings' you want to present
+        """
+        self._configuration_window_title.set_title(_("{} Settings").format(plugin.name))
+        self._configuration_content.set_child(plugin.u_activatable.get_configuration_widget())
+        self.present_subpage(
+            self._configuration_page
+        )
+
+    @Gtk.Template.Callback()
+    def _on_configuration_close(self, *args):
+        self.close_subpage()
 
     @Gtk.Template.Callback()
     def _on_send_typing_switch_state_set(self, switch: Gtk.Switch, state: bool):
