@@ -5,7 +5,7 @@ import gi
 # Workaround from stackoverflow to allow importing the program
 sys.path.append("..")
 
-from gi.repository import Gio
+from gi.repository import Gtk, Gio
 from mirdorph.plugin import MrdPluginEngine, MrdExtensionSet, MrdPlugin
 
 
@@ -122,3 +122,11 @@ def test_gresource(mocker):
     # can't really define anything that uses gresources.
     # Helloworld example - "welcome_message.txt"
     assert Gio.resources_get_info("/org/gnome/gitlab/ranchester/Mirdorph/plugins/helloworld/welcome_message.txt", 0)
+
+def test_configurable_detect():
+    engine = MrdPluginEngine()
+    plugin = engine.get_available_plugins()[0]
+    plugin.u_activatable.get_configuration_widget = lambda *_ : None
+    assert not plugin.configurable
+    plugin.u_activatable.get_configuration_widget = lambda *_ : Gtk.Box()
+    assert plugin.configurable

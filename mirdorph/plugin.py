@@ -21,7 +21,7 @@ import importlib
 import json
 import logging
 import gi
-from gi.repository import Gio, GObject
+from gi.repository import Gtk, Gio, GObject
 from pathlib import Path
 
 
@@ -189,7 +189,6 @@ class MrdPluginInfo(GObject.Object):
     name = GObject.Property(type=str)
     description = GObject.Property(type=str)
     module_name = GObject.Property(type=str)
-    configurable = GObject.Property(type=bool, default=False)
 
     def __init__(self, plugin_init: dict, plugin_engine: MrdPluginEngine):
         GObject.Object.__init__(self)
@@ -224,6 +223,10 @@ class MrdPluginInfo(GObject.Object):
                 raise Exception(f"couldn't find plugin in {self.module_name}")
         except Exception as e:
             logging.warn(f"Initializing plugin failed {e}")
+
+    @GObject.Property(type=bool, default=False)
+    def configurable(self):
+        return self.u_activatable.get_configuration_widget() is not None
 
     @GObject.Property(type=bool, default=False)
     def active(self):
@@ -327,6 +330,13 @@ class MrdPlugin:
         """
         Unload the plugin.
         This involves undoing everything you did in `load`
+        """
+        pass
+
+    def get_configuration_widget(self) -> Gtk.Widget:
+        """
+        Get a widget contaniing the plugin's configuration settings,
+        if it exists, else this doesn't return anything.
         """
         pass
 
