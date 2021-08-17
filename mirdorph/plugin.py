@@ -17,7 +17,6 @@ from __future__ import annotations
 import os
 import sys
 import inspect
-import importlib
 import json
 import logging
 import gi
@@ -214,8 +213,9 @@ class MrdPluginInfo(GObject.Object):
         # module_name is the name of the python module where it can be found,
         # and the plugin is the first one that subclasses MrdPlugin.
         try:
-            plugin_module = importlib.import_module(
-                f"mirdorph.plugins.{self.module_name}.{self.module_name}")
+            # importlib.import_module doesn't take into consideration if the plugin has already been imported,
+            # which causes redefinition issues with PyGObject GObjects
+            plugin_module = __import__(f"mirdorph.plugins.{self.module_name}.{self.module_name}", fromlist=[''])
             for _, obj in inspect.getmembers(plugin_module):
                 if inspect.isclass(obj) and issubclass(obj, MrdPlugin):
                     self.type = obj
