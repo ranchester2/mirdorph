@@ -42,9 +42,9 @@ class Application(Gtk.Application):
         self.discord_client: discord.ext.commands.Bot = discord_client
         self.keyring_exists = keyring_exists
 
-        self.plugin_engine = MrdPluginEngine()
         self.confman = ConfManager()
         self.event_manager = EventManager()
+        self.plugin_engine = MrdPluginEngine()
 
         self._inner_window_contexts = {}
 
