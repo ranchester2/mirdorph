@@ -202,8 +202,12 @@ class MrdPluginInfo(GObject.Object):
         self.type = None
         self.u_activatable = None
         self._active = False
-        # Default location, doesn't meen it is used
+
+        # Should be setup **before** importing the module for things like gresource
+        # template definitions to work.
         self._gresource_path = Path(self.dir) / Path(f"{self.module_name}.gresource.xml")
+        if os.path.isfile(self._gresource_path):
+            self._setup_gresource()
         self._gresource = None
 
         # Finding the plugin object:
@@ -214,8 +218,6 @@ class MrdPluginInfo(GObject.Object):
                 f"mirdorph.plugins.{self.module_name}.{self.module_name}")
             for _, obj in inspect.getmembers(plugin_module):
                 if inspect.isclass(obj) and issubclass(obj, MrdPlugin):
-                    if os.path.isfile(self._gresource_path):
-                        self._setup_gresource()
                     self.type = obj
                     self.u_activatable = obj()
                     break
