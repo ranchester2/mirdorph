@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <requires lib="gtk" version="4.0"/>
+  <requires lib="libadwaita" version="1.0"/>
+  <template class="HelloSettingsPage" parent="AdwClamp">
+    <property name="valign">center</property>
+    <signal name="map" handler="_on_map" />
+    <child>
+      <object class="GtkBox">
+        <property name="margin-start">12</property>
+        <property name="margin-end">12</property>
+        <property name="orientation">vertical</property>
+        <property name="spacing">12</property>
+        <child>
+          <object class="GtkLabel">
+            <property name="label" translatable="yes">Goodbye Message</property>
+            <style>
+              <class name="title-2" />
+            </style>
+          </object>
+        </child>
+        <child>
+          <object class="GtkEntry" id="_message_entry">
+            <signal name="changed" handler="_on_message_entry_changed" />
+          </object>
+        </child>
+      </object>
+    </child>
+  </template>
+</interface>

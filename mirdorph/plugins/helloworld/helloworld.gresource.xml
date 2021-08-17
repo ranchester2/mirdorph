@@ -2,5 +2,6 @@
 <gresources>
   <gresource prefix="/org/gnome/gitlab/ranchester/Mirdorph/plugins/helloworld">
     <file>welcome_message.txt</file>
+    <file>configuration.ui</file>
   </gresource>
 </gresources>
