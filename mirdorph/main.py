@@ -61,12 +61,7 @@ class Application(Gtk.Application):
         # Better to do this here as extensions can have the running lifetime of
         # the entire application
         for plugin in self.plugin_engine.get_available_plugins():
-            plugin.connect("notify::active", lambda *_ :
-                self.confman.set_value(
-                    "enabled_extensions",
-                    [plugin.module_name for plugin in self.plugin_engine.get_enabled_plugins()]
-                )
-            )
+            plugin.connect("notify::active", self._sync_enabled_plugins_with_conf)
 
         [
             self.plugin_engine.load_plugin(
@@ -153,9 +148,21 @@ class Application(Gtk.Application):
 
     def do_shutdown(self, *args):
         for plugin in self.plugin_engine.get_enabled_plugins():
+            # We don't want to empty the enabled plugin conf here
+            plugin.disconnect_by_func(self._sync_enabled_plugins_with_conf)
             self.plugin_engine.unload_plugin(plugin)
         # Dangerous, but we need to kill the discord thread for now
         os._exit(0)
+
+    def _sync_enabled_plugins_with_conf(self, *args):
+        """
+        Sync the list of currently enabled plugins to confman
+        so that they can be re-enabled later.
+        """
+        self.confman.set_value(
+            "enabled_extensions",
+            [plugin.module_name for plugin in self.plugin_engine.get_enabled_plugins()]
+        )
 
     def show_settings_window(self, *args):
         settings_window = MirdorphSettingsWindow(application=self)
