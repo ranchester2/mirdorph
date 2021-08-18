@@ -112,10 +112,6 @@ def test_extension_state_change_via_property(mocker):
 
 def test_gresource(mocker):
     engine = MrdPluginEngine()
-    for ex_plug in engine.get_available_plugins():
-        # helloworld is an example for tests that uses gresource
-        if ex_plug.module_name == "helloworld":
-            plugin = ex_plug
 
     # We don't need to load the plugin as gresources are created on initial startup.
     # At first I thought about doing it on load and undoing on unload, however then implementations
