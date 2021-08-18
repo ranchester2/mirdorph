@@ -307,7 +307,7 @@ class MrdExtensionSet(GObject.Object):
 # Plugin types
 ##############
 
-class MrdPlugin:
+class MrdPlugin(GObject.GObject):
     """
     The base plugin that all other plugins inherit from.
     You should not directly use this, it will be loaded
@@ -315,7 +315,7 @@ class MrdPlugin:
     """
 
     def __init__(self):
-        pass
+        super().__init__()
 
     def load(self):
         """
