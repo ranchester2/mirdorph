@@ -212,19 +212,16 @@ class MrdPluginInfo(GObject.Object):
         # Finding the plugin object:
         # module_name is the name of the python module where it can be found,
         # and the plugin is the first one that subclasses MrdPlugin.
-        try:
-            # importlib.import_module doesn't take into consideration if the plugin has already been imported,
-            # which causes redefinition issues with PyGObject GObjects
-            plugin_module = __import__(f"mirdorph.plugins.{self.module_name}.{self.module_name}", fromlist=[''])
-            for _, obj in inspect.getmembers(plugin_module):
-                if inspect.isclass(obj) and issubclass(obj, MrdPlugin):
-                    self.type = obj
-                    self.u_activatable = obj()
-                    break
-            if not self.type:
-                raise Exception(f"couldn't find plugin in {self.module_name}")
-        except Exception as e:
-            logging.warn(f"Initializing plugin failed {e}")
+        # importlib.import_module doesn't take into consideration if the plugin has already been imported,
+        # which causes redefinition issues with PyGObject GObjects
+        plugin_module = __import__(f"mirdorph.plugins.{self.module_name}.{self.module_name}", fromlist=[''])
+        for _, obj in inspect.getmembers(plugin_module):
+            if inspect.isclass(obj) and issubclass(obj, MrdPlugin):
+                self.type = obj
+                self.u_activatable = obj()
+                break
+        if not self.type:
+            raise Exception(f"couldn't find plugin in {self.module_name}")
 
     @GObject.Property(type=bool, default=False)
     def configurable(self):
