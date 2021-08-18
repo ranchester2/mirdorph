@@ -47,11 +47,15 @@ class HelloWorldPlugin(MrdApplicationPlugin):
         self._welcome_message = Gio.resources_lookup_data(
             "/org/gnome/gitlab/ranchester/Mirdorph/plugins/helloworld/welcome_message.txt", 0
         ).get_data().decode("utf-8")
+        # Ugly, but since this is the example plugin used for tests, we really don't want to depend
+        # on external stuff like MirdorphApplication directly
         try:
             self._goodbye_message = self.app.confman.get_value(BYE_MESSAGE_CONFMAN_KEY)
+        except AttributeError:
+            return
         except KeyError:
             self._goodbye_message = DEFAULT_BYE_MESSAGE
-        self.app.confman.connect("setting-changed", self._on_confman_setting_changed)
+            self.app.confman.connect("setting-changed", self._on_confman_setting_changed)
 
     def _on_confman_setting_changed(self, confman, setting_name: str):
         if setting_name == BYE_MESSAGE_CONFMAN_KEY:
