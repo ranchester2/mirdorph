@@ -64,3 +64,9 @@ They are the extension points of the program, some objects have them, they speci
 and then it is responsible for loading the plugins when it is notified that a compatible one has shown up/disapeared.
 
 You can see a basic example in `main.py` with `MrdApplicationPlugin`
+
+## CSS
+
+I just realized I have no way of handling css or icons and stuff.
+I guess I could technically just use standard gresurce and use css provider manually, but
+I don't know, maybe I will just continue dumping it into the main project css file.
