@@ -24,6 +24,7 @@ first you need a .plugin file there, which looks like this
 	"name": "A Plugin",
 	"module": "aplugin",
 	"description": "An advanced Plugin",
+	"built_in": false,
 	"authors": [
 		"Your Name"
 	]

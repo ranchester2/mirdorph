@@ -18,7 +18,17 @@ def test_plugin_discovery():
 
 def test_plugin_load_unload():
     engine = MrdPluginEngine()
-    plugin = engine.get_available_plugins()[0]
+    for av_plugin in engine.get_available_plugins():
+        # A plugin that is built-in won't be deactivated at first,
+        # so we should ensure that.
+        # and a for plugin that is (which we expect to exit), we can
+        # test this here.
+        if av_plugin.built_in:
+            assert av_plugin.active
+            av_plugin.active = False
+        else:
+            plugin = av_plugin
+
     assert not plugin.active
     assert not engine.get_enabled_plugins()
     engine.load_plugin(plugin)
@@ -82,6 +92,7 @@ def test_extension_set_discovery():
 def test_extension_set_signals(mocker):
     engine = MrdPluginEngine()
     plugin = engine.get_available_plugins()[0]
+    plugin.active = False
     extension_set = MrdExtensionSet(
         engine,
         plugin.type
@@ -99,6 +110,7 @@ def test_extension_state_change_via_property(mocker):
     # also do this.
     engine = MrdPluginEngine()
     plugin = engine.get_available_plugins()[0]
+    plugin.active = False
     extension_set = MrdExtensionSet(
         engine,
         plugin.type

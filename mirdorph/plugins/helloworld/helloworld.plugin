@@ -2,6 +2,7 @@
 	"name": "Hello World",
 	"module": "helloworld",
 	"description": "A simple example plugin printing helloworld (or a selectable string) on startup",
+	"built_in": false,
 	"authors": [
 		"Raidro Manchester"
 	]

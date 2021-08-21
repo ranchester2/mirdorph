@@ -182,12 +182,17 @@ class MrdPluginInfo(GObject.Object):
         module_name: `str` the machine name of the plugin (directory and python module)
         active: `bool` if the plugin should be used (is enabled)
         configurable: `bool` if the plugin has configuration settings
+        built_in: `bool` if the plugin is built-in,
+        built-in plugins are active by default and should not be
+        disabled under normal circumstances
     """
     __gtype_name__ = "MrdPluginInfo"
 
     name = GObject.Property(type=str)
     description = GObject.Property(type=str)
     module_name = GObject.Property(type=str)
+
+    built_in = GObject.Property(type=bool, default=False)
 
     def __init__(self, plugin_init: dict, plugin_engine: MrdPluginEngine):
         GObject.Object.__init__(self)
@@ -196,11 +201,12 @@ class MrdPluginInfo(GObject.Object):
         self.name = plugin_init["name"]
         self.description = plugin_init["description"]
         self.module_name = plugin_init["module"]
+        self.built_in = plugin_init["built_in"]
         self.dir = os.path.join(self.plugin_engine.plugins_dir, self.module_name)
 
         self.type = None
         self.u_activatable = None
-        self._active = False
+        self._active = self.built_in
 
         # Should be setup **before** importing the module for things like gresource
         # template definitions to work.

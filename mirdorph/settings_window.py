@@ -75,8 +75,9 @@ class MirdorphSettingsWindow(Adw.PreferencesWindow):
 
     def _init_extensions(self):
         for plugin in self.props.application.plugin_engine.get_available_plugins():
-            extension_row = ExtensionRow(plugin, self)
-            self._extensions_pref_group.add(extension_row)
+            if not plugin.built_in:
+                extension_row = ExtensionRow(plugin, self)
+                self._extensions_pref_group.add(extension_row)
 
     def present_extension_configuration(self, plugin: MrdPluginInfo):
         """
