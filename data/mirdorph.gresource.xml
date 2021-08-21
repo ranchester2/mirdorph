@@ -9,6 +9,7 @@
     <file>icons/scalable/status/smile-symbolic.svg</file>
     <file>icons/scalable/status/paper-plane-symbolic.svg</file>
     <file>icons/scalable/status/gear-symbolic.svg</file>
+    <file>icons/scalable/status/chat-communication.svg</file>
     <file>ui/login_window.ui</file>
     <file>ui/gtk_style.css</file>
     <file>ui/main_window.ui</file>

@@ -97,8 +97,9 @@
                 <child>
                   <object class="AdwStatusPage" id="_empty_status_page">
                     <property name="visible">True</property>
-                    <property name="title" translatable="yes">Choose a channel</property>
-                    <property name="icon-name">find-location-symbolic</property>
+                    <property name="title" translatable="yes">No Channel Selected</property>
+                    <property name="description" translatable="yes">Join a channel to start chatting.</property>
+                    <property name="icon-name">chat-communication</property>
                   </object>
                 </child>
               </object>
