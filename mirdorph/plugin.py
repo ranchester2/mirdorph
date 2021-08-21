@@ -352,3 +352,55 @@ class MrdApplicationPlugin(MrdPlugin):
     """
     def __init__(self):
         super().__init__()
+
+
+class MrdLoginMethodPlugin(MrdPlugin):
+    """
+    A plugin for login methods.
+
+    Such a plugin has one task: to get the authentication token,
+    it should emit the `token-obtained` signal with the token when
+    authentication has been successfully completed.
+
+    The plugin gets an area to add their login page/method widget, and access
+    to the headerbar, for headerbar buttons.
+
+    properties:
+        headerbar: the `Adw.HeaderBar` of the login view, which preconfigures back
+        button, window title, feel free to add buttons here.
+        method_human_name: `str` the human readable name of the login method, for example
+        "Graphical Login"
+        is_primary: `bool` is this the primary log-in method? That is the easiest and recommended
+        one which will be obviously displayed. Only one should exist.
+    """
+    __gsignals__ = {
+        "token-obtained": (GObject.SignalFlags.RUN_FIRST, None,
+                              (str,))
+    }
+
+    headerbar = GObject.Property(type=GObject.Object)
+    method_human_name = GObject.Property(type=str)
+    is_primary = GObject.Property(type=bool, default=False)
+
+    def __init__(self):
+        super().__init__()
+
+    def load(self, login_method_cont):
+        """
+        Load the Login Method plugin.
+
+        param:
+            login_method_cont: `Adw.Bin` a container where you should add your
+            widgets for this login method.
+        """
+        pass
+
+    def unload(self, login_method_cont):
+        """
+        Unload the Login Method plugin.
+
+        param:
+            login_method_cont: `Adw.Bin` a container from which you should remove
+            your widgets for this login method.
+        """
+        pass

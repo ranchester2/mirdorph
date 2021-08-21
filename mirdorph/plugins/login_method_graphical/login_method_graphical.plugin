@@ -1,0 +1,9 @@
+{
+	"name": "Graphical Login",
+	"module": "login_method_graphical",
+	"description": "Connect your account with a simple graphical login supporting all methods of authentication.",
+	"built_in": false,
+	"authors": [
+		"Raidro Manchester"
+	]
+}

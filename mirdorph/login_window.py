@@ -19,8 +19,9 @@ import keyring
 import logging
 import threading
 import requests
-from gi.repository import Adw, Gtk, Gio, GLib, Pango
-from .discord_web_grabber import DiscordGrabber
+from gettext import gettext as _
+from gi.repository import Adw, Gtk, Gio, GLib, GObject
+from .plugin import MrdPluginInfo, MrdExtensionSet, MrdLoginMethodPlugin
 
 
 @Gtk.Template(resource_path="/org/gnome/gitlab/ranchester/Mirdorph/ui/tos_notice.ui")
@@ -51,6 +52,28 @@ class TosNotice(Gtk.MessageDialog):
             self._understood_checkbutton.set_sensitive(True)
 
 
+class LoginButton(Gtk.Button):
+    plugin = GObject.Property(type=MrdPluginInfo)
+
+    def __init__(self, plugin, *args, **kwargs):
+        Gtk.Button.__init__(self, width_request=250, *args, **kwargs)
+        self.plugin = plugin
+        self.add_css_class("login-button")
+        if self.plugin.u_activatable.is_primary:
+            self.show_as_primary()
+        else:
+            self.set_label(self.plugin.u_activatable.method_human_name)
+
+    def show_as_primary(self):
+        """
+        Make the button show up as if it was the primary login method,
+        even if the underlying plugin does not say that.
+
+        This is useful as a fallback case if no other methods are availabel.
+        """
+        self.set_label(_("Log In"))
+        self.add_css_class("suggested-action")
+
 @Gtk.Template(resource_path="/org/gnome/gitlab/ranchester/Mirdorph/ui/login_window.ui")
 class MirdorphLoginWindow(Adw.ApplicationWindow):
     __gtype_name__ = "MirdorphLoginWindow"
@@ -58,25 +81,16 @@ class MirdorphLoginWindow(Adw.ApplicationWindow):
     _toplevel_deck: Adw.Leaflet = Gtk.Template.Child()
     _login_welcome_page: Gtk.Box = Gtk.Template.Child()
 
-    _second_stage_stack: Gtk.Stack = Gtk.Template.Child()
+    _login_method_page: Gtk.Box = Gtk.Template.Child()
+    _login_method_headerbar: Adw.HeaderBar = Gtk.Template.Child()
+    _login_method_content_cont: Adw.Bin = Gtk.Template.Child()
 
-    _login_token_page: Gtk.Box = Gtk.Template.Child()
-    _login_token_entry: Gtk.Entry = Gtk.Template.Child()
-    _login_token_entry_button: Gtk.Button = Gtk.Template.Child()
-
-    _login_password_page: Gtk.Box = Gtk.Template.Child()
-    _email_entry: Gtk.Entry = Gtk.Template.Child()
-    _password_entry: Gtk.Entry = Gtk.Template.Child()
-    _login_password_submit_button = Gtk.Template.Child()
-
-    _graphical_login_button: Gtk.Button = Gtk.Template.Child()
-    _login_graphical_page: Gtk.Box = Gtk.Template.Child()
-    _login_graphical_page_webview_container: Gtk.Box = Gtk.Template.Child()
+    _login_method_button_box: Gtk.Box = Gtk.Template.Child()
+    _advanced_login_method_button_box: Gtk.Box = Gtk.Template.Child()
+    _advanced_login_method_expander: Gtk.Expander = Gtk.Template.Child()
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self._build_token_grabber()
-
         login_action_group = Gio.SimpleActionGroup()
 
         self._action_cancel = Gio.SimpleAction.new("cancel", None)
@@ -87,51 +101,72 @@ class MirdorphLoginWindow(Adw.ApplicationWindow):
         self._action_back.connect("activate", self._on_back)
         login_action_group.add_action(self._action_back)
 
-        self._action_graphical_login = Gio.SimpleAction.new("with-graphical", None)
-        self._action_graphical_login.connect("activate", self._on_graphical_login)
-        login_action_group.add_action(self._action_graphical_login)
-
-        self._action_token_login = Gio.SimpleAction.new("with-token", None)
-        self._action_token_login.connect("activate", self._on_token_login)
-        login_action_group.add_action(self._action_token_login)
-
-        self._action_token_submit = Gio.SimpleAction.new("submit-token", None)
-        self._action_token_submit.set_enabled(False)
-        self._action_token_submit.connect("activate", self._on_token_login_submit)
-        login_action_group.add_action(self._action_token_submit)
-
-        self._action_password_login = Gio.SimpleAction.new("with-password", None)
-        self._action_password_login.connect("activate", self._on_password_login)
-        login_action_group.add_action(self._action_password_login)
-
-        self._action_submit_password = Gio.SimpleAction.new("submit-password", None)
-        self._action_submit_password.set_enabled(False)
-        self._action_submit_password.connect("activate", self._on_password_login_submit)
-        login_action_group.add_action(self._action_submit_password)
-
         self.insert_action_group("login", login_action_group)
 
-        # UI file isn't enough with action-name
-        self._graphical_login_button.grab_focus()
+        self._currently_shown_login_method_plugin = None
+        self._primary_login_button = None
+        self._advanced_login_buttons = []
+        self._extension_set = MrdExtensionSet(
+            self.props.application.plugin_engine,
+            MrdLoginMethodPlugin
+        )
+
+        def setup_plugin(plugin):
+            plugin.u_activatable.connect("token-obtained", self._on_plugin_token_obtained)
+            login_button = LoginButton(
+                plugin,
+                halign=Gtk.Align.CENTER
+            )
+            login_button.connect("clicked", self._on_login_method_button_clicked)
+            if login_button.plugin.u_activatable.is_primary:
+                self._primary_login_button = login_button
+                self._login_method_button_box.append(login_button)
+            else:
+                self._advanced_login_buttons.append(login_button)
+                self._advanced_login_method_button_box.append(login_button)
+                self._advanced_login_method_expander.show()
+
+        def on_extension_removed(extension_set, plugin: MrdPluginInfo):
+            if self._primary_login_button and self._primary_login_button.plugin == plugin:
+                self._login_method_button_box.remove(self._primary_login_button)
+                self._primary_login_button = None
+            else:
+                try:
+                    login_button = [button for button in self._advanced_login_buttons if button.plugin == plugin][0]
+                except IndexError:
+                    return
+                else:
+                    if plugin == login_button.plugin:
+                        self._advanced_login_buttons.remove(login_button)
+                        self._advanced_login_method_button_box.remove(login_button)
+
+        for plugin in self._extension_set:
+            setup_plugin(plugin)
+                
+        self._extension_set.connect("extension_added", lambda set, plugin : setup_plugin(plugin))
+        self._extension_set.connect("extension_removed", on_extension_removed)
+
+        # If a primary method is not enabled, one of the advanced methods
+        # should be designated as the primary method.
+        if not self._primary_login_button and self._advanced_login_buttons:
+            first_login_method = self._advanced_login_buttons[0]
+            first_login_method.show_as_primary()
+
+            self._advanced_login_method_button_box.remove(first_login_method)
+            self._advanced_login_buttons.remove(first_login_method)
+
+            self._login_method_button_box.append(first_login_method)
+            self._primary_login_button = first_login_method
+
+            if not self._advanced_login_buttons:
+                self._advanced_login_method_expander.hide()
+
+        if self._primary_login_button:
+            self._primary_login_button.grab_focus()
 
         if not self.props.application.confman.get_value("tos_notice_accepted"):
             # The window must be created first before transient_for works
             GLib.idle_add(self._show_tos_notice)
-
-    def _build_token_grabber(self):
-        try:
-            self._token_grabber
-        except AttributeError:
-            pass
-        else:
-            self._login_graphical_page_webview_container.remove(
-                self._token_grabber
-            )
-        self._token_grabber = DiscordGrabber()
-        self._token_grabber.set_hexpand(True)
-        self._token_grabber.connect("login_complete", self._on_web_login_complete)
-        self._token_grabber.connect("login_failed", self._on_web_login_failed)
-        self._login_graphical_page_webview_container.append(self._token_grabber)
 
     def _show_tos_notice(self):
         notice = TosNotice(modal=True, transient_for=self)
@@ -146,92 +181,27 @@ class MirdorphLoginWindow(Adw.ApplicationWindow):
         else:
             self.props.application.quit()
 
-    def _on_token_login(self, *args):
-        self._toplevel_deck.set_visible_child(self._second_stage_stack)
-        self._second_stage_stack.set_visible_child(self._login_token_page)
-        self._login_token_entry.grab_focus()
-        self.set_default_widget(self._login_token_entry_button)
+    @Gtk.Template.Callback()
+    def _on_login_method_map(self, widget):
+        self._currently_shown_login_method_plugin.u_activatable.set_property("headerbar", self._login_method_headerbar)
+        self._currently_shown_login_method_plugin.u_activatable.load(self._login_method_content_cont)
 
-    def _on_password_login(self, *args):
-        self._toplevel_deck.set_visible_child(self._second_stage_stack)
-        self._second_stage_stack.set_visible_child(self._login_password_page)
-        self.set_default_widget(self._login_password_submit_button)
+    @Gtk.Template.Callback()
+    def _on_login_method_unmap(self, widget):
+        self._currently_shown_login_method_plugin.u_activatable.set_property("headerbar", None)
+        self._currently_shown_login_method_plugin.u_activatable.unload(self._login_method_content_cont)
 
-    def _on_graphical_login(self, *args):
-        self._toplevel_deck.set_visible_child(self._second_stage_stack)
-        self._second_stage_stack.set_visible_child(self._login_graphical_page)
+    def _on_login_method_button_clicked(self, button: LoginButton):
+        self._currently_shown_login_method_plugin = button.plugin
+        self._toplevel_deck.set_visible_child(self._login_method_page)
 
     def _on_back(self, *args):
+        if self._currently_shown_login_method_plugin:
+            self._currently_shown_login_method_plugin.u_activatable.unload(self._login_method_content_cont)
         self._toplevel_deck.set_visible_child(self._login_welcome_page)
 
-    @Gtk.Template.Callback()
-    def _on_login_token_entry_changed(self, entry):
-        self._action_token_submit.set_enabled(
-            self._login_token_entry.get_text()
-        )
-
-    def _on_token_login_submit(self, *args):
-        token = self._login_token_entry.get_text()
-        self._login_token_entry.set_text("")
+    def _on_plugin_token_obtained(self, plugin, token: str):
         self._save_token(token)
-        self.props.application.relaunch()
-
-    @Gtk.Template.Callback()
-    def _on_password_warning_bar_response(self, bar: Gtk.InfoBar, response_id: int):
-        if response_id == Gtk.ResponseType.CLOSE:
-            bar.hide()
-
-    @Gtk.Template.Callback()
-    def _on_email_entry_activate(self, entry):
-        if self._email_entry.get_text():
-            self._password_entry.grab_focus()
-
-    @Gtk.Template.Callback()
-    def _on_password_entries_changed(self, entry):
-        self._action_submit_password.set_enabled(
-            self._email_entry.get_text() and self._password_entry.get_text()
-        )
-
-    def _on_password_login_submit(self, *args):
-        self.set_sensitive(False)
-        threading.Thread(target=self._token_password_retrieval_target).start()
-
-    def _token_password_retrieval_target(self):
-        email = self._email_entry.get_text()
-        password = self._password_entry.get_text()
-        payload = {
-            "login": email,
-            "password": password
-        }
-        r = requests.post(
-            "https://discord.com/api/v9/auth/login", json=payload)
-        if "token" in r.json():
-            GLib.idle_add(
-                self._token_generic_retrieval_gtk_target, r.json()["token"])
-        else:
-            logging.fatal(
-                "Token not found in Discord Password login response, login failed. Incorrect password?")
-            self.props.application.relaunch()
-
-    def _on_web_login_complete(self, grabber, token: str):
-        self._token_generic_retrieval_gtk_target(token)
-
-    def _on_web_login_failed(self, grabber, help: str):
-        self._build_token_grabber()
-
-        dialog = Gtk.MessageDialog(
-            buttons=Gtk.ButtonsType.OK,
-            text="Login Failed",
-            secondary_text=help,
-            modal=True,
-            transient_for=self
-        )
-        dialog.connect("response", lambda *_ : dialog.destroy())
-        dialog.show()
-
-    def _token_generic_retrieval_gtk_target(self, token):
-        if token:
-            self._save_token(token)
         self.props.application.relaunch()
 
     def _save_token(self, token: str):

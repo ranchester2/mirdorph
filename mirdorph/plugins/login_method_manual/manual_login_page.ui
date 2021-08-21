@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <requires lib="gtk" version="4.0" />
+  <requires lib="libadwaita" version="1.0" />
+  <template class="ManualLoginPage" parent="AdwClamp">
+    <property name="vexpand">True</property>
+    <signal name="map" handler="_on_map" />
+    <child>
+      <object class="GtkBox">
+        <property name="orientation">vertical</property>
+        <property name="valign">GTK_ALIGN_CENTER</property>
+        <property name="margin-start">20</property>
+        <property name="margin-end">20</property>
+        <property name="margin-top">20</property>
+        <property name="margin-bottom">20</property>
+        <property name="spacing">20</property>
+        <child>
+          <object class="GtkLabel">
+            <property name="label" translatable="yes">Insert Token</property>
+            <style>
+              <class name="title-2" />
+            </style>
+          </object>
+        </child>
+        <child>
+          <object class="GtkBox">
+            <property name="halign">GTK_ALIGN_CENTER</property>
+            <child>
+              <object class="GtkEntry" id="_token_entry">
+                <property name="width-request">230</property>
+                <property name="activates-default">1</property>
+                <signal name="changed" handler="_on_token_entry_changed" />
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="_token_submit_button">
+                <property name="action-name">manual-login.submit</property>
+                <property name="label" translatable="yes">Insert</property>
+                <style>
+                  <class name="suggested-action" />
+                </style>
+              </object>
+            </child>
+            <style>
+              <class name="linked" />
+            </style>
+          </object>
+        </child>
+      </object>
+    </child>
+  </template>
+</interface>

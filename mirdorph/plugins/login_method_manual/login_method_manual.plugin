@@ -1,0 +1,9 @@
+{
+	"name": "Manual Token Login",
+	"module": "login_method_manual",
+	"description": "Connect your account by inserting your authentication token.",
+	"built_in": true,
+	"authors": [
+		"Raidro Manchester"
+	]
+}

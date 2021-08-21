@@ -42,7 +42,10 @@ class ConfManager(GObject.GObject):
         "tos_notice_accepted": False,
         "send_typing_events": True,
         "preview_links": True,
-        "enabled_extensions": []
+        "enabled_extensions": [
+            "login_method_graphical",
+            "login_method_password"
+        ]
     }
 
     def __init__(self, path: Path = None):

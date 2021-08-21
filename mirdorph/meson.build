@@ -34,13 +34,11 @@ mirdorph_sources = [
   'channel_sidebar.py',
   'confman.py',
   'channel_properties_window.py',
-  'discord_web_grabber.py',
   'typing_indicator.py',
   'settings_window.py',
   'link_preview.py',
   'image_viewer.py',
-  'plugin.py',
-  'get_token.js'
+  'plugin.py'
 ]
 
 install_data(mirdorph_sources, install_dir: moduledir)

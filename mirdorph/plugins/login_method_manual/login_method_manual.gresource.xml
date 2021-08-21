@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gresources>
+  <gresource prefix="/org/gnome/gitlab/ranchester/Mirdorph/plugins/login_method_manual">
+    <file>manual_login_page.ui</file>
+  </gresource>
+</gresources>
