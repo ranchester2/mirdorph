@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gresources>
   <gresource prefix="/org/gnome/gitlab/ranchester/Mirdorph">
+    <file>style.css</file>
     <!-- In addition to the /icons install method, as gresource too as that -->
     <!-- doesn't work everywhere-->
     <file>icons/scalable/status/org.gnome.gitlab.ranchester.Mirdorph.DiscussionsLogo.svg</file>
@@ -11,7 +12,6 @@
     <file>icons/scalable/status/gear-symbolic.svg</file>
     <file>icons/scalable/status/chat-communication.svg</file>
     <file>ui/login_window.ui</file>
-    <file>ui/gtk_style.css</file>
     <file>ui/main_window.ui</file>
     <file>ui/channel_inner_window.ui</file>
     <file>ui/message_entry_bar.ui</file>

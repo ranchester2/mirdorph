@@ -31,8 +31,7 @@ from .confman import ConfManager
 from .plugin import MrdPluginEngine, MrdExtensionSet, MrdApplicationPlugin
 
 
-class Application(Gtk.Application):
-
+class Application(Adw.Application):
     def __init__(self, discord_loop, discord_client, keyring_exists=False):
         super().__init__(application_id="org.gnome.gitlab.ranchester.Mirdorph",
                          flags=Gio.ApplicationFlags.FLAGS_NONE)
@@ -56,8 +55,7 @@ class Application(Gtk.Application):
         self.custom_member_cache = {}
 
     def do_startup(self):
-        Gtk.Application.do_startup(self)
-        Adw.init()
+        Adw.Application.do_startup(self)
         # Better to do this here as extensions can have the running lifetime of
         # the entire application
         for plugin in self.plugin_engine.get_available_plugins():
@@ -109,16 +107,6 @@ class Application(Gtk.Application):
                 )
 
     def do_activate(self):
-        provider = Gtk.CssProvider()
-        provider.load_from_resource(
-            "/org/gnome/gitlab/ranchester/Mirdorph/ui/gtk_style.css"
-        )
-        Gtk.StyleContext.add_provider_for_display(
-            Gdk.Display.get_default(),
-            provider,
-            Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
-        )
-
         logging.info("clearing cache")
         cache_dir_path = Path(os.environ["XDG_CACHE_HOME"] / Path("mirdorph"))
         cache_dir_path.mkdir(exist_ok=True)
