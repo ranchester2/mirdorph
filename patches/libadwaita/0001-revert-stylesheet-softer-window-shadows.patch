@@ -1,0 +1,45 @@
+From 31dc61d91d3602af18ca8c48a532479a26a3b73c Mon Sep 17 00:00:00 2001
+From: Raidro Manchester <raibo.quadrofus@gmail.com>
+Date: Sat, 28 Aug 2021 10:35:52 +0300
+Subject: [PATCH] Revert "stylesheet: Softer window shadows"
+
+It makes it barely usable on X11 as the default sizes are completely
+wrong.
+This reverts commit 1ca63211d69b7d44401efccd62409c81a27f86eb.
+---
+ src/stylesheet/widgets/_window.scss | 12 ++++--------
+ 1 file changed, 4 insertions(+), 8 deletions(-)
+
+diff --git a/src/stylesheet/widgets/_window.scss b/src/stylesheet/widgets/_window.scss
+index e447e18..01ec0a8 100644
+--- a/src/stylesheet/widgets/_window.scss
++++ b/src/stylesheet/widgets/_window.scss
+@@ -8,10 +8,8 @@ window {
+   $_wm_border_backdrop: if($variant=='light', transparentize(black, 0.82), transparentize(black, 0.25));
+ 
+   &.csd {
+-    box-shadow: 0 1px 3px 3px transparent,
+-                0 2px 8px 2px transparentize(black, 0.87),
+-                0 3px 20px 10px transparentize(black, 0.91),
+-                0 6px 32px 16px transparentize(black, 0.96),
++    box-shadow: 0 3px 9px 1px transparentize(black, 0.5),
++                0 2px 6px 2px transparent,
+                 0 0 0 1px $_wm_border; //doing borders with box-shadow
+     margin: 0px;
+     border-radius: $window_radius;
+@@ -27,10 +25,8 @@ window {
+       // change when we go to backdrop, to prevent jumping windows.
+       // The biggest shadow should be in the same order then in the active state
+       // or the jumping will happen during the transition.
+-      box-shadow: 0 1px 3px 3px transparentize(black, 0.91),
+-                  0 2px 14px 5px transparentize(black, 0.95),
+-                  0 4px 28px 12px transparentize(black, 0.97),
+-                  0 6px 32px 16px transparent,
++      box-shadow: 0 3px 9px 1px transparent,
++                  0 2px 6px 2px transparentize(black, 0.8),
+                   0 0 0 1px $_wm_border_backdrop;
+       transition: $backdrop_transition;
+     }
+-- 
+2.31.1
+

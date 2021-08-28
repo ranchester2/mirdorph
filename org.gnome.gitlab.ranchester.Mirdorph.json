@@ -1521,7 +1521,11 @@
 				{
 					"type": "git",
 					"url": "https://gitlab.gnome.org/GNOME/libadwaita.git",
-					"commit": "3b43f1e2a3728c5fbf8b7701c385141f12a91f19"
+					"commit": "8442d6097b36c17e87582525ceab3ce3d5bccd48"
+				},
+				{
+					"type": "patch",
+					"path": "./patches/libadwaita/0001-revert-stylesheet-softer-window-shadows.patch"
 				}
 			]
 		},
